@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url = env("DATABASE_URL")
+}
+
+model Applicant {
+  ID Int @id @default(autoincrement())
+  firstname String @db.VarChar(50)
+  moreFirstname String? @db.VarChar(50)
+  lastname String @db.VarChar(50)
+  posts Contact[]
+  applications Application[]
+}
+
+model Contact {
+  ID  Int @id @default(autoincrement())
+  title String @db.VarChar(50)
+  degree String @db.VarChar(50)
+  firstname String @db.VarChar(50)
+  moreFirstname String? @db.VarChar(50)
+  lastname String  
+
+  applicant Applicant @relation(fields: [applicantID], references: [ID])
+  applicantID Int
+}
+
+model SchoolReport {
+  ID Int @id @default(autoincrement())
+  gerGrade Int
+  gerGroup Int
+}
+
+model SchoolClass {
+  ID Int @id @default(autoincrement())
+  title String @db.VarChar(50)
+  year String @db.VarChar(20)
+  maxPupils Int
+  applications Application[]
+}
+
+model ContactType {
+  ID Int @id @default(autoincrement())
+  title String @db.VarChar(50)
+}
+
+model Application {
+  applicant Applicant @relation(fields: [applicantID], references: [ID])
+  applicantID Int
+
+  schoolClass SchoolClass @relation(fields: [schoolClassID], references: [ID])
+  schoolClassID Int
+
+  @@id([applicantID, schoolClassID])
+}
+
+model Country {
+  ID Int @id @default(autoincrement())
+  title String @db.VarChar(50)
+}
+
+model Language {
+  ID Int @id @default(autoincrement())
+  title String @db.VarChar(50)
+}
+
+model Religion {
+  ID Int @id @default(autoincrement())
+  title String @db.VarChar(50)
+}

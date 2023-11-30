@@ -1,0 +1,25 @@
+DATABASE_URL="mongodb://USER:PASS@HOST:27017/htlApplication?authSource=admin&replicaSet=rs0&directConnection=true"
+EXPRESS_PORT=3000
+TZ='Europe/Vienna'
+
+MOSQUITTO_URL='mqtt://mosquitto:1883'
+MOSQUITTO_USER='mosquitto'
+MOSQUITTO_PASSWORD='infoscreen'
+
+JWT_EXPIRATION_TIME='600m'
+
+RSA_PUBLIC_KEY=""
+RSA_PRIVATE_KEY=""
+
+HMAC_SECRET=""
+
+EMAIL_VERIFICATION_TOKEN_SECRET='mail token secret'
+EMAIL_VERIFICATION_TOKEN_EXPIRATION_TIME='1d'
+EMAIL_CONFIRMATION_URL="http://localhost:4200/confirm-email"
+
+
+SMTP_HOST=""
+SMTP_PORT=587
+SMTP_USERNAME=""
+SMTP_PASSWORD=""
+SMTP_DEFAULTS_FROM=""

@@ -2,75 +2,177 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
-  url = env("DATABASE_URL")
+    provider = "mongodb"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+	id				String		@id @default(auto()) @map("_id") @db.ObjectId
+	schema			Int			@default(1)
+
+	name			String
+	email			String		@unique
+
+	passwordHash	String?
+	active			Boolean		@default(true)
+
+	createdAt		DateTime	@default(now())
 }
 
 model Applicant {
-  ID Int @id @default(autoincrement())
-  firstname String @db.VarChar(50)
-  moreFirstname String? @db.VarChar(50)
-  lastname String @db.VarChar(50)
-  posts Contact[]
-  applications Application[]
+    id            			String      @id @default(auto()) @map("_id") @db.ObjectId
+	schema					Int			@default(1)
+
+	contactEmail			String		@unique
+	emailConfirmed			Boolean		@default(false)
+
+	passwordHash			String?
+	active					Boolean		@default(true)
+
+	details					ApplicantDetails?
+    contacts      			Contact[]
+    applications  			Application[]
+    schoolReport  			SchoolReport?
+
+	createdAt				DateTime	@default(now())
 }
 
-model Contact {
-  ID  Int @id @default(autoincrement())
-  title String @db.VarChar(50)
-  degree String @db.VarChar(50)
-  firstname String @db.VarChar(50)
-  moreFirstname String? @db.VarChar(50)
-  lastname String  
-
-  applicant Applicant @relation(fields: [applicantID], references: [ID])
-  applicantID Int
-}
-
-model SchoolReport {
-  ID Int @id @default(autoincrement())
-  gerGrade Int
-  gerGroup Int
-}
-
-model SchoolClass {
-  ID Int @id @default(autoincrement())
-  title String @db.VarChar(50)
-  year String @db.VarChar(20)
-  maxPupils Int
-  applications Application[]
-}
-
-model ContactType {
-  ID Int @id @default(autoincrement())
-  title String @db.VarChar(50)
+type ApplicantDetails {
+    firstname     			String
+    moreFirstname			String?
+    lastname      			String
+	birthdate				DateTime
+	svnr					String
+	svInstitution			String
+	countryOfBirth			String		//Country
+	placeOfBirth			String
+	nationality				String		//Country
+	language				String		//Language
+	sex						String		//Sex
+	religion				String		//Religion
+	schoolAge				Boolean
+	schoolHome				Boolean
+	previousSchoolTxt		String
+	previousSchoolNum		String
+	previousSchoolAddress	String
+	secondChoiceSchool		String
+	annotation				String
 }
 
 model Application {
-  applicant Applicant @relation(fields: [applicantID], references: [ID])
-  applicantID Int
+    id          	String    		@id @default(auto()) @map("_id") @db.ObjectId
+	schema			Int				@default(1)
 
-  schoolClass SchoolClass @relation(fields: [schoolClassID], references: [ID])
-  schoolClassID Int
+	priority		Int
 
-  @@id([applicantID, schoolClassID])
+    applicant   	Applicant 		@relation(fields: [applicantID], references: [id])
+    applicantID		String    		@db.ObjectId
+
+    schoolClass   	SchoolClass 	@relation(fields: [schoolClassID], references: [id])
+    schoolClassID 	String      	@db.ObjectId
+
+	statusKey		String			//ApplicationStatus
+
+	createdAt		DateTime		@default(now())
+}
+type Contact {
+    title          			String
+    degree					String
+	sufixDegree				String
+    firstname     			String
+    moreFirstname 			String?
+    lastname      			String
+	birthdate				DateTime
+	svnr					String
+	country					String		//Country
+	zip						String
+	city					String
+	street					String
+	streetNr				String
+	phone					String
+	email					String
+	legalGardian			Boolean
+	pupilLivesHere			Boolean
+	isHomeAddress			Boolean
+	pupilInBoardingSchool	Boolean
+	clearenceDigitalSchool	Boolean
+	liableToPay				Boolean
+	decitionTo				Boolean
+	postTo					Boolean
+
+	contactTypeKey	  		String
+}
+
+type SchoolReport {
+    gerGrade 		Int
+    gerGroup 		Int
+	engGrade		Int
+	engGroup		Int
+	mathGrade		Int
+	mathGroup		Int
+	history			Int
+	geography		Int
+	chemistry		Int
+	physics			Int
+}
+
+model SchoolClass {
+    id          	String		@id @default(auto()) @map("_id") @db.ObjectId
+	schema			Int			@default(1)
+
+    title       	String
+    year        	String
+    maxPupils   	Int
+	active			Boolean		@default(true)
+    applications	Application[]
+
+	@@unique([title, year])
+}
+
+model ContactType {
+    id    	String 	@id @default(auto()) @map("_id") @db.ObjectId
+	schema	Int		@default(1)
+
+	key		String	@unique
+    title 	String
 }
 
 model Country {
-  ID Int @id @default(autoincrement())
-  title String @db.VarChar(50)
+    id    	String 	@id @default(auto()) @map("_id") @db.ObjectId
+	schema	Int		@default(1)
+
+    title 	String	@unique
 }
 
 model Language {
-  ID Int @id @default(autoincrement())
-  title String @db.VarChar(50)
+    id    	String 	@id @default(auto()) @map("_id") @db.ObjectId
+	schema	Int		@default(1)
+
+    title 	String	@unique
 }
 
 model Religion {
-  ID Int @id @default(autoincrement())
-  title String @db.VarChar(50)
+    id    	String 	@id @default(auto()) @map("_id") @db.ObjectId
+	schema	Int		@default(1)
+
+    title 	String	@unique
+}
+
+model ApplicationStatus {
+    id    	String 	@id @default(auto()) @map("_id") @db.ObjectId
+	schema	Int		@default(1)
+
+	key		String  @unique
+    title 	String
+}
+
+model Sex {
+    id    	String 	@id @default(auto()) @map("_id") @db.ObjectId
+	schema	Int		@default(1)
+
+    title 	String	@unique
 }

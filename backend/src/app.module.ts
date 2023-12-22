@@ -8,6 +8,12 @@ import { EmailConfirmationModule } from './email-confirmation/email-confirmation
 import { ConfigModule } from '@nestjs/config';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { mailConfig } from './config/mail.config';
+import { LanguageModule } from './language/language.module';
+import { ReligionModule } from './religion/religion.module';
+import { CountryModule } from './country/country.module';
+import { ContactTypeModule } from './contact-type/contact-type.module';
+import { ApplicationStatusModule } from './application-status/application-status.module';
+import { SexModule } from './sex/sex.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -17,6 +23,12 @@ import { mailConfig } from './config/mail.config';
     EmailConfirmationModule,
     ApplicantModule,
     ApplicationModule,
+    LanguageModule,
+    ReligionModule,
+    CountryModule,
+    ContactTypeModule,
+    ApplicationStatusModule,
+    SexModule,
   ],
   controllers: [AppController],
   providers: [],

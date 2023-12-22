@@ -1,0 +1,93 @@
+import { useMemo, useState } from 'react'
+import { Row } from 'react-bootstrap'
+import { Country } from '../models/country.model'
+import { ApiService } from '../services/api.service'
+import { ContactType} from '../models/contact.model'
+import { FormInput } from './form/contact/FormInput'
+import { FormSelect } from './form/contact/FormSelect'
+import { FormCheck } from './form/contact/FormCheck'
+import { FormatDateInput } from './form/contact/FormatDateInput'
+import { ContactProvider } from '../contexts/contact.context'
+import { useFormContext } from 'react-hook-form'
+import { Applicant } from '../models/applicant.model'
+
+interface Props {
+    type: ContactType
+    index: number
+    parent?: boolean
+    require?: boolean
+}
+
+const Contact = (props: Props) => {
+    const apiService = useMemo(() => new ApiService(), [])
+
+    const [type, setType] = useState(props.type)
+    const [parent, setParent] = useState(props.parent)
+    const [index, setIndex] = useState(props.index)
+    const [require, setRequire] = useState(props.require)
+
+    const {
+        register
+    } = useFormContext<Applicant>()
+
+    const getCountries = (inputValue: string) => {
+        return apiService.get<Country[]>(Country, undefined, { title: inputValue })
+    }
+
+    return (
+        <ContactProvider index={index}>
+            {parent ? 
+            <>
+                <Row>
+                    <FormInput className="col-2" attr="title" title="Anrede*" />
+                    <FormInput className="col-2" attr="degree" title="Akad.Grad" />
+                    <FormInput className="col-2" attr="sufixDegree" title="Akad. Grad nachg." />
+                </Row>
+
+                <Row>
+                    <FormInput className="col-3" attr="firstname" title="Vorname*" required={require}/>
+                    <FormInput className="col-3" attr="moreFirstname" title="Weitere Vornamen"/>
+                    <FormInput className="col-3" attr="lastname" title="Nachname*" required={require}/>               
+                </Row>
+
+                <Row className='mt-3 mb-3'>
+                    <FormatDateInput className="col-lg-2" attr="birthdate" title="Geburtsdatum*" required={require} />
+                    <FormInput className="col-lg-2" attr="svnr" title="SVN*" required={require}/>
+                </Row>
+            </> : null}
+
+            <input
+                type="hidden"
+                {...register(`contacts.${index}.contactTypeKey`)}
+                defaultValue={type}
+            />
+
+            <Row className='mt-3'>
+                <FormInput className="col-lg-3" attr="street" title="Straße*" required={require}/>
+                <FormInput className="col-lg-1" attr="streetNr" title="Hausnummer*" required={require}/>                
+            </Row>
+            <Row>
+                <FormInput className="col-lg-2" attr="zip" title="PLZ*" required={require}/>
+                <FormInput className="col-lg-3" attr="city" title="Ort*" required={require}/> 
+                <FormSelect className="col-lg-3" attr="country" title="Land*" required={require} loadOptions={getCountries}/>                
+            </Row>
+
+            <Row>
+                <FormInput className="col-lg-3" attr="phone" title="Telefonnummer*" required={require}/>
+                <FormInput className="col-lg-3" attr="email" title="Email*" required={require} type="email"/>                   
+            </Row>                      
+
+            { parent ?
+                <FormCheck className="col-lg" attr="legalGardian" title="Erziehungsberechtigt"/>
+            : null}
+
+            <FormCheck className="col-lg" attr="liableToPay" title="Zahlungspflichtig"/>
+            <FormCheck className="col-lg" attr="decitionTo" title="Entscheide an"/>
+            <FormCheck className="col-lg" attr="postTo" title="Post an"/>
+            <FormCheck className="col-lg" attr="pupilInBoardingSchool" title="Internat oder Extern"/>
+            <FormCheck className="col-lg" attr="primaryResidenz" title="Hauptwohnsitz"/>
+        </ContactProvider>
+    )
+}
+
+export default Contact

@@ -42,25 +42,25 @@ model Applicant {
 }
 
 type ApplicantDetails {
-    firstname     			String
+    firstname     			String?
     moreFirstname			String?
-    lastname      			String
-	birthdate				DateTime
-	svnr					String
-	svInstitution			String
-	countryOfBirth			String		//Country
-	placeOfBirth			String
-	nationality				String		//Country
-	language				String		//Language
-	sex						String		//Sex
-	religion				String		//Religion
-	schoolAge				Boolean
-	schoolHome				Boolean
-	previousSchoolTxt		String
-	previousSchoolNum		String
-	previousSchoolAddress	String
-	secondChoiceSchool		String
-	annotation				String
+    lastname      			String?
+	birthdate				DateTime?
+	svnr					String?
+	svInstitution			String?
+	countryOfBirth			String?		//Country
+	placeOfBirth			String?
+	nationality				String?		//Country
+	language				String?		//Language
+	sex						String?		//Sex
+	religion				String?		//Religion
+	schoolAge				Boolean?
+	//schoolHome				Boolean
+	previousSchoolTxt		String?
+	previousSchoolNum		String?
+	previousSchoolAddress	String?
+	secondChoiceSchool		String?
+	annotation				String?
 }
 
 model Application {
@@ -80,44 +80,48 @@ model Application {
 	createdAt		DateTime		@default(now())
 }
 type Contact {
-    title          			String
-    degree					String
-	sufixDegree				String
-    firstname     			String
+    title          			String?
+    degree					String?
+	sufixDegree				String?
+    firstname     			String?
     moreFirstname 			String?
-    lastname      			String
-	birthdate				DateTime
-	svnr					String
-	country					String		//Country
-	zip						String
-	city					String
-	street					String
-	streetNr				String
-	phone					String
-	email					String
-	legalGardian			Boolean
-	pupilLivesHere			Boolean
-	isHomeAddress			Boolean
-	pupilInBoardingSchool	Boolean
-	clearenceDigitalSchool	Boolean
-	liableToPay				Boolean
-	decitionTo				Boolean
-	postTo					Boolean
+    lastname      			String?
+	birthdate				DateTime?
+	svnr					String?
+	country					String?		//Country
+	zip						String?
+	city					String?
+	street					String?
+	streetNr				String?
+	phone					String?
+	email					String?
+
+	legalGardian			Boolean?
+	liableToPay				Boolean?
+	decitionTo				Boolean?
+	postTo					Boolean?
+	pupilInBoardingSchool	Boolean?
+	primaryResidenz			Boolean?		//Hauptwohnsitz
+
+//	clearenceDigitalSchool	Boolean		
+//	pupilLivesHere			Boolean
+//	isHomeAddress			Boolean
+
 
 	contactTypeKey	  		String
 }
 
 type SchoolReport {
-    gerGrade 		Int
-    gerGroup 		Int
-	engGrade		Int
-	engGroup		Int
-	mathGrade		Int
-	mathGroup		Int
-	history			Int
-	geography		Int
-	chemistry		Int
-	physics			Int
+    gerGrade 		Int?
+    gerGroup 		Int?
+	engGrade		Int?
+	engGroup		Int?
+	mathGrade		Int?
+	mathGroup		Int?
+	historyGrade	Int?
+	geographyGrade	Int?
+	chemistryGrade	Int?
+	physicsGrade	Int?
 }
 
 model SchoolClass {

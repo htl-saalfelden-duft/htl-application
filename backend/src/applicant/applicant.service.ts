@@ -11,7 +11,15 @@ export class ApplicantService {
     constructor(private prisma: PrismaService) {}
 
     getOne(select: Prisma.ApplicantSelect, where: Prisma.ApplicantWhereUniqueInput): Promise<Applicant> {
-      return this.prisma.applicant.findUnique({select, where})
+      return this.prisma.applicant.findUnique({
+        //select,
+        where,
+        include: { applications: { include: {schoolClass: true }}}
+      })
+      .then(applicant => {
+        delete applicant.passwordHash
+        return applicant
+      })
     }
   
     getMany(): Promise<Applicant[]> {
@@ -27,12 +35,22 @@ export class ApplicantService {
   
     update(params: {
         where: Prisma.ApplicantWhereUniqueInput;
-        data: Prisma.ApplicantUpdateInput;
-      }) {
+        data: any
+      }): Promise<Applicant> {
         const { data, where } = params;
+        const { details, schoolReport, contacts, applications } = data
+
         return this.prisma.applicant.update({
             where,
-            data,
+            data: {
+              details,
+              contacts,
+              schoolReport,
+              applications: {
+                deleteMany: {},
+                createMany: {data: applications}
+              }
+            }
         })        
     }
   

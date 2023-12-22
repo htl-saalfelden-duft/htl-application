@@ -2,10 +2,11 @@ import { useLocation } from 'react-router-dom';
 import { ApiService } from '../services/api.service';
 import { Applicant } from '../models/applicant.model';
 import { Container } from 'react-bootstrap';
+import { useMemo } from 'react';
 
 const ConfirmEmail = () => {
   const location = useLocation();
-  const apiService = new ApiService()
+  const apiService = useMemo(() => new ApiService(), [])
   const token = new URLSearchParams(location.search).get('token');
     
     const confirmEmail = () => {

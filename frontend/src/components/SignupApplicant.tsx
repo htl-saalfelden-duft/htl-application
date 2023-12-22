@@ -2,24 +2,25 @@ import { useForm } from 'react-hook-form';
 
 import "./SignupApplicant.scss"
 import { Button, Card, CardBody, Container, Form, Row } from 'react-bootstrap';
-import { ApplicantService } from '../services/applicant.service';
+import { AuthService } from '../services/auth.service';
 
-interface IFormInput {
+export interface SignUpFormInput {
 	contactEmail: string
 	password: string
 	passwordConfirmation: string
 }
 
 const SignupApplicant = () => {
+	const authService = new AuthService()
 
 	const { 
 		register, 
 		handleSubmit,
 		formState: { errors }
-	} = useForm<IFormInput>()
+	} = useForm<SignUpFormInput>()
 
 	const onSubmit = handleSubmit((data) => {
-		ApplicantService.register(data)
+		authService.signUp(data)
 	})
 
 	return (

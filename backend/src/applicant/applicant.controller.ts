@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Request } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Post, Request } from "@nestjs/common";
 import { Applicant, Prisma } from "@prisma/client";
 import { Observable, from, map, mergeMap } from "rxjs";
 import { Public } from "src/auth/public.decorator";
@@ -27,6 +27,21 @@ export class ApplicantController {
     }, { 
       id: req.user.id 
     })
+  }
+
+  @Get(':id')
+  async getOne(@Param('id') id: string): Promise<Applicant> {
+      return this.applicantService.getOne(null, {
+        id
+      })
+  }
+
+  @Patch(':id')
+  update(@Body() dto: Applicant): Promise<Applicant> {
+      return this.applicantService.update({
+        where: { id: dto.id },
+        data: dto
+      })
   }
 
   @Public()

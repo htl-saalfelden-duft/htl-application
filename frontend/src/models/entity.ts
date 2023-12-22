@@ -18,7 +18,15 @@ export class Entity {
         }
         result = result[0] !== '-' ? result : result.substr(1);
         if (pluralize) {
-            const suffix = result.endsWith('s') ? 'es' : 's'
+            let suffix = 's'
+
+            if(result.endsWith('s')) {
+                suffix = 'es'
+            }
+            if(result.endsWith('y')) {
+                suffix = 'ies'
+            }            
+
             result = result.concat(suffix);
         }
         return result;

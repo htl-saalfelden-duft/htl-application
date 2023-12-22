@@ -13,17 +13,17 @@ function App() {
   return (
     <AuthProvider>
       <ToastContainer />
-        <Router>
-          <Routes>
-            <Route index element={<Navigate to="home" replace />} />
-            <Route path="signin" element={<SignIn />} />
-            <Route path="signup-applicant" element={<SignupApplicant />} />
-            <Route path="confirm-email" element={<ConfirmEmail />} />
-            <Route element={<ProtectedRoute/>}>
+      <Router>
+        <Routes>
+          <Route index element={<Navigate to="home" replace />} />
+          <Route path="signin" element={<SignIn />} />
+          <Route path="signup-applicant" element={<SignupApplicant />} />
+          <Route path="confirm-email" element={<ConfirmEmail />} />
+          <Route element={<ProtectedRoute />}>
               <Route path="home" element={<Home />} />
-            </Route>
-          </Routes>
-        </Router>
+          </Route>
+        </Routes>
+      </Router>
     </AuthProvider>
   );
 }

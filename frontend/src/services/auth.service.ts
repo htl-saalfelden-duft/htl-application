@@ -1,3 +1,4 @@
+import { SignUpFormInput } from "../components/SignupApplicant";
 import { Applicant } from "../models/applicant.model";
 import { ApiService } from "./api.service";
 import moment from 'moment';
@@ -19,6 +20,10 @@ export class AuthService extends ApiService {
         .then(applicant => {
             return applicant
         })
+    }
+
+    signUp(data: SignUpFormInput) {
+        return this.post(Applicant, 'register', data)
     }
 
     signIn(authUser: AuthUserDto) {

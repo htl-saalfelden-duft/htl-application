@@ -8,7 +8,7 @@ export class ApiService {
         return api.get<T>(url, { params }).then(response => response.data)
     }
 
-    get<T>(target: EntityType<T>, id?: number, params?: any): Promise<T> {
+    get<T>(target: EntityType<T>, id?: string, params?: any): Promise<T> {
         const route = Entity.getRoute(target);
         const url: string = id ? `${route}/${id}` : `${route}`;
         return api.get<T>(url, { params }).then(response => response.data)
@@ -26,7 +26,7 @@ export class ApiService {
         return promise.then(response => response.data)
     }
 
-    delete<T>(target: EntityType<T>, id: number): Promise<any> {
+    delete<T>(target: EntityType<T>, id: string): Promise<any> {
         const route = Entity.getRoute(target)
         return api.delete<T>(`${route}/${id}`).then(response => response.data)
     }

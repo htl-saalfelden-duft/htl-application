@@ -1,2 +1,2 @@
 #!/bin/bash
-sudo docker-compose exec --user 1000 backend sh -c "su npm run prisma:g"
+sudo docker-compose exec --user root backend sh -c "npm run prisma:g"

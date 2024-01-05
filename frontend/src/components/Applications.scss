@@ -1,0 +1,17 @@
+.application-table {
+    .col-prio {
+        width: 100px;
+    }
+    
+    .col-action {
+        width: 200px;
+    }
+
+    .form-control {
+        padding: 0;
+    }
+
+    .form-control.is-invalid {
+        padding-right: calc(1.5em + 0.75rem);
+    }
+}

@@ -14,6 +14,8 @@ import { CountryModule } from './country/country.module';
 import { ContactTypeModule } from './contact-type/contact-type.module';
 import { ApplicationStatusModule } from './application-status/application-status.module';
 import { SexModule } from './sex/sex.module';
+import { SchoolClassModule } from './school-class/school-class.module';
+import { SchoolReportGroupModule } from './school-report-group/school-report-group.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -29,6 +31,8 @@ import { SexModule } from './sex/sex.module';
     ContactTypeModule,
     ApplicationStatusModule,
     SexModule,
+    SchoolClassModule,
+    SchoolReportGroupModule,
   ],
   controllers: [AppController],
   providers: [],

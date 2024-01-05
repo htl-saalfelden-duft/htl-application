@@ -1,3 +1,9 @@
 
 @import '~bootstrap/scss/bootstrap';
-@import '~react-datepicker/src/stylesheets/datepicker'
+@import '~react-datepicker/src/stylesheets/datepicker';
+
+:root,
+[data-bs-theme=light] {
+    --bs-form-invalid-background-color: #dc35451c;
+    --bs-form-valid-background-color: #dc35451c;
+}

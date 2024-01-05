@@ -4,8 +4,9 @@ import { Controller, useFormContext } from "react-hook-form"
 import { Applicant } from "../../../models/applicant.model"
 import { Contact as IContact } from '../../../models/contact.model'
 import { useContact } from "../../../contexts/contact.context"
+import { ErrorMessege } from "./ErrorMessage"
 
-export const FormatDateInput = (props: {
+export const FormDateInput = (props: {
     attr: keyof IContact,
     title: string,
     required?: boolean,
@@ -22,7 +23,7 @@ export const FormatDateInput = (props: {
     return (
         <Form.Group className={`mb-3 ${className}`}>
             <Form.Label htmlFor={`contacts.${index}.${attr}`}>
-                {title}
+                {title}{required ? '*' : null}
             </Form.Label>
             <Controller
                 control={control}
@@ -44,13 +45,7 @@ export const FormatDateInput = (props: {
                         selected={field.value ? new Date(field.value as string) : undefined}
                     />
                 )} />
-            {errors.contacts &&
-                errors.contacts[index] &&
-                errors.contacts[index]![attr] && (
-                    <Form.Text className="text-danger">
-                        {errors.contacts![index]![attr]?.message}
-                    </Form.Text>
-                )}
+            <ErrorMessege errors={errors} index={index} attr={attr}/>
         </Form.Group>
     )
 }

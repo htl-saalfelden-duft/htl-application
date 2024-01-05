@@ -20,6 +20,7 @@ interface Contact {
     liableToPay: string
     decitionTo: string
     postTo: string
+    annotation: string
     contactTypeKey: string
 }
 

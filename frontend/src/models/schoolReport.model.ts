@@ -1,12 +1,18 @@
+import { Entity } from "../common/decorators/entity.decorator"
+
 export interface SchoolReport {
-    gerGrade?: 		Number
-    gerGroup?:		Number
-	engGrade?:	    Number
-	engGroup?:	    Number
-	mathGrade?:	    Number
-	mathGroup?:	    Number
-	historyGrade?:	Number
-	geographyGrade?:	Number
-	chemistryGrade?:	Number
-	physicsGrade?:	Number
+    gerGrade?: 		number
+    gerGroup?:		string
+	engGrade?:	    number
+	engGroup?:	    string
+	mathGrade?:	    number
+	mathGroup?:	    string
+	historyGrade?:	number
+	geographyGrade?:	number
+	chemistryGrade?:	number
+	physicsGrade?:	number
+}
+@Entity('schoolReportGroup')
+export class SchoolReportGroups {
+	title!: string
 }

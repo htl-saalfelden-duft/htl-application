@@ -1,11 +1,12 @@
 .list-group-item {
     border-top-width: 1px !important;
-    margin-top: 4px;
+    margin-top: 1px;
 }
 
 .invalid {
     border-top-width: 1px !important;
     border-color: var(--bs-form-invalid-border-color);
+    background-color: var(--bs-form-invalid-background-color);
     padding-right: calc(1.5em + 0.75rem);
     background-image: url("../assets/images/invalid.svg");
     background-repeat: no-repeat;

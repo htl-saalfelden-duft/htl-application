@@ -2,19 +2,17 @@ import { Form } from "react-bootstrap"
 import { Controller, useFormContext } from "react-hook-form"
 import AsyncSelect from 'react-select/async'
 import { Applicant } from "../../../models/applicant.model"
-import { Contact as IContact } from '../../../models/contact.model'
-import { useContact } from "../../../contexts/contact.context"
 import { ErrorMessege } from "./ErrorMessage"
+import { ApplicantDetails } from "../../../models/applicant-details.model"
 
 export const FormSelect = (props: {
-    attr: keyof IContact,
+    attr: keyof ApplicantDetails,
     title: string,
     loadOptions(inputValue: string): Promise<any>;
     required?: boolean,
     className?: string
 }) => {
     const { attr, title, required, className, loadOptions } = props
-    const { index } = useContact()
     const {
         control,
         formState: { errors }
@@ -23,12 +21,12 @@ export const FormSelect = (props: {
     return (
 
         <Form.Group className={`mb-3 ${className}`}>
-            <Form.Label htmlFor={`contacts.${index}.${attr}`}>
+            <Form.Label htmlFor={`details.${attr}`}>
                 {title}{required ? '*' : null}
             </Form.Label>
             <Controller
                 control={control}
-                name={`contacts.${index}.${attr}`}
+                name={`details.${attr}`}
                 rules={{
                     required: (required ? `Bitte ${title} angeben` : undefined)
                 }}
@@ -40,11 +38,11 @@ export const FormSelect = (props: {
                         value={{ title: field.value }}
                         onChange={val => field.onChange(val?.title)}
                         getOptionLabel={option => option.title as string}
-                        inputId={`contacts.${index}.${attr}`}
+                        inputId={`details.${attr}`}
                     />
                 )}
             />
-            <ErrorMessege errors={errors} index={index} attr={attr}/>
+            <ErrorMessege errors={errors} attr={attr}/>
         </Form.Group>
     )
 }

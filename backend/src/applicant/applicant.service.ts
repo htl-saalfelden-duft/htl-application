@@ -10,11 +10,18 @@ import { SignInDto } from 'src/auth/sign-in.dto';
 export class ApplicantService {
     constructor(private prisma: PrismaService) {}
 
+    // Exclude keys from user
+    // exclude<Applicant, Key extends keyof Applicant>(applicant: Applicant, keys: Key[]): Omit<Applicant, Key> {
+    //   return Object.fromEntries(
+    //     Object.entries(applicant).filter(([key]) => !keys.includes("key")
+    //   )
+    // }
+
     getOne(select: Prisma.ApplicantSelect, where: Prisma.ApplicantWhereUniqueInput): Promise<Applicant> {
       return this.prisma.applicant.findUnique({
         //select,
         where,
-        include: { applications: { include: {schoolClass: true }}}
+        include: { applications: { include: {schoolClass: true}}}
       })
       .then(applicant => {
         delete applicant.passwordHash
@@ -35,10 +42,10 @@ export class ApplicantService {
   
     update(params: {
         where: Prisma.ApplicantWhereUniqueInput;
-        data: any
+        data: Prisma.ApplicantUpdateInput
       }): Promise<Applicant> {
         const { data, where } = params;
-        const { details, schoolReport, contacts, applications } = data
+        const { details, schoolReport, contacts, applications } = data;
 
         return this.prisma.applicant.update({
             where,
@@ -48,7 +55,7 @@ export class ApplicantService {
               schoolReport,
               applications: {
                 deleteMany: {},
-                createMany: {data: applications}
+                createMany: {data: applications as Prisma.ApplicationCreateManyApplicantInput }
               }
             }
         })        

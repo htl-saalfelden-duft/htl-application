@@ -3,6 +3,7 @@
 
 generator client {
     provider = "prisma-client-js"
+	binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -55,7 +56,7 @@ type ApplicantDetails {
 	sex						String?		//Sex
 	religion				String?		//Religion
 	schoolAge				Boolean?
-	//schoolHome				Boolean
+	boardingSchool			Boolean?
 	previousSchoolTxt		String?
 	previousSchoolNum		String?
 	previousSchoolAddress	String?
@@ -103,21 +104,22 @@ type Contact {
 	pupilInBoardingSchool	Boolean?
 	primaryResidenz			Boolean?		//Hauptwohnsitz
 
+	annotation				String?
+
 //	clearenceDigitalSchool	Boolean		
 //	pupilLivesHere			Boolean
 //	isHomeAddress			Boolean
-
 
 	contactTypeKey	  		String
 }
 
 type SchoolReport {
     gerGrade 		Int?
-    gerGroup 		Int?
+    gerGroup 		String?	//SchoolReportGroup
 	engGrade		Int?
-	engGroup		Int?
+	engGroup		String?	//SchoolReportGroup
 	mathGrade		Int?
-	mathGroup		Int?
+	mathGroup		String?	//SchoolReportGroup
 	historyGrade	Int?
 	geographyGrade	Int?
 	chemistryGrade	Int?
@@ -179,4 +181,11 @@ model Sex {
 	schema	Int		@default(1)
 
     title 	String	@unique
+}
+
+model SchoolReportGroup {
+    id    	String 	@id @default(auto()) @map("_id") @db.ObjectId
+	schema	Int		@default(1)
+
+    title 	String @unique
 }

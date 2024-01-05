@@ -1,15 +1,5 @@
 # htl_application
 
-## Deployment
-
-```sh
-ssh-copy-id -i id_rsa_world4you_htl htl
-
-dnf install git-all
-
-dnf module install nodejs:18/common
-```
-
 ## Mongo-Replica-Set
 Generate keyfile
 ```sh
@@ -52,5 +42,10 @@ sudo docker compose up --build -V
 ### Seeding DB
 ```sh
 npm run db:seed
+```
+
+### Nest generate
+```
+npx nest generate mo school-class
 ```
 

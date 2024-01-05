@@ -19,8 +19,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "db:push": "./scripts/db-push.sh",
-    "db:migrate": "./scripts/db-migrate.sh",
     "db:seed": "./scripts/db-seed.sh",
+    "db:prisma:g": "./scripts/generater.sh",
     "nest:g": "./scripts/nest-generate.sh",
     "prisma:g": "npx prisma generate"
   },

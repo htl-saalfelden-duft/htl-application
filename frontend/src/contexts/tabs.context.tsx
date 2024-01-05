@@ -1,6 +1,5 @@
 import React, {useContext, useState} from 'react'
-import { APPLICATION_TABS } from '../assets/data/application-tabs'
-
+import { OPTIONAL_TABS } from '../assets/data/optional-tabs'
 
 interface Props {
     children: any
@@ -27,7 +26,7 @@ const TabsContext = React.createContext<TabsValues>(undefined as any )
 const useTabs = () => useContext(TabsContext)
 
 const TabsProvider = (props: Props) => {
-    const [tabs, setTabs] = useState<ApplicationTab[]>(APPLICATION_TABS);
+    const [tabs, setTabs] = useState<ApplicationTab[]>(OPTIONAL_TABS);
     const [currentTab, setCurrentTab] = useState<TabType>('home');
 
     const setTabState = (type: TabType, active: boolean) => {

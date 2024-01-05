@@ -1,19 +1,11 @@
-import { Form } from 'react-bootstrap'
-import { Contact } from '../../../models/contact.model'
 import { useFormContext } from 'react-hook-form'
-import { Applicant } from '../../../models/applicant.model'
 import { useContact } from '../../../contexts/contact.context'
+import { Applicant } from '../../../models/applicant.model'
+import { Contact } from '../../../models/contact.model'
+import { Form } from 'react-bootstrap'
 import { ErrorMessege } from './ErrorMessage'
 
-interface Props { 
-    attr: keyof Contact
-    title: string
-    required?: boolean
-    className?: string
-    type?: string
-}
-
-export const FormInput = (props: Props) => {
+export const FormTextArea = (props: { attr: keyof Contact, title: string, required?: boolean, className?: string, type?: string }) => {
     const { attr, title, required, className } = props
     let { type } = props
     type ||= 'text'
@@ -25,18 +17,16 @@ export const FormInput = (props: Props) => {
         formState: { errors }
     } = useFormContext<Applicant>()
 
-    const hasError = !!(errors.contacts && errors.contacts[index] && errors.contacts[index]![attr])
-
     return (
-        <Form.Group className={`mb-3 ${className}`}>
+        <Form.Group className={className}>
             <Form.Label htmlFor={`contacts.${index}.${attr}`}>
                 {title}{required ? '*' : null}
             </Form.Label>
-            <Form.Control
-                type={type}
+            <Form.Control 
+                as="textarea"
+                rows={3}
                 {...register(`contacts.${index}.${attr}`, { required: (required ? `Bitte ${title} angeben` : undefined) })}
-                id={`contacts.${index}.${attr}`}
-                isInvalid={hasError}
+                id="annotation"
             />
             <ErrorMessege errors={errors} index={index} attr={attr}/>
         </Form.Group>

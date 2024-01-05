@@ -1,6 +1,7 @@
 import { Entity } from "../common/decorators/entity.decorator";
 
-@Entity('school-class')
+@Entity('schoolClass')
 export class SchoolClass {
+    id!: string
     title!: string
 }

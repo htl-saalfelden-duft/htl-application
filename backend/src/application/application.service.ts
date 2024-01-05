@@ -10,8 +10,8 @@ export class ApplicationService {
       return this.prisma.application.findUnique({where})
     }
   
-    getMany(): Promise<Application[]> {
-      return this.prisma.application.findMany() 
+    getMany(where: Prisma.ApplicationWhereInput): Promise<Application[]> {
+      return this.prisma.application.findMany({where, include: {schoolClass: true}}) 
     }
   
     create(data: Prisma.ApplicationCreateInput) {

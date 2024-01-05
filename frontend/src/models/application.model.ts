@@ -5,7 +5,10 @@ import { SchoolClass } from "./schoolClass.model"
 export class Application {
     id?: string
     priority!: number
-    statusKey!: string
+    statusKey?: string
     schoolClassID!: string
     schoolClass?: SchoolClass
+    applicantID?: number
 }
+
+export type ApplicationStatusKey = 'created' | 'applied' | 'inProgress' | 'completed'

@@ -11,8 +11,8 @@ export interface ApplicantDetails {
     language: string 
     sex: string
     religion: string
-    schoolAge: string
-    //schoolHome: string
+    schoolAge: boolean
+    boardingSchool: boolean
     previousSchoolTxt: string
     previousSchoolNum: string
     previousSchoolAddress: string

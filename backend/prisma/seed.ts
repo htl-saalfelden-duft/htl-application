@@ -104,6 +104,17 @@ async function main() {
         update: {},
         create: schoolClass
     })
+
+    const schoolReportGroups = ["AHS","Standard",]
+    schoolReportGroups.forEach(async (title) => {
+        await prisma.schoolReportGroup.upsert({
+            where: { title},
+            update: {},
+            create: {
+                title
+            }
+        })
+    }) 
 }
 
 main()

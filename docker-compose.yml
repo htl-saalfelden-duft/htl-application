@@ -1,62 +1,48 @@
 version: "3.7"
 
 services:
-  backend:
-    build:
-      context: ./backend
-      target: development
-    volumes:
-      - ./backend:/usr/src/app
-    ports:
-      - 3000:3000
-    command: npm run start:dev
-    env_file:
-      - ./backend/.env
-    environment:
-      - DATABASE_URL=mongodb://root:secret@mongo1:27017/htlApplication?authSource=admin&replicaSet=rs0&directConnection=true
-    depends_on:
-      - mongo1
+    backend:
+        image: htl_application_backend_dev
+        container_name: htl_application_backend_dev
+        build:
+            context: ./backend
+            target: development
+        volumes:
+            - ./backend:/usr/src/app
+        ports:
+            - 3000:3000
+        command: npm run start:dev
+        env_file:
+            - ./backend/.env
+        environment:
+            - DATABASE_URL=mongodb://root:secret@mongo1:27017/htlApplication?authSource=admin&replicaSet=rs0&directConnection=true
+        depends_on:
+            - mongo1
 
-  mongo1:
-    hostname: mongo1
-    build:
-      context: ./.docker/mongo/
-    expose:
-      - 27017
-    ports:
-      - 27017:27017
-    volumes:
-      - mongo-data1:/data/db
-    environment:
-      MONGO_PORT: 27017
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: secret
-    command: --keyFile /data/keyfile.pem --replSet rs0 
+    mongo1:
+        hostname: mongo1
+        build:
+            context: ./docker/mongo/
+        expose:
+            - 27017
+        ports:
+            - 27017:27017
+        volumes:
+            - mongo-data1:/data/db
+        environment:
+            MONGO_PORT: 27017
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: secret
+        command: --keyFile /data/keyfile.pem --replSet rs0
 
-  # mongo2:
-  #   hostname: mongo2
-  #   build:
-  #     context: ./.docker/mongo/
-  #   expose:
-  #     - 27017
-  #   ports:
-  #     - 30002:27017
-  #   volumes:
-  #     - mongo-data2:/data/db
-  #   environment:
-  #     MONGO_PORT: 27017
-  #     MONGO_INITDB_ROOT_USERNAME: root
-  #     MONGO_INITDB_ROOT_PASSWORD: secret      
-  #   command: --keyFile /data/keyfile.pem --replSet rs0
-
-  mongo-express:
-    image: mongo-express
-    ports:
-      - 8081:8081
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: secret
-      ME_CONFIG_MONGODB_URL: mongodb://root:secret@mongo1:27017?replicaSet=rs0&directConnection=true
+    mongo-express:
+        image: mongo-express
+        ports:
+            - 8081:8081
+        environment:
+            ME_CONFIG_MONGODB_ADMINUSERNAME: root
+            ME_CONFIG_MONGODB_ADMINPASSWORD: secret
+            ME_CONFIG_MONGODB_URL: mongodb://root:secret@mongo1:27017?replicaSet=rs0&directConnection=true
 volumes:
-  mongo-data1:
-  mongo-data2:
+    mongo-data1:
+    mongo-data2:

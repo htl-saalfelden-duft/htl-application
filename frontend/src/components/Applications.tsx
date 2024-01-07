@@ -85,7 +85,7 @@ const Applications = (props: Props) => {
 								/>
 							</td>
 							<td>
-								<Button variant="outline-danger" className="me-2" onClick={() => remove(index)}><Trash /></Button>
+								{ fields.length > 1 ? <Button variant="outline-danger" className="me-2" onClick={() => remove(index)}><Trash /></Button> : null}
 								{index > 0 ? <Button variant="outline-primary" className="me-2" onClick={() => onMove(index, index - 1)}><ArrowUp /></Button> : null}
 								{index < fields.length - 1 ? <Button variant="outline-primary" className="me-2" onClick={() => onMove(index, index + 1)}><ArrowDown /></Button> : null}
 							</td>

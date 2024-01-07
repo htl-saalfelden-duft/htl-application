@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "db:push": "./scripts/db-push.sh",
     "db:seed": "./scripts/db-seed.sh",
+    "db:seed:prod": "./scripts/db-seed-prod.sh",
     "db:prisma:g": "./scripts/generater.sh",
     "nest:g": "./scripts/nest-generate.sh",
     "prisma:g": "npx prisma generate"

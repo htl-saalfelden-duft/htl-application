@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Applicant, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import * as crypto from 'crypto'
-import { Observable, from, map, mergeMap } from 'rxjs';
+import { Observable, from, map, mergeMap, tap } from 'rxjs';
 import { ApiError, ApiErrorType } from 'src/common/api-error';
 import { SignInDto } from 'src/auth/sign-in.dto';
 
@@ -89,16 +89,17 @@ export class ApplicantService {
 
     public confirmEmail(email: string): Observable<any> {
       return from(this.getByEmail(email)).pipe(
+          tap((a) => console.log(a)),
           mergeMap(application => {
               if(application.emailConfirmed) {
                   throw new ApiError(ApiErrorType.EMAIL_ALREADY_CONFIRMED);
               } else {
-                  return this.update({
-                    where: { id: application.id },
-                    data: {
-                      emailConfirmed: true
-                    }
-                  })
+                return this.prisma.applicant.update({
+                  where: { id: application.id },
+                  data: {
+                    emailConfirmed: true
+                  }
+                })
               }
           })
       )

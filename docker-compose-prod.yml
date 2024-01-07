@@ -1,0 +1,100 @@
+version: "3.7"
+
+services:
+    frontend:
+        container_name: htl_application_frontend
+        build:
+            context: ./frontend
+        ports:
+            - 8080:80
+        volumes:
+            - /var/log/nginx:/var/log/nginx/
+        environment:
+            - REACT_APP_APIURL=backend:3000
+        depends_on:
+            - backend
+      
+    backend:
+        container_name: htl_application_backend
+        build:
+            context: ./backend
+            target: production
+        ports:
+            - 3000:3000
+        command: node ./dist/src/main.js
+        env_file:
+            - ./backend/.env
+        environment:
+            - DATABASE_URL=mongodb://root:secret@mongo1:27017,mongo2:27018,mongo3:27019/htlApplication?authSource=admin&replicaSet=rs0
+        restart: unless-stopped
+        depends_on:
+            - mongo1
+
+    mongo1:
+        build:
+            context: ./docker/mongo/
+        command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017", "--keyFile", "/data/keyfile.pem"]
+        ports:
+            - 27017:27017
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        healthcheck:
+            test: echo "try { rs.status() } catch (err) { use admin; db.auth('root', 'secret'); rs.initiate({_id:'rs0',members:[{_id:0,host:'host.docker.internal:27017',priority:1},{_id:1,host:'host.docker.internal:27018',priority:0.5},{_id:2,host:'host.docker.internal:27019',priority:0.5}]}) }" | mongosh --port 27017 --quiet
+            interval: 5s
+            timeout: 30s
+            start_period: 0s
+            start_interval: 1s
+            retries: 30
+        volumes:
+            - "mongo1_data:/data/db"
+            - "mongo1_config:/data/configdb"
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: secret              
+
+    mongo2:
+        build:
+            context: ./docker/mongo/
+        command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27018", "--keyFile", "/data/keyfile.pem"]
+        ports:
+            - 27018:27018
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        volumes:
+            - "mongo2_data:/data/db"
+            - "mongo2_config:/data/configdb"
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: secret
+
+    mongo3:
+        build:
+            context: ./docker/mongo/
+        command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27019", "--keyFile", "/data/keyfile.pem"]
+        ports:
+            - 27019:27019
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        volumes:
+            - "mongo3_data:/data/db"
+            - "mongo3_config:/data/configdb"
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: secret
+
+    mongo-express:
+        image: mongo-express
+        ports:
+            - 8081:8081
+        environment:
+            ME_CONFIG_MONGODB_ADMINUSERNAME: root
+            ME_CONFIG_MONGODB_ADMINPASSWORD: secret
+            ME_CONFIG_MONGODB_URL: mongodb://root:secret@mongo1:27017,mongo2:27018,mongo3:27019?replicaSet=rs0
+
+volumes:
+    mongo1_data:
+    mongo2_data:
+    mongo3_data:
+    mongo1_config:
+    mongo2_config:
+    mongo3_config:

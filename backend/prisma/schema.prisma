@@ -73,8 +73,8 @@ model Application {
     applicant   	Applicant 		@relation(fields: [applicantID], references: [id])
     applicantID		String    		@db.ObjectId
 
-    schoolClass   	SchoolClass 	@relation(fields: [schoolClassID], references: [id])
-    schoolClassID 	String      	@db.ObjectId
+    schoolClass   	SchoolClass? 	@relation(fields: [schoolClassID], references: [id])
+    schoolClassID 	String?      	@db.ObjectId
 
 	statusKey		String			//ApplicationStatus
 

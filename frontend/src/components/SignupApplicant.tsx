@@ -3,6 +3,9 @@ import { useForm } from 'react-hook-form';
 import "./SignupApplicant.scss"
 import { Button, Card, CardBody, Container, Form, Row } from 'react-bootstrap';
 import { AuthService } from '../services/auth.service';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import { useMemo } from 'react';
 
 export interface SignUpFormInput {
 	contactEmail: string
@@ -11,16 +14,24 @@ export interface SignUpFormInput {
 }
 
 const SignupApplicant = () => {
-	const authService = new AuthService()
+	const navigate = useNavigate()
+	const authService = useMemo(() => new AuthService(), [])
 
 	const { 
-		register, 
+		register,
+		watch,
 		handleSubmit,
 		formState: { errors }
 	} = useForm<SignUpFormInput>()
 
 	const onSubmit = handleSubmit((data) => {
 		authService.signUp(data)
+		.then(() => {
+			toast("Sie haben sich erfolgreich angemeldet. Bitte überprüfen Sie ihren Email-Eingang und bestätigen Sie sie Anmeldung.")
+			navigate("/signin")
+        }, (err) => {
+			toast(err.response.data.message)
+		})
 	})
 
 	return (
@@ -32,42 +43,45 @@ const SignupApplicant = () => {
 							<h5 className="card-title">Zugang beantragen</h5>
 							<Form.Group className="mb-3">
 								<Form.Label htmlFor="email">
-									Email address
+									Email
 								</Form.Label>
 								<Form.Control
 									type="email"
-									{...register("contactEmail", { required: "Bitte Email eingeben", maxLength: 20 })}
+									{...register("contactEmail", { required: "Bitte Email eingeben" })}
 									id="email"
 								/>
 								{errors.contactEmail && (
 									<Form.Text className="text-danger">
-									{errors.contactEmail.message}
+										{errors.contactEmail.message}
 									</Form.Text>
 								)}
 							</Form.Group>
 							<Form.Group className="mb-3">
-								<Form.Label htmlFor="password">Password</Form.Label>
+								<Form.Label htmlFor="password">Passwort</Form.Label>
 								<Form.Control
 									type="password"
-									{...register("password", { required: "Bitte Passwort eingeben", maxLength: 20 })}
+									{...register("password", { required: "Bitte Passwort eingeben", minLength: 4 })}
 									id="password" />
 								{errors.password && (
 									<Form.Text className="text-danger">
-									{errors.password.message}
+										{errors.password.type  === 'required' && errors.password.message}
+										{errors.password.type  === 'minLength' && "Das Passwort sollte mind. aus 4 Zeichen bestehen"}
 									</Form.Text>
 								)}								
 							</Form.Group>
 							<Form.Group className="mb-3">
-								<Form.Label htmlFor="password-confirmation">Password bestätigen</Form.Label>
+								<Form.Label htmlFor="password-confirmation">Passwort bestätigen</Form.Label>
 								<Form.Control 
 									type="password"
-									{...register("passwordConfirmation", { required: "Bitte Passwort-Bestätigung eingeben", maxLength: 20 })}
+									{...register("passwordConfirmation", { required: "Bitte Passwort-Bestätigung eingeben", minLength: 4, validate: (value) => { return value === watch('password') }  })}
 									id="password-confirmation" />
 								{errors.passwordConfirmation && (
 									<Form.Text className="text-danger">
-									{errors.passwordConfirmation.message}
+										{errors.passwordConfirmation.type  === 'required' && errors.passwordConfirmation.message}
+										{errors.passwordConfirmation.type  === 'minLength' && "Das Passwort sollte mind. aus 4 Zeichen bestehen"}
+										{errors.passwordConfirmation.type  === 'validate' && "Passwörter stimmen nicht überein."}
 									</Form.Text>
-								)}									
+								)}								
 							</Form.Group>										
 							<Button variant="primary" type="submit">Submit</Button>
 						</Form>

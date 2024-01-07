@@ -10,10 +10,10 @@ const setApplicantContactRedundances = (applicant: Applicant) => {
 }
 
 const setApplicationValues = (applicant: Applicant) => {
-        applicant.applications!.forEach(application => {
+        applicant.applications!.forEach((application, index) => {
             delete application.applicantID
   
-            application.schoolClassID = application.schoolClass!.id
+            application.schoolClassID = application.schoolClass?.id as string
             delete application.schoolClass
         })
 }

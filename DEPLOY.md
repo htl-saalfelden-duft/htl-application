@@ -38,7 +38,7 @@ do
     if [[ $ref =~ .*/master$ ]];
     then
         echo "Master ref received.  Deploying master branch to production"
-        git --work-tree=/home/htl-application --git-dir=/home/repos/infoscreen.git/ checkout -f
+        git --work-tree=/home/htl-application --git-dir=/home/repos/htl-application.git/ checkout -f
 
         # rm /var/www/virtual/duft1/html/* -R
 
@@ -57,4 +57,24 @@ do
         echo "Ref $ref successfully received.  Doing nothing: only the master branch may be deployed on this server."
     fi
 done
+```
+
+Installing docker
+```sh
+sudo dnf --refresh update
+sudo dnf upgrade
+
+sudo dnf install yum-utils
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+sudo dnf install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+sudo systemctl start docker
+sudo systemctl enable docker
+
+sudo systemctl status docker
+```
+
+run in production
+```sh
+ docker compose -f docker-compose-prod.yml up -V --build
 ```

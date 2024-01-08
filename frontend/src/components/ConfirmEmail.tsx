@@ -29,10 +29,10 @@ const ConfirmEmail = () => {
           <CardBody>
             <div className="ConfirmEmail">
               <p>
-                Bitte betätigen Sie ihre Email-Adresse.
+                Um fortzufahren bestätigen Sie bitte ihre Email-Adresse.
               </p>
               <button className="btn btn-primary" onClick={confirmEmail}>
-                Confirm your email
+                Email bestätigen
               </button>
             </div>
           </CardBody>

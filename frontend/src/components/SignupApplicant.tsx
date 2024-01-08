@@ -83,7 +83,7 @@ const SignupApplicant = () => {
 									</Form.Text>
 								)}								
 							</Form.Group>										
-							<Button variant="primary" type="submit">Submit</Button>
+							<Button variant="primary" type="submit">Absenden</Button>
 						</Form>
 					</CardBody>
 				</Card>

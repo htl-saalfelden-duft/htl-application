@@ -1,3 +1,3 @@
 #!/bin/sh
-envsubst '$REACT_APP_APIURL' < /etc/nginx/conf.d/custom-nginx.template > /etc/nginx/conf.d/default.conf;
+envsubst '$BACKEND_API_URL' < /etc/nginx/conf.d/custom-nginx.template > /etc/nginx/conf.d/default.conf;
 exec nginx -g "daemon off;";

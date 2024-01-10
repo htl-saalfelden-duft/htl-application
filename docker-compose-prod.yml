@@ -6,11 +6,12 @@ services:
         build:
             context: ./frontend
         ports:
-            - 8080:80
+            - 80:80
         volumes:
             - /var/log/nginx:/var/log/nginx/
         environment:
-            - REACT_APP_APIURL=backend:3000
+            - REACT_APP_API_URL=http://localhost/api
+            - BACKEND_API_URL=backend:3000
         depends_on:
             - backend
       
@@ -36,8 +37,6 @@ services:
         command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017", "--keyFile", "/data/keyfile.pem"]
         ports:
             - 27017:27017
-        extra_hosts:
-            - "host.docker.internal:host-gateway"
         healthcheck:
             test: echo "try { rs.status() } catch (err) { use admin; db.auth('root', 'secret'); rs.initiate({_id:'rs0',members:[{_id:0,host:'localhost:27017'}]}) }" | mongosh --port 27017 --quiet
             interval: 5s
@@ -51,16 +50,6 @@ services:
         environment:
             MONGO_INITDB_ROOT_USERNAME: root
             MONGO_INITDB_ROOT_PASSWORD: secret
-
-    mongo-express:
-        image: mongo-express
-        ports:
-            - 8081:8081
-        environment:
-            ME_CONFIG_MONGODB_ADMINUSERNAME: root
-            ME_CONFIG_MONGODB_ADMINPASSWORD: secret
-            ME_CONFIG_MONGODB_URL: mongodb://root:secret@mongo:27017?replicaSet=rs0&directConnection=true
-
 volumes:
     mongo_data:
     mongo_config:

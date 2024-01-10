@@ -10,7 +10,6 @@ services:
         volumes:
             - /var/log/nginx:/var/log/nginx/
         environment:
-            - REACT_APP_API_URL=http://localhost/api
             - BACKEND_API_URL=backend:3000
         depends_on:
             - backend

@@ -7,9 +7,9 @@ interface Props {
 }
 
 interface AuthValues {
-    currentUser: Applicant | null,
+    currentApplicant: Applicant | null,
     isSignedIn: boolean,
-    signIn: (email: string, password: string) => Promise<Applicant>,
+    signIn: (email: string, password: string, type: 'user' | 'applicant') => Promise<Applicant>,
     signOut: () => void
 }
 
@@ -20,17 +20,27 @@ const useAuth = () => useContext(AuthContext)
 const AuthProvider = (props: Props) => {
     const authService = useMemo(() => new AuthService(), [])
 
-    const [currentUser, setCurrentUser] = useState<Applicant | null>(null)
+    const [currentApplicant, setCurrentApplicant] = useState<Applicant | null>(null)
     const [isSignedIn, setIsSignedIn] = useState(authService.isSignedIn())
 
-    const signIn = (email: string, password: string) => {
-        return authService.signIn({email, password})
-		.then(() => authService.loadCurrentUser())
-        .then((currentUser) => {
-            setCurrentUser(currentUser)
-            setIsSignedIn(true)
-            return currentUser
-        })
+    const signIn = (email: string, password: string, type: 'user' | 'applicant') => {
+        if(type === 'applicant') {
+            return authService.signInApplicant({email, password})
+            .then(() => authService.loadCurrentApplicant())
+            .then((currentApplicant) => {
+                setCurrentApplicant(currentApplicant)
+                setIsSignedIn(true)
+                return currentApplicant
+            })
+        } else {
+            return authService.signInUser({email, password})
+            .then(() => authService.loadCurrentApplicant())
+            .then((currentApplicant) => {
+                setCurrentApplicant(currentApplicant)
+                setIsSignedIn(true)
+                return currentApplicant
+            })
+        }        
     }
 
     const signOut = () => {
@@ -39,7 +49,7 @@ const AuthProvider = (props: Props) => {
     }
 
     const value = {
-        currentUser,
+        currentApplicant,
         isSignedIn,
         signIn,
         signOut
@@ -47,12 +57,12 @@ const AuthProvider = (props: Props) => {
 
     useEffect(() => {
         if(isSignedIn) {
-            authService.loadCurrentUser()
-            .then((currentUser) => {
-                setCurrentUser(currentUser)
+            authService.loadCurrentApplicant()
+            .then((currentApplicant) => {
+                setCurrentApplicant(currentApplicant)
             })
         } else {
-            setCurrentUser(null)
+            setCurrentApplicant(null)
         }
     }, [authService, isSignedIn])
 

@@ -1,6 +1,6 @@
 import { Form, Tab, Tabs } from "react-bootstrap"
 import { ApplicationTab, TabType, useTabs } from "../contexts/tabs.context"
-import { House } from "react-bootstrap-icons"
+import { HouseFill } from "react-bootstrap-icons"
 import { HomeTab } from "./HomeTab"
 import ApplicantDetails from "./ApplicantDetails"
 import Contact from "./Contact"
@@ -25,7 +25,7 @@ const FormTabs = () => {
     } = useTabs()
 
     const apiService = useMemo(() => new ApiService(), [])
-    const { currentUser } = useAuth()
+    const { currentApplicant } = useAuth()
     const formMethods = useForm<Applicant>()
 
     const setAppTabs = (applicant: Applicant) => {
@@ -36,23 +36,23 @@ const FormTabs = () => {
             tab!.active = true
         })
 
-        if(applicant.schoolReport) {
-            const tab = currentTabs.find(t => t.type === 'schoolReport')
-            tab!.active = true
-        }
+        // if(applicant.schoolReport) {
+        //     const tab = currentTabs.find(t => t.type === 'schoolReport')
+        //     tab!.active = true
+        // }
         setTabs(currentTabs)
     }
 
     useEffect(() => {
-        if (currentUser) {
-            apiService.get<Applicant>(Applicant, currentUser?.id)
+        if (currentApplicant) {
+            apiService.get<Applicant>(Applicant, currentApplicant?.id)
                 .then(applicant => {
                     setAppTabs(applicant)
                     setDefaultApplication(applicant)
                     formMethods.reset(applicant)
                 })
         }
-    }, [currentUser])
+    }, [currentApplicant])
 
 
     const onSubmit = formMethods.handleSubmit((applicant) => {
@@ -72,8 +72,6 @@ const FormTabs = () => {
 
         setDefaultApplicationStatus(applicant, 'created')
         const dbApplicant = getDBApplicant(applicant)
-
-        console.log(dbApplicant)
 
         apiService.save<Applicant>(Applicant, dbApplicant)
         .then(() => {
@@ -106,11 +104,11 @@ const FormTabs = () => {
         <FormProvider {...formMethods} >
             <Form onSubmit={onSubmit} className="mb-3">
                 <Tabs
-                    className="mb-4"
+                    className="mt-3 mb-4"
                     activeKey={currentTab}
                     onSelect={(tab) => setCurrentTab(tab as TabType)}>
 
-                    <Tab eventKey="home" title={<House />}>
+                    <Tab eventKey="home" title={<HouseFill size={20} />}>
                         <HomeTab onSave={onSave}/>
                     </Tab>
 

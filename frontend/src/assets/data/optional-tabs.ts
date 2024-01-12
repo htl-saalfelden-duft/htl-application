@@ -11,7 +11,7 @@ const OPTIONAL_TABS: ApplicationTab[] = [
         title: "Kontakt-Vater",
         type: "contact-father",
         parent: true,
-        active: false,
+        active: true,
     },
     {
         title: "Kontakt-Mutter",

@@ -6,6 +6,7 @@ import "./HomeTab.scss"
 import { TabType, useTabs } from "../contexts/tabs.context"
 import { toast } from "react-toastify"
 import { isContactTab, tabType2ContactType } from "../common/tab.utils"
+import Dsgvo from "./Dsgvo"
 
 interface Props {
     onSave: () => void
@@ -16,6 +17,8 @@ const HomeTab = (props: Props) => {
     const [checkedContactFather, setCheckedContactFather] = useState(false)
     const [checkedContactMother, setCheckedContactMother] = useState(false)
     const [checkedSchoolReport, setCheckedSchoolReport] = useState(false)
+    const [showDsgvo, setShowDsgvo] = useState(false);
+
 
     const {
         tabs,
@@ -130,9 +133,10 @@ const HomeTab = (props: Props) => {
 
     return (
         <>
-            <h3>Liebe Interessentin, lieber Interessent!</h3>
-            <p>Sie befinden sich auf der Bewerbungsseite der HTL-Saalfelden...</p>
-            <ListGroup>
+            <h4 className="mt-4 mb-4">Sehr geehrte Erziehungsberechtigte, <br/>sehr geehrte BewerberInnen! </h4>
+            <p>Sie befinden sich auf der Bewerbungsseite der HTL Saalfelden. Bitte füllen Sie das Formular vollständig aus.</p>
+
+            <ListGroup className="mt-4 mb-3">
                 <ListGroup.Item variant="secondary"><small>Folgende Daten werden für die Anmeldung benötigt:</small></ListGroup.Item>
 
                 <ListGroup.Item
@@ -159,7 +163,7 @@ const HomeTab = (props: Props) => {
                     Kontakt des Bewerbers <br /><small>(vollstandig ausgefüllt)</small>
                 </ListGroup.Item>
 
-                <ListGroup.Item variant="secondary"><small>Die weiteren Angaben sind optional. Sie müssen für die Eingabe aktiviert werden.</small></ListGroup.Item>
+                <ListGroup.Item variant="secondary"><small>Bitte geben Sie die Kontaktdaten aller Erziehungsberechtigten ein. Aktivieren Sie dafür die erforderlichen Felder.</small></ListGroup.Item>
 
                 <ListGroup.Item
                     className={'d-flex ' + errorClass(!!errors?.contacts && !!errors.contacts[getContactIndex('contact-mother')], checkedContactMother)}
@@ -183,20 +187,29 @@ const HomeTab = (props: Props) => {
                     </div>
                 </ListGroup.Item>
 
-                <ListGroup.Item
+                {/* <ListGroup.Item
                     className={'d-flex ' + errorClass(!!errors.schoolReport, checkedSchoolReport)}
-                //action
-                //onClick={() => changeTab('schoolReport', checkedSchoolReport)}
                 >
                     <Form.Check type="checkbox" id="activate-schoolreport" className="mt-2" onChange={() => handleCheckChange('schoolReport')} checked={checkedSchoolReport} />
                     <div className={"ms-3 " + (!checkedSchoolReport ? "text-muted" : '')}>
                         Schulnoten <br /><small>(falls vorhanden)</small>
                     </div>
-                </ListGroup.Item>
+                </ListGroup.Item> */}
             </ListGroup>
 
+            <Form.Group className={`mb-3`}>
+                <Form.Check
+                    type="checkbox"
+                    id="dsgvo"
+                    label={(<>Ich stimme der<Button className="btn-dsgvo" variant="link" onClick={() => setShowDsgvo(true)}>Datenschutzgrundverordnung</Button>der HTL Saalfelden zu.</>)}
+                    // {...register(`dsgvo`)}
+                />
+            </Form.Group>
+
+            <Dsgvo show={showDsgvo} onClose={() => setShowDsgvo(false)}/>
+
             <div className="d-flex mt-5">
-                <Button className="me-3" variant="success" type="submit" disabled={!isValid}>Antrag abschicken</Button>
+                <Button className="me-3" variant="success" type="submit" disabled={!isValid} title="Der Antrag lässt sich erst abschicken, wenn alle Daten vorhanden sind.">Antrag abschicken</Button>
                 <Button className="me-3" variant="outline-warning" onClick={validateForm}>Antrag prüfen</Button>
                 <Button className="me-3" variant="outline-secondary" onClick={props.onSave}>Daten Speichern</Button>
             </div>

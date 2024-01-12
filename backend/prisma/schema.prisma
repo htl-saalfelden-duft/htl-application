@@ -17,6 +17,7 @@ model User {
 
 	name			String
 	email			String		@unique
+	userRoleKey	  	String		@default("user")
 
 	passwordHash	String?
 	active			Boolean		@default(true)
@@ -124,6 +125,7 @@ type SchoolReport {
 	geographyGrade	Int?
 	chemistryGrade	Int?
 	physicsGrade	Int?
+	biologieGrade	Int?
 }
 
 model SchoolClass {
@@ -137,6 +139,14 @@ model SchoolClass {
     applications	Application[]
 
 	@@unique([title, year])
+}
+
+model UserRole {
+    id    	String 	@id @default(auto()) @map("_id") @db.ObjectId
+	schema	Int		@default(1)
+
+	key		String	@unique
+    title 	String
 }
 
 model ContactType {

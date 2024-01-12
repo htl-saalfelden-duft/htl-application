@@ -29,7 +29,7 @@ export class EmailConfirmationService {
   
     return from(this.emailService.sendMail({
       to: email,
-      subject: 'Email-Bestätigung Anmeldung HTL-Saalfelden',
+      subject: 'Anmeldung HTBLA Saalfelden',
       template: 'email-confirmation',
       context: {
         confirmationUrl

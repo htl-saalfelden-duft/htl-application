@@ -1,8 +1,8 @@
 import { useMemo } from "react"
 import { ApiService } from "../services/api.service"
 
-import { Button, Table } from "react-bootstrap"
-import { ArrowDown, ArrowUp, Plus, Trash } from "react-bootstrap-icons"
+import { Alert, Button, Form, Table } from "react-bootstrap"
+import { ArrowDown, ArrowUp, ExclamationCircle, PlusLg, Trash } from "react-bootstrap-icons"
 import { SchoolClass } from "../models/schoolClass.model"
 import { Controller, useFieldArray, useFormContext } from "react-hook-form"
 import { Applicant } from "../models/applicant.model"
@@ -19,6 +19,7 @@ const Applications = (props: Props) => {
 		control,
 		formState: { errors },
 		setValue,
+		register,
 	} = useFormContext<Applicant>()
 
 	const { fields, append, remove, swap } = useFieldArray({
@@ -43,11 +44,12 @@ const Applications = (props: Props) => {
 
 	return (
 		<>
+			<h5 className="mb-4">Bitte geben Sie jede Fachrichtung an, für die Interesse besteht.</h5>
 			<Button
 				variant="outline-secondary"
 				className="mb-2"
 				onClick={() => append({ priority: fields.length + 1, schoolClassID: "" })}>
-				<Plus />
+				<PlusLg/>
 			</Button>
 			<Table striped bordered hover className="application-table">
 				<thead>
@@ -93,6 +95,18 @@ const Applications = (props: Props) => {
 					))}
 				</tbody>
 			</Table>
+
+			<Form.Group className="mb-3">
+				<Form.Label htmlFor="details.secondChoiceSchool">Zweitwunschschule</Form.Label>
+				<Form.Control
+					type="text"
+					{...register("details.secondChoiceSchool")}
+					id="details.secondChoiceSchool"
+				/>
+			</Form.Group>
+			<Alert variant="warning" className="mb-3">
+				<ExclamationCircle size={32} className="me-2"/> Sie melden sich nur an der HTL Saalfelden an. Ihr Interesse an der Zweitwunschschule wird zwar registriert, es erfolgt aber keine Anmeldung in der 1. Anmelderunde.
+			</Alert>
 		</>
 	)
 }

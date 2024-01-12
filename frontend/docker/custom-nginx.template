@@ -3,7 +3,15 @@ upstream backend {
 }
 
 server {
-    listen 80;
+    listen   443;
+
+    ssl    on;
+    ssl_certificate    /etc/ssl/public.crt
+    ssl_certificate_key    /etc/ssl/private.key;
+
+    server_name anmeldung.htl-saalfelden.at;
+    access_log /var/log/nginx/nginx.access.log;
+    error_log /var/log/nginx/nginx.error.log;
 
     location /api/ {
       proxy_pass http://backend$request_uri;

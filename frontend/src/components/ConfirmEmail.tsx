@@ -16,7 +16,7 @@ const ConfirmEmail = () => {
     apiService.post(Applicant, 'confirm', { token })
       .then(() => {
         toast("Email-Adresse bestätigt!")
-        navigate("/signin")
+        navigate("/signin-applicant")
       }, (err) => {
         toast(err.response.data.message)
       })

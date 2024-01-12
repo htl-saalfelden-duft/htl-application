@@ -1,4 +1,6 @@
 
+$alert-padding-y: 0.5rem;
+
 @import '~bootstrap/scss/bootstrap';
 @import '~react-datepicker/src/stylesheets/datepicker';
 
@@ -6,4 +8,13 @@
 [data-bs-theme=light] {
     --bs-form-invalid-background-color: #dc35451c;
     --bs-form-valid-background-color: #dc35451c;
+}
+
+.navbar-brand {
+    padding-top: 0;
+    padding-bottom: 0;
+
+    img {
+        height: 33px;
+    }
 }

@@ -1,17 +1,17 @@
 import { Button, Card, CardBody, Container, Form, Row } from "react-bootstrap"
 import { useForm } from "react-hook-form"
-import { useNavigate } from "react-router-dom"
-import { useAuth } from "../contexts/auth.context"
-import { toast } from "react-toastify"
+import htlLogo128 from '../assets/images/htl-saalfelden-logo_128.png'
 
-interface IFormInput {
+export interface IFormInput {
 	contactEmail: string
 	password: string
 }
 
-const SignIn = () => {
-	const navigate = useNavigate()
-	const { signIn } = useAuth()
+interface Props {
+    onSubmit: (data: IFormInput) => void
+}
+
+const SignInForm = (props: Props) => {
 
     const { 
 		register, 
@@ -20,13 +20,7 @@ const SignIn = () => {
 	} = useForm<IFormInput>()
 
 	const onSubmit = handleSubmit((data) => {
-        signIn(data.contactEmail,data.password)
-        .then(() => {
-			toast("Welcome to HTL-Applications-portal!")
-			navigate("/home")
-        }, (err) => {
-			toast(err.response.data.message)
-		})
+        props.onSubmit(data)
 	})
 
 	return (
@@ -35,8 +29,12 @@ const SignIn = () => {
 				<Card className='col-lg-5 mt-5'>
 					<CardBody>
 						<Form onSubmit={onSubmit}>
-							<h5 className="card-title">Einloggen</h5>
-							<Form.Group className="mb-3">
+                            <div className="d-flex flex-row-reverse">
+                                <img src={htlLogo128} width={64} alt="htl-logo" />
+							    <h5 className="card-title mt-4 flex-grow-1">Bewerbungsseite - Einloggen</h5>
+                            </div>
+
+							<Form.Group className="mt-4 mb-3">
 								<Form.Label htmlFor="email">
 									Email address
 								</Form.Label>
@@ -63,7 +61,7 @@ const SignIn = () => {
 									</Form.Text>
 								)}								
 							</Form.Group>										
-							<Button variant="primary" type="submit">Sign In</Button>
+							<Button variant="outline-primary" type="submit">Sign In</Button>
 						</Form>
 					</CardBody>
 				</Card>
@@ -72,4 +70,4 @@ const SignIn = () => {
 	)
 }
 
-export default SignIn
+export default SignInForm

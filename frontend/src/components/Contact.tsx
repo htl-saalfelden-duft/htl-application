@@ -52,8 +52,8 @@ const Contact = (props: Props) => {
                 </Row>
 
                 <Row className='mt-3 mb-3'>
-                    <FormDateInput className="col-lg-2" attr="birthdate" title="Geburtsdatum" required={require} />
-                    <FormInput className="col-lg-2" attr="svnr" title="SVN" required={require}/>
+                    <FormDateInput className="col-lg-2" attr="birthdate" title="Geburtsdatum" />
+                    <FormInput className="col-lg-2" attr="svnr" title="SVN" />
                 </Row>
             </> : null}
 
@@ -84,9 +84,13 @@ const Contact = (props: Props) => {
                 <FormCheck className="col-lg" attr="pupilInBoardingSchool" title="Internat oder Extern"/>
             }
 
-            <FormCheck className="col-lg" attr="liableToPay" title="Zahlungspflichtig"/>
-            <FormCheck className="col-lg" attr="decitionTo" title="Entscheide an"/>
-            <FormCheck className="col-lg" attr="postTo" title="Post an"/>
+            {parent ?
+            <>
+                <FormCheck className="col-lg" attr="liableToPay" title="Zahlungspflichtig"/>
+                <FormCheck className="col-lg" attr="decitionTo" title="Entscheide an"/>
+                <FormCheck className="col-lg" attr="postTo" title="Post an"/>
+            </>
+            : null}
             <FormCheck className="col-lg" attr="primaryResidenz" title="Hauptwohnsitz"/>
 
             <FormTextArea className="mt-3 mb-3" attr="annotation" title="Anmerkung" />

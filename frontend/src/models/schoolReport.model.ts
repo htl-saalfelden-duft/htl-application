@@ -11,6 +11,7 @@ export interface SchoolReport {
 	geographyGrade?:	number
 	chemistryGrade?:	number
 	physicsGrade?:	number
+	biologieGrade?: number
 }
 @Entity('schoolReportGroup')
 export class SchoolReportGroups {

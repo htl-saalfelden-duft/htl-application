@@ -1,4 +1,4 @@
-import { Form, Row } from "react-bootstrap"
+import { Alert, Form, Row } from "react-bootstrap"
 import { Controller, useFormContext } from "react-hook-form"
 import { ApiService } from "../services/api.service"
 import { Country } from "../models/country.model"
@@ -11,6 +11,7 @@ import { useMemo } from "react"
 import { FormInput } from "./form/details/FormInput"
 import { ErrorMessege } from "./form/details/ErrorMessage"
 import { FormSelect } from "./form/details/FormSelect"
+import { Arrow90degDown, ExclamationCircle, Lightbulb } from "react-bootstrap-icons"
 
 const ApplicantDetails = () => {
     const apiService = useMemo(() => new ApiService(), [])
@@ -41,6 +42,7 @@ const ApplicantDetails = () => {
 
     return (
             <>
+                <h5 className="mb-4">Bitte geben Sie Daten des/der Bewerbers/in ein:</h5>
                 <Row className="mb-3">
                     <FormInput attr="firstname" title="Vorname" className="col-lg" required={true} />
                     <FormInput attr="moreFirstname" title="Weitere Vornamen" className="col-lg"/>
@@ -83,7 +85,7 @@ const ApplicantDetails = () => {
 
                 <Row>
                     <FormSelect className="col-lg-3" attr="nationality" title="Nationalität" required={true} loadOptions={getCountries}/> 
-                    <FormSelect className="col-lg-3" attr="language" title="Sprache" required={true} loadOptions={getLanguage}/>
+                    <FormSelect className="col-lg-3" attr="language" title="Muttersprache" required={true} loadOptions={getLanguage}/>
                 </Row>
 
                 <Row className="mb-3">
@@ -92,13 +94,13 @@ const ApplicantDetails = () => {
                 </Row>
  
                 <Row>
-                    <FormInput attr="previousSchoolTxt" title="Vorschule(Text)" className="col-lg-4" required={true} />  
-                    <FormInput attr="previousSchoolNum" title="Vorschule(Zahl)" className="col-lg-3" required={true} />
-                    <FormInput attr="previousSchoolAddress" title="Vorschule(Anschrift)" className="col-lg-4" required={true} />
+                    <FormInput attr="previousSchoolTxt" title="zuletzt besuchte Schule(Schulbezeichnung)" className="col-lg-4" required={true} />  
+                    <FormInput attr="previousSchoolNum" title="zuletzt besuchte Schule(Schulkennzahl)" className="col-lg-3" required={true} />
+                    <FormInput attr="previousSchoolAddress" title="zuletzt besuchte Schule(Anschrift)" className="col-lg-4" required={true} />
                 </Row>
-
-                <FormInput attr="secondChoiceSchool" title="Zweitwunschschule" className="col-lg-4" required={true} />                                                                                                
-
+                <Alert variant="info" className="mb-3">
+                <Lightbulb size={32} className="me-2"/> Die genaue Bezeichnung, sowie die Schulkennzahl und Adresse finden sie auf <a href="https://www.schulen-online.at/">https://www.schulen-online.at/</a> unter Schulsuche.
+                </Alert>
                 <Form.Group className="mb-3 col-lg">
                     <Form.Check
                         type="checkbox"
@@ -116,7 +118,10 @@ const ApplicantDetails = () => {
                         {...register("details.boardingSchool")}
                     />
                 </Form.Group>                                                
-
+                <Alert variant="warning" className="mb-3">
+                    <ExclamationCircle size={32} className="me-2"/> Es erfolgt keine Anmeldung am Schülerheim. Diese hat getrennt zu erfolgen. Informationen erhalten sie unter <a href="https://studentenheim.at/ ">https://studentenheim.at/</a>
+                </Alert>
+                
                 <Form.Group className="mt-3 mb-3">
                     <Form.Label htmlFor="annotation">Anmerkung</Form.Label>
                     <Form.Control 

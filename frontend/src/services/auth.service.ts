@@ -1,5 +1,6 @@
 import { SignUpFormInput } from "../components/SignupApplicant";
 import { Applicant } from "../models/applicant.model";
+import { User } from "../models/user.model";
 import { ApiService } from "./api.service";
 import moment from 'moment';
 import ms from 'ms'
@@ -15,19 +16,26 @@ export interface AuthUserDto {
 }
 
 export class AuthService extends ApiService {
-    loadCurrentUser() {
+    loadCurrentApplicant() {
         return this.getPath<Applicant>(Applicant, 'current')
         .then(applicant => {
             return applicant
         })
     }
 
-    signUp(data: SignUpFormInput) {
+    signUpApplicant(data: SignUpFormInput) {
         return this.post(Applicant, 'register', data)
     }
 
-    signIn(authUser: AuthUserDto) {
+    signInApplicant(authUser: AuthUserDto) {
         return this.post<AuthDataDto>(Applicant, 'signIn', authUser)
+        .then((response: AuthDataDto) => {
+            this.setSession(response)
+        })
+    }
+
+    signInUser(authUser: AuthUserDto) {
+        return this.post<AuthDataDto>(User, 'signIn', authUser)
         .then((response: AuthDataDto) => {
             this.setSession(response)
         })

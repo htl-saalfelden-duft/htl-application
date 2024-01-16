@@ -3,6 +3,7 @@ import { OPTIONAL_TABS } from '../assets/data/optional-tabs'
 
 interface Props {
     children: any
+    edit: boolean
 }
 
 interface ApplicationTab {
@@ -20,6 +21,7 @@ interface TabsValues {
     currentTab: string
     setCurrentTab: (type: TabType) => void
     setTabState: (value: TabType, active: boolean) => void
+    edit: boolean
 }
 
 const TabsContext = React.createContext<TabsValues>(undefined as any )
@@ -43,7 +45,8 @@ const TabsProvider = (props: Props) => {
         setTabs,
         currentTab,
         setCurrentTab,
-        setTabState
+        setTabState,
+        edit: props.edit
     }
 
     return (

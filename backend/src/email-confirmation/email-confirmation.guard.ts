@@ -26,8 +26,9 @@ export class EmailConfirmationGuard implements CanActivate {
     if(user) {
       return this.prisma.applicant.findUnique({ where: { id: user.id } })
       .then(user => {
-
-        if (isPublic) {
+        if(!user) {
+          throw new ApiError(ApiErrorType.NO_USERS_IN_DB)
+        } else if (isPublic) {
           return true
         } else {
           if (!user?.emailConfirmed) {

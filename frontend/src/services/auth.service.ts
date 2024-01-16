@@ -8,6 +8,7 @@ import ms from 'ms'
 export interface AuthDataDto {
     idToken: string
     expiresIn: string
+    userType: string
 }
 
 export interface AuthUserDto {
@@ -23,8 +24,15 @@ export class AuthService extends ApiService {
         })
     }
 
+    loadCurrentUser() {
+        return this.getPath<Applicant>(User, 'current')
+        .then(user => {
+            return user
+        })
+    }
+
     signUpApplicant(data: SignUpFormInput) {
-        return this.post(Applicant, 'register', data)
+        return super.post(Applicant, 'register', data)
     }
 
     signInApplicant(authUser: AuthUserDto) {
@@ -43,6 +51,7 @@ export class AuthService extends ApiService {
 
     signOut(): void {
         localStorage.removeItem('idToken')
+        localStorage.removeItem('userType')
         localStorage.removeItem('expiresAt')
     }
 
@@ -51,10 +60,15 @@ export class AuthService extends ApiService {
         return moment().isBefore(expiresAt)
     }
 
+    getUserType(): string | null {
+        return localStorage.getItem('userType')
+    }
+
     private setSession(authResult: AuthDataDto): void {
         const expiresAt: moment.Moment = moment().add().add(ms(authResult.expiresIn), 'ms')
 
         localStorage.setItem('idToken', authResult.idToken)
+        localStorage.setItem('userType', authResult.userType)
         localStorage.setItem('expiresAt', JSON.stringify(expiresAt.valueOf()) )
     }
 

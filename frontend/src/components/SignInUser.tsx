@@ -1,17 +1,19 @@
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../contexts/auth.context"
 import { toast } from "react-toastify"
-import SignInForm, { IFormInput } from "./SignInForm"
+import SignInForm, { ISignInFormInput } from "./SignInForm"
 
 const SignInUser = () => {
 	const navigate = useNavigate()
-	const { signIn } = useAuth()
+	const { setUserType, signIn } = useAuth()
 
-	const onSubmit = ((data: IFormInput) => {
-        signIn(data.contactEmail,data.password, 'user')
+	setUserType('user')
+
+	const onSubmit = ((data: ISignInFormInput) => {
+        signIn(data.email, data.password)
         .then(() => {
 			toast("Willkommen in der HTL-Bewerbungsseite!")
-			navigate("/home")
+			navigate("/applicants")
         }, (err) => {
 			toast(err.response.data.message)
 		})

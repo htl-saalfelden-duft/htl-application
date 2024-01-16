@@ -29,11 +29,12 @@ model Applicant {
     id            			String      @id @default(auto()) @map("_id") @db.ObjectId
 	schema					Int			@default(1)
 
-	contactEmail			String		@unique
+	email					String		@unique
 	emailConfirmed			Boolean		@default(false)
 
 	passwordHash			String?
 	active					Boolean		@default(true)
+	dsgvo					Boolean
 
 	details					ApplicantDetails?
     contacts      			Contact[]
@@ -100,8 +101,8 @@ type Contact {
 
 	legalGardian			Boolean?
 	liableToPay				Boolean?
-	decitionTo				Boolean?
-	postTo					Boolean?
+	decitionTo				Boolean?		@default(true)
+	postTo					Boolean?		@default(true)
 	pupilInBoardingSchool	Boolean?
 	primaryResidenz			Boolean?		//Hauptwohnsitz
 

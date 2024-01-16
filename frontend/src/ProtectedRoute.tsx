@@ -1,27 +1,27 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "./contexts/auth.context";
+import { UserType, useAuth } from "./contexts/auth.context";
 import Navigationbar from "./components/Navbar";
-import { Container } from "react-bootstrap";
+import { Alert, Container } from "react-bootstrap";
 
 interface Props {
-    isAllowed?: boolean
-    redirectPath?: string
-    children?: any
+  userType?: UserType
+  redirectPath: string
+  children?: any
 }
 
-const ProtectedRoute = ({ isAllowed, redirectPath = '/signin', children }:Props) => {
-    const { isSignedIn } = useAuth()
+const ProtectedRoute = ({ userType, redirectPath, children }: Props) => {
+  const { userType: userTypeAuth, isSignedIn } = useAuth()
 
-    if (!isSignedIn) {
-      return <Navigate to={redirectPath} replace />;
-    }
-  
-    return children ? children : 
+  if (!isSignedIn) {
+    return <Navigate to={redirectPath} replace />;
+  }
+  return children ? children :
     (
       <>
         <Navigationbar />
         <Container>
-          <Outlet />
+          {userType === userTypeAuth ? <Outlet /> : <Alert className="mt-4" variant="danger">Sorry, but this route is not allowed!</Alert>}
+
         </Container>
       </>
     );

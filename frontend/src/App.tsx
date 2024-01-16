@@ -4,11 +4,12 @@ import ConfirmEmail from './components/ConfirmEmail';
 import SignupApplicant from './components/SignupApplicant';
 import SignInApplicant from "./components/SignInApplicant";
 import ProtectedRoute from "./ProtectedRoute";
-import Home from "./components/Home";
 import { AuthProvider } from "./contexts/auth.context";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import SignInUser from "./components/SignInUser";
+import { Applicants } from "./components/Applicants";
+import Applicant from "./components/Applicant";
 
 function App() {
   return (
@@ -21,9 +22,13 @@ function App() {
           <Route path="signin-user" element={<SignInUser />} />
           <Route path="signup-applicant" element={<SignupApplicant />} />
           <Route path="confirm-email" element={<ConfirmEmail />} />
-          <Route element={<ProtectedRoute />}>
-              <Route path="home" element={<Home />} />
+          <Route element={<ProtectedRoute userType="applicant" redirectPath="/signin-applicant" />}>
+              <Route path="home" element={<Applicant />} />
           </Route>
+          <Route element={<ProtectedRoute userType="user" redirectPath="/signin-user"/>}>
+              <Route path="applicants" element={<Applicants />} />
+              <Route path="applicant" element={<Applicant />} />
+          </Route>          
         </Routes>
       </Router>
     </AuthProvider>

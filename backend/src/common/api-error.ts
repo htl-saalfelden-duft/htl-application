@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 
 export const enum ApiErrorType {
     USER_NOT_FOUND,
@@ -79,7 +80,7 @@ export class ApiError extends HttpException {
                 apiError = {
                     httpStatus: HttpStatus.NOT_FOUND,
                     title: 'No Users',
-                    message: 'No user exits in database'
+                    message: 'User does not exit in database'
                 }
                 break
             case ApiErrorType.WRONG_PASSWORD:
@@ -132,10 +133,29 @@ export class ApiError extends HttpException {
                 }
                 break             
             default:
-                apiError = {
-                    httpStatus: HttpStatus.BAD_REQUEST,
-                    title: undefined,
-                    message: undefined
+                if(error instanceof Prisma.PrismaClientKnownRequestError) {
+                    const { code, meta } = error
+                    switch (code) {
+                        case 'P2002':
+                            const constraint = meta?.target
+                            apiError = {
+                                httpStatus: HttpStatus.UNPROCESSABLE_ENTITY,
+                                title: constraint as string,
+                                message: `Unique constraint failed on the ${constraint}`
+                            }
+                            console.log('###########', apiError)
+
+                            break;
+                        default:
+                            break;
+                    }
+
+                } else {
+                    apiError = {
+                        httpStatus: HttpStatus.BAD_REQUEST,
+                        title: undefined,
+                        message: undefined
+                    }
                 }
         }
         return apiError

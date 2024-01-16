@@ -7,8 +7,9 @@ import { SchoolReport } from "./schoolReport.model"
 @Entity('applicant')
 export class Applicant {
     id?: string
-    contactEmail?: string
+    email?: string
     password?: string
+    dsgvo?: boolean
     contacts?: Contact[]
     schoolReport?: SchoolReport
     details?: ApplicantDetails

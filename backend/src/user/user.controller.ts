@@ -2,8 +2,7 @@ import { Body, Controller, Get, Param, Post, Request } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Prisma, User } from '@prisma/client';
 import { Public } from 'src/auth/public.decorator';
-import { Observable, from, map, mergeMap } from 'rxjs';
-import { EmailConfirmationService } from 'src/email-confirmation/email-confirmation.service';
+import { Observable, from, map } from 'rxjs';
 import { AuthService } from 'src/auth/auth.service';
 import { SignInDto } from 'src/auth/sign-in.dto';
 import { TokenDto } from 'src/auth/token.dto';
@@ -12,7 +11,6 @@ import { TokenDto } from 'src/auth/token.dto';
 export class UserController {
     constructor(
         private readonly userService: UserService,
-        private readonly emailConfirmationService: EmailConfirmationService,
         private readonly authService: AuthService
     ) {}
 
@@ -26,7 +24,7 @@ export class UserController {
     @Post('signIn')
     signIn(@Body() signInDto: SignInDto): Observable<TokenDto> {
       return this.userService.checkCredentials(signInDto).pipe(
-        map(id => this.authService.createToken(id))
+        map(id => this.authService.createToken(id, 'user'))
       )
     }
 
@@ -39,12 +37,10 @@ export class UserController {
     @Post('register')
     register(@Body() dto: Prisma.UserCreateInput): Observable<User> {
       return from(this.userService.create(dto)).pipe(
-        mergeMap(user => this.emailConfirmationService.sendVerificationLink(user.email).pipe(
-          map(() => {
-            delete user.passwordHash
-            return user
-          })
-        ))
+        map((user) => {
+          delete user.passwordHash
+          return user
+        })
       )
     }
 

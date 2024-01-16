@@ -4,7 +4,7 @@ import { ApplicantModule } from './applicant/applicant.module';
 import { ApplicationModule } from './application/application.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
-import { EmailConfirmationModule } from './email-confirmation/email-confirmation.module';
+// import { EmailConfirmationModule } from './email-confirmation/email-confirmation.module';
 import { ConfigModule } from '@nestjs/config';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { mailConfig } from './config/mail.config';
@@ -22,7 +22,7 @@ import { SchoolReportGroupModule } from './school-report-group/school-report-gro
     MailerModule.forRoot(mailConfig),
     AuthModule,
     UserModule,
-    EmailConfirmationModule,
+    // EmailConfirmationModule,
     ApplicantModule,
     ApplicationModule,
     LanguageModule,

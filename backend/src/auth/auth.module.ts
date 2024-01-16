@@ -5,7 +5,7 @@ import { JwtModule } from '@nestjs/jwt'
 import { ConfigModule } from '@nestjs/config'
 import { APP_GUARD } from '@nestjs/core'
 import { JwtAuthGuard } from './jwt-auth.guard'
-import { EmailConfirmationModule } from 'src/email-confirmation/email-confirmation.module'
+// import { EmailConfirmationModule } from 'src/email-confirmation/email-confirmation.module'
 import { jwtConstants } from '../config/jwt.config'
 import { PrismaModule } from '../prisma.module'
 
@@ -21,7 +21,7 @@ import { PrismaModule } from '../prisma.module'
           secret: jwtConstants.secret
         }),
         PrismaModule,
-        EmailConfirmationModule
+        // EmailConfirmationModule
       ],
       providers: [
         JwtStrategy,

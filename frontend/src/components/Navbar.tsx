@@ -5,12 +5,15 @@ import { PersonCircle } from 'react-bootstrap-icons';
 import htlLogoWhite from '../assets/images/htl-saalfelden-logo_white.png'
 
 const Navigationbar = () => {
-    const auth = useAuth()
+    const { userType, signOut, currentUser } = useAuth()
     const navigate = useNavigate()
 
-    const signOut = () => {
-        auth.signOut()
-        navigate("/signin-applicant")
+    const triggerSignOut = () => {
+        signOut()
+        if(userType === 'applicant')
+            navigate("/signin-applicant")
+        else
+            navigate("/signin-user")
     }
 
     return(        
@@ -18,9 +21,9 @@ const Navigationbar = () => {
             <Navbar.Brand href="#" className="ms-2"><img src={htlLogoWhite} alt="" /></Navbar.Brand>
             <div className="me-2">
                 <NavDropdown title={
-                    <PersonCircle color="white" size={40} title={auth.currentApplicant?.contactEmail} />
+                    <PersonCircle color="white" size={40} title={currentUser?.email} />
                 } id="basic-nav-dropdown" align="end">
-                    <NavDropdown.Item onClick={signOut}>Sign Out</NavDropdown.Item>
+                    <NavDropdown.Item onClick={triggerSignOut}>Sign Out</NavDropdown.Item>
                 </NavDropdown>
             </div>
         </Navbar>

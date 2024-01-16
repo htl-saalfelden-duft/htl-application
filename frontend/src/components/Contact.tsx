@@ -11,6 +11,7 @@ import { useFormContext } from 'react-hook-form'
 import { Applicant } from '../models/applicant.model'
 import { FormTextArea } from './form/contact/FormTextArea'
 import { FormDateInput } from './form/contact/FormDateInput'
+import { useTabs } from '../contexts/tabs.context'
 
 interface Props {
     type: ContactType
@@ -30,6 +31,10 @@ const Contact = (props: Props) => {
     const {
         register
     } = useFormContext<Applicant>()
+
+    const {
+        edit
+    } = useTabs()
 
     const getCountries = (inputValue: string) => {
         return apiService.get<Country[]>(Country, undefined, { title: inputValue })
@@ -87,8 +92,11 @@ const Contact = (props: Props) => {
             {parent ?
             <>
                 <FormCheck className="col-lg" attr="liableToPay" title="Zahlungspflichtig"/>
-                <FormCheck className="col-lg" attr="decitionTo" title="Entscheide an"/>
-                <FormCheck className="col-lg" attr="postTo" title="Post an"/>
+                {edit &&
+                <>
+                    <FormCheck className="col-lg" attr="decitionTo" title="Entscheide an"/>
+                    <FormCheck className="col-lg" attr="postTo" title="Post an"/>
+                </>}
             </>
             : null}
             <FormCheck className="col-lg" attr="primaryResidenz" title="Hauptwohnsitz"/>

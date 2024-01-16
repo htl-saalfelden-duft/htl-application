@@ -28,13 +28,17 @@ mongosh
 ### Changed schema
 Update Client
 ```sh
-npm run prisma:g
+npm run db:prisma:g
 ```
 
 ### Added npm-package
 Rebuild container
 ```sh
 sudo docker compose up --build -V
+```
+### Updating indices
+```sh
+npm run db:push
 ```
 
 ### Seeding DB

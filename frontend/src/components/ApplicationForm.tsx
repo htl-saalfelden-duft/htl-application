@@ -9,24 +9,33 @@ import { FormProvider, useForm } from "react-hook-form"
 import { Applicant } from "../models/applicant.model"
 import { useEffect, useMemo } from "react"
 import { ApiService } from "../services/api.service"
-import { useAuth } from "../contexts/auth.context"
 import { ContactType } from "../models/contact.model"
 import { contactType2tabType, isContactTab, tabType2ContactType } from "../common/tab.utils"
 import { toast } from "react-toastify"
 import { Applications } from "./Applications"
 import { getDBApplicant, setDefaultApplication, setDefaultApplicationStatus } from "../common/applicant-data.utils"
+import { useNavigate } from "react-router-dom"
 
-const FormTabs = () => {
+interface Props {
+    applicantID: string
+}
+
+const ApplicationForm = (props: Props) => {
+    const { applicantID } = props
+
     const {
         tabs,
         setTabs,
         currentTab,
-        setCurrentTab
+        setCurrentTab,
+        edit
     } = useTabs()
 
+    const navigate = useNavigate()
+
     const apiService = useMemo(() => new ApiService(), [])
-    const { currentApplicant } = useAuth()
     const formMethods = useForm<Applicant>()
+
 
     const setAppTabs = (applicant: Applicant) => {
 
@@ -36,23 +45,23 @@ const FormTabs = () => {
             tab!.active = true
         })
 
-        // if(applicant.schoolReport) {
-        //     const tab = currentTabs.find(t => t.type === 'schoolReport')
-        //     tab!.active = true
-        // }
+        if(applicant.schoolReport && edit) {
+            const tab = currentTabs.find(t => t.type === 'schoolReport')
+            tab!.active = true
+        }
         setTabs(currentTabs)
     }
 
     useEffect(() => {
-        if (currentApplicant) {
-            apiService.get<Applicant>(Applicant, currentApplicant?.id)
-                .then(applicant => {
-                    setAppTabs(applicant)
-                    setDefaultApplication(applicant)
-                    formMethods.reset(applicant)
-                })
+        if(applicantID) {
+            apiService.get<Applicant>(Applicant, applicantID)
+            .then(applicant => {
+                setAppTabs(applicant)
+                setDefaultApplication(applicant)
+                formMethods.reset(applicant)
+            })   
         }
-    }, [currentApplicant])
+    }, [applicantID])
 
 
     const onSubmit = formMethods.handleSubmit((applicant) => {
@@ -76,6 +85,9 @@ const FormTabs = () => {
         apiService.save<Applicant>(Applicant, dbApplicant)
         .then(() => {
             toast("Daten wurden gespeichert!", {type: 'success'})
+            if(edit) {
+                navigate('/applicants')
+            }
         })
     }
 
@@ -127,4 +139,4 @@ const FormTabs = () => {
     )
 }
 
-export default FormTabs
+export { ApplicationForm }

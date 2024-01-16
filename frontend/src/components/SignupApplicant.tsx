@@ -1,6 +1,5 @@
 import { useForm } from 'react-hook-form';
 
-import "./SignupApplicant.scss"
 import { Button, Card, CardBody, Container, Form, Row } from 'react-bootstrap';
 import { AuthService } from '../services/auth.service';
 import { toast } from 'react-toastify';
@@ -10,9 +9,9 @@ import htlLogo128 from '../assets/images/htl-saalfelden-logo_128.png'
 
 
 export interface SignUpFormInput {
-	contactEmail: string
+	email: string
 	password: string
-	passwordConfirmation: string
+	passwordConfirmation?: string
 }
 
 const SignupApplicant = () => {
@@ -52,12 +51,13 @@ const SignupApplicant = () => {
 								</Form.Label>
 								<Form.Control
 									type="email"
-									{...register("contactEmail", { required: "Bitte Email eingeben" })}
+									{...register("email", { required: "Bitte Email eingeben" })}
 									id="email"
+									isInvalid={!!errors.email}
 								/>
-								{errors.contactEmail && (
+								{errors.email && (
 									<Form.Text className="text-danger">
-										{errors.contactEmail.message}
+										{errors.email.message}
 									</Form.Text>
 								)}
 							</Form.Group>
@@ -66,7 +66,9 @@ const SignupApplicant = () => {
 								<Form.Control
 									type="password"
 									{...register("password", { required: "Bitte Passwort eingeben", minLength: 4 })}
-									id="password" />
+									id="password"
+									isInvalid={!!errors.password}
+								/>
 								{errors.password && (
 									<Form.Text className="text-danger">
 										{errors.password.type === 'required' && errors.password.message}
@@ -79,7 +81,9 @@ const SignupApplicant = () => {
 								<Form.Control
 									type="password"
 									{...register("passwordConfirmation", { required: "Bitte Passwort-Bestätigung eingeben", minLength: 4, validate: (value) => { return value === watch('password') } })}
-									id="password-confirmation" />
+									id="password-confirmation"
+									isInvalid={!!errors.passwordConfirmation}
+								/>
 								{errors.passwordConfirmation && (
 									<Form.Text className="text-danger">
 										{errors.passwordConfirmation.type === 'required' && errors.passwordConfirmation.message}

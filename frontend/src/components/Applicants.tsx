@@ -6,7 +6,7 @@ import { Pencil, PlusLg } from "react-bootstrap-icons"
 import { useNavigate } from "react-router-dom"
 import { AuthService } from "../services/auth.service"
 import { toast } from "react-toastify"
-import ApplicantNew, { INewFormFormInput } from "./ApplicantNew"
+import ApplicantNew, { IApplicantNewFormInput } from "./ApplicantNew"
 
 export const Applicants = () => {
     const apiService = useMemo(() => new ApiService(), [])
@@ -31,7 +31,7 @@ export const Applicants = () => {
         navigate("/applicant", { state: {id} })
     }
 
-    const newApplicant = (formData: INewFormFormInput) => {
+    const newApplicant = (formData: IApplicantNewFormInput) => {
         const applicant = {...{
             emailConfirmed: true,
         }, ...formData}

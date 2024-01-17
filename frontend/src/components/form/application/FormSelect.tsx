@@ -20,7 +20,6 @@ export const FormSelect = (props: {
     } = useFormContext<Applicant>()
 
     return (
-
         <Form.Group className={`mb-3 ${className}`}>
             <Form.Label htmlFor={`applications.${index}.${attr}`}>
                 {title}

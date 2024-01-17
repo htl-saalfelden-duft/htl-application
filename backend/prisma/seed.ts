@@ -99,7 +99,7 @@ async function main() {
 
     const contactTypes = [
         {
-            key: "own",
+            key: "applicant",
             title: "Eigene"
         },
         {

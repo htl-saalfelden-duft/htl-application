@@ -3,10 +3,9 @@ upstream backend {
 }
 
 server {
-    listen   443;
+    listen   443 ssl;
 
-    ssl    on;
-    ssl_certificate    /etc/ssl/public.crt
+    ssl_certificate    /etc/ssl/public.crt;
     ssl_certificate_key    /etc/ssl/private.key;
 
     server_name anmeldung.htl-saalfelden.at;

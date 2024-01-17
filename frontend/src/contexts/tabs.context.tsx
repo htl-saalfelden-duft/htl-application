@@ -1,52 +1,78 @@
 import React, {useContext, useState} from 'react'
-import { OPTIONAL_TABS } from '../assets/data/optional-tabs'
+import { INITIAL_CONTACT_TABS } from '../assets/data/initial-contact-tabs'
+import { ContactType, ContactTypes } from '../models/contact.model'
+import { contactType2Title, contactType2tabType } from '../common/tab.utils'
 
 interface Props {
     children: any
-    edit: boolean
+    admin: boolean
 }
 
 interface ApplicationTab {
     title: string
     parent?: boolean
-    active: boolean
     type: TabType
+    fixed?: true
 }
 
 type TabType = 'home' | 'details' | 'applications' | 'contact-applicant' | 'contact-father' | 'contact-mother' | 'schoolReport'
 
 interface TabsValues {
-    tabs: ApplicationTab[],
-    setTabs: (tabs: ApplicationTab[]) => void
+    contactTabs: ApplicationTab[],
+    setContactTabs: (tabs: ApplicationTab[]) => void
+    addContactTab: (type: ContactType) => void
+    removeContactTab: (index: number) => void
+
+    schoolReportEnabled: boolean
+    setSchoolReportEnabled: React.Dispatch<React.SetStateAction<boolean>>
+
     currentTab: string
     setCurrentTab: (type: TabType) => void
-    setTabState: (value: TabType, active: boolean) => void
-    edit: boolean
+
+    admin: boolean
 }
 
 const TabsContext = React.createContext<TabsValues>(undefined as any )
 const useTabs = () => useContext(TabsContext)
 
 const TabsProvider = (props: Props) => {
-    const [tabs, setTabs] = useState<ApplicationTab[]>(OPTIONAL_TABS);
+    const [schoolReportEnabled, setSchoolReportEnabled] = useState(false)
+    const [contactTabs, setContactTabs] = useState<ApplicationTab[]>(INITIAL_CONTACT_TABS);
     const [currentTab, setCurrentTab] = useState<TabType>('home');
 
-    const setTabState = (type: TabType, active: boolean) => {
-         setTabs(
-            tabs.map(tab => 
-                tab.type === type 
-                ? {...tab, active }
-                : tab)
-        )
+
+    const addContactTab = (contactType: ContactType) => {
+        setContactTabs(currentContactTabs => {
+            const contactTabs = [...currentContactTabs]
+            contactTabs.push({
+                type: contactType2tabType(contactType.key as ContactTypes) as TabType,
+                title: contactType2Title(contactType),
+                parent: true,
+            })
+            return contactTabs
+        }) 
+    }
+
+    const removeContactTab = (index: number) => {
+        setContactTabs(currentContactTabs => {
+            const contactTabs = [...currentContactTabs]
+            contactTabs.splice(index, 1)
+            return contactTabs
+        }) 
     }
 
     const value = {
-        tabs,
-        setTabs,
+        contactTabs,
+        setContactTabs,
+        addContactTab,
+        removeContactTab,
+
+        schoolReportEnabled,
+        setSchoolReportEnabled,
+
         currentTab,
         setCurrentTab,
-        setTabState,
-        edit: props.edit
+        admin: props.admin
     }
 
     return (

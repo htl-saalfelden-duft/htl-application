@@ -1,3 +1,5 @@
+import { Entity } from "../common/decorators/entity.decorator"
+
 interface Contact {
     title: string
     degree: string
@@ -23,10 +25,16 @@ interface Contact {
     annotation: string
     contactTypeKey: string
 }
+@Entity('contactType')
+class ContactType {
+    key!: string
+    title!: string
+}
 
-type ContactType = 
+type ContactTypes = 
     'applicant' | 
     'father' | 
     'mother'
 
-export type {ContactType, Contact}
+export type {ContactTypes, Contact}
+export { ContactType }

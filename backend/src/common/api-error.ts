@@ -143,14 +143,18 @@ export class ApiError extends HttpException {
                                 title: constraint as string,
                                 message: `Unique constraint failed on the ${constraint}`
                             }
-                            console.log('###########', apiError)
-
                             break;
                         default:
+                            apiError = {
+                                httpStatus: HttpStatus.BAD_REQUEST,
+                                title: undefined,
+                                message: undefined
+                            }
                             break;
                     }
 
                 } else {
+                    console.log(error) //Leave this for logging error in teminal
                     apiError = {
                         httpStatus: HttpStatus.BAD_REQUEST,
                         title: undefined,

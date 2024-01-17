@@ -8,7 +8,7 @@ const Applicant = () => {
     const { state } = useLocation()
     const { currentUser } = useAuth()
     const [applicantID, setApplicantID] = useState<string>()
-    let edit = !!state?.id
+    let admin = !!state?.id
 
     useEffect(() => {
         if (state?.id) {
@@ -16,10 +16,10 @@ const Applicant = () => {
         } else if (currentUser) {
             setApplicantID(currentUser?.id)
         }
-    }, [])
+    }, [currentUser])
 
     return (
-        <TabsProvider edit={edit}>
+        <TabsProvider admin={admin}>
             <ApplicationForm applicantID={applicantID as string} />
         </TabsProvider>
     )

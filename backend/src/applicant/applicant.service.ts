@@ -48,24 +48,17 @@ export class ApplicantService {
 
 	}
 
-	update(params: {
-		where: Prisma.ApplicantWhereUniqueInput;
-		data: Prisma.ApplicantUpdateInput
-	}): Promise<Applicant> {
-		const { data, where } = params;
-		const { details, schoolReport, contacts, applications } = data;
+	update(params: { data: Prisma.ApplicantUpdateInput, where: Prisma.ApplicantWhereUniqueInput }): Promise<Applicant> {
+		let { data, where } = params;
+		const applications = {
+			deleteMany: {},
+			createMany: { data: data.applications as Prisma.ApplicationCreateManyApplicantInput }
+		}
+		data = {...data, ...{applications}}
 
 		return this.prisma.applicant.update({
 			where,
-			data: {
-				details,
-				contacts,
-				schoolReport,
-				applications: {
-					deleteMany: {},
-					createMany: { data: applications as Prisma.ApplicationCreateManyApplicantInput }
-				}
-			}
+			data
 		})
 			.catch(error => {
 				throw new ApiError(error)

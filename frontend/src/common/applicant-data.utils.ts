@@ -33,6 +33,9 @@ const setDefaultApplication = (applicant: Applicant) => {
 const getDBApplicant = (applicant: Applicant): Applicant => {
     const dbApplicant = structuredClone(applicant)
 
+    //filter null values
+    dbApplicant.contacts = dbApplicant.contacts?.filter((contact:any) => contact)
+
     setApplicantContactRedundances(dbApplicant)
     setApplicationValues(dbApplicant)
     return dbApplicant

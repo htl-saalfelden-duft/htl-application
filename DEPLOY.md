@@ -59,7 +59,7 @@ do
 done
 ```
 
-Installing docker
+## Installing docker
 ```sh
 sudo dnf --refresh update
 sudo dnf upgrade
@@ -73,6 +73,11 @@ sudo systemctl enable docker
 
 sudo systemctl status docker
 ```
+
+## Prerequisites
+    private.key and public.crt in frontent/ssl folder
+
+## Run docker-containers
 
 run in production
 ```sh

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Row } from 'react-bootstrap'
 import { Country } from '../models/country.model'
 import { ApiService } from '../services/api.service'
-import { ContactType} from '../models/contact.model'
+import { ContactTypes } from '../models/contact.model'
 import { FormInput } from './form/contact/FormInput'
 import { FormSelect } from './form/contact/FormSelect'
 import { FormCheck } from './form/contact/FormCheck'
@@ -14,13 +14,15 @@ import { FormDateInput } from './form/contact/FormDateInput'
 import { useTabs } from '../contexts/tabs.context'
 
 interface Props {
-    type: ContactType
+    type: ContactTypes
     index: number
     parent?: boolean
     require?: boolean
 }
 
 const Contact = (props: Props) => {
+    // const { type, index, parent, require } = props
+
     const apiService = useMemo(() => new ApiService(), [])
 
     const [type, setType] = useState(props.type)
@@ -33,7 +35,7 @@ const Contact = (props: Props) => {
     } = useFormContext<Applicant>()
 
     const {
-        edit
+        admin
     } = useTabs()
 
     const getCountries = (inputValue: string) => {
@@ -91,9 +93,9 @@ const Contact = (props: Props) => {
 
             {parent ?
             <>
-                <FormCheck className="col-lg" attr="liableToPay" title="Zahlungspflichtig"/>
-                {edit &&
+                {admin &&
                 <>
+                    <FormCheck className="col-lg" attr="liableToPay" title="Zahlungspflichtig"/>
                     <FormCheck className="col-lg" attr="decitionTo" title="Entscheide an"/>
                     <FormCheck className="col-lg" attr="postTo" title="Post an"/>
                 </>}

@@ -36,10 +36,7 @@ export const FormDateInput = (props: {
                         wrapperClassName="input-group"
                         className="form-control"
                         placeholderText='Select date'
-                        onChange={(value) => {
-                            console.log(value)
-                            return field.onChange(value)
-                        }}
+                        onChange={(value) => field.onChange(value)}
                         id="birthdate"
                         dateFormat="dd.MM.yyy"
                         selected={field.value ? new Date(field.value as string) : undefined}

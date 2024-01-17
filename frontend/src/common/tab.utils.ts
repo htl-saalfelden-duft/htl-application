@@ -1,16 +1,16 @@
 import { TabType } from "../contexts/tabs.context"
-import { ContactType } from "../models/contact.model"
+import { ContactType, ContactTypes } from "../models/contact.model"
 
-const tabType2ContactType = (tabType: TabType): ContactType => {
-    return tabType.replace('contact-', '') as ContactType
+const tabType2ContactType = (tabType: TabType): ContactTypes => {
+    return tabType.replace('contact-', '') as ContactTypes
 }
 
-const contactType2tabType = (contactType: ContactType): TabType => {
+const contactType2Title = (contactType: ContactType): string => {
+    return `Kontakt ${contactType?.title}`
+}
+
+const contactType2tabType = (contactType: ContactTypes): TabType => {
     return `contact-${contactType}`
 }
 
-const isContactTab = (type: TabType) => {
-    return type.startsWith('contact-')
-}
-
-export {tabType2ContactType,  contactType2tabType, isContactTab}
+export {tabType2ContactType,  contactType2tabType, contactType2Title}

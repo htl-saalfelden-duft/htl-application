@@ -26,34 +26,36 @@ export class ApplicantController {
     return this.applicantService.getOne({
       id: true,
       email: true
-    }, { 
-      id: req.user.id 
+    }, {
+      id: req.user.id
     })
   }
 
   @Get(':id')
   async getOne(@Param('id') id: string): Promise<Applicant> {
-      return this.applicantService.getOne(null, {
-        id
-      })
+    return this.applicantService.getOne(null, {
+      id
+    })
   }
 
   @Get()
   async getMany(): Promise<Applicant[]> {
-      return this.applicantService.getMany()
+    return this.applicantService.getMany()
   }
 
   @Patch(':id')
   update(@Body() dto: Applicant): Promise<Applicant> {
-      return this.applicantService.update({
-        where: { id: dto.id },
-        data: dto
-      })
+    const { id } = dto
+    delete dto.id
+    return this.applicantService.update({
+      where: { id },
+      data: dto
+    })
   }
 
   @Post()
   async create(@Body() applicantData: Prisma.ApplicantCreateInput): Promise<Applicant> {
-      return this.applicantService.create(applicantData)
+    return this.applicantService.create(applicantData)
   }
 
   @Public()
@@ -80,16 +82,16 @@ export class ApplicantController {
   @Public()
   @Post('confirm')
   confirm(@Body() confirmationData: ConfirmEmailDto): Observable<unknown> {
-      return from(this.emailConfirmationService.decodeConfirmationToken(confirmationData.token)).pipe(
-          mergeMap(email => this.applicantService.confirmEmail(email)),
-          map(() => { success: true })
-      )
+    return from(this.emailConfirmationService.decodeConfirmationToken(confirmationData.token)).pipe(
+      mergeMap(email => this.applicantService.confirmEmail(email)),
+      map(() => { success: true })
+    )
   }
 
   @Public()
   @Post(':id/resendConfirmation')
   resendConfirmation(@Param('id') id: string): Observable<unknown> {
-    return from(this.applicantService.getOne(null, {id})).pipe(
+    return from(this.applicantService.getOne(null, { id })).pipe(
       mergeMap(applicant => {
         if (applicant.emailConfirmed) {
           throw new ApiError(ApiErrorType.EMAIL_ALREADY_CONFIRMED);

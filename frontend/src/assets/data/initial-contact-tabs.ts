@@ -1,29 +1,22 @@
 import { ApplicationTab } from "../../contexts/tabs.context"
 
-const OPTIONAL_TABS: ApplicationTab[] = [
+const INITIAL_CONTACT_TABS: ApplicationTab[] = [
     {
         title: "Kontakt-Bewerber",
         type: "contact-applicant",
         parent: false,
-        active: true,
+        fixed: true
     },
     {
         title: "Kontakt-Vater",
         type: "contact-father",
-        parent: true,
-        active: true,
+        parent: true
     },
     {
         title: "Kontakt-Mutter",
         type: "contact-mother",
-        parent: true,
-        active: true,
-    },
-    {
-        title: "Schulnoten",
-        type: "schoolReport",
-        active: false
+        parent: true
     }
 ]
 
-export { OPTIONAL_TABS }
+export { INITIAL_CONTACT_TABS }

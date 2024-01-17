@@ -1,15 +1,14 @@
 import { Button, Form, Modal } from "react-bootstrap"
 import { useForm } from "react-hook-form"
-import { Applicant } from "../models/applicant.model"
 import { ErrorMessege } from "./form/details/ErrorMessage"
 
 interface Props {
     show: boolean
     onClose: () => void
-    onSubmit: (applicant: INewFormFormInput) => void
+    onSubmit: (applicant: IApplicantNewFormInput) => void
 }
 
-export interface INewFormFormInput {
+export interface IApplicantNewFormInput {
     email: string
     password: string
     details: { firstname: string, lastname: string }
@@ -23,7 +22,7 @@ const ApplicantNew = (props: Props) => {
         register,
         handleSubmit,
         formState: { errors }
-    } = useForm<INewFormFormInput>()
+    } = useForm<IApplicantNewFormInput>()
 
     const onFormSubmit = handleSubmit((data) => {
         onSubmit(data)

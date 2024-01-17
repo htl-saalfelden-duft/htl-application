@@ -34,7 +34,7 @@ model Applicant {
 
 	passwordHash			String?
 	active					Boolean		@default(true)
-	dsgvo					Boolean
+	dsgvo					Boolean		@default(false)
 
 	details					ApplicantDetails?
     contacts      			Contact[]

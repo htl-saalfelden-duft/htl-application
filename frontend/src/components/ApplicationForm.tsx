@@ -1,5 +1,5 @@
 import { Form, Tab, Tabs } from "react-bootstrap"
-import { ApplicationTab, TabType, useTabs } from "../contexts/tabs.context"
+import { TabType, useTabs } from "../contexts/tabs.context"
 import { HouseFill } from "react-bootstrap-icons"
 import { HomeTab } from "./HomeTab"
 import ApplicantDetails from "./ApplicantDetails"
@@ -9,8 +9,8 @@ import { FormProvider, useForm } from "react-hook-form"
 import { Applicant } from "../models/applicant.model"
 import { useEffect, useMemo } from "react"
 import { ApiService } from "../services/api.service"
-import { ContactType } from "../models/contact.model"
-import { contactType2tabType, isContactTab, tabType2ContactType } from "../common/tab.utils"
+import { ContactType, ContactTypes } from "../models/contact.model"
+import { contactType2Title, contactType2tabType, tabType2ContactType } from "../common/tab.utils"
 import { toast } from "react-toastify"
 import { Applications } from "./Applications"
 import { getDBApplicant, setDefaultApplication, setDefaultApplicationStatus } from "../common/applicant-data.utils"
@@ -24,11 +24,12 @@ const ApplicationForm = (props: Props) => {
     const { applicantID } = props
 
     const {
-        tabs,
-        setTabs,
+        contactTabs,
+        setContactTabs,
         currentTab,
         setCurrentTab,
-        edit
+        admin,
+        schoolReportEnabled
     } = useTabs()
 
     const navigate = useNavigate()
@@ -37,29 +38,37 @@ const ApplicationForm = (props: Props) => {
     const formMethods = useForm<Applicant>()
 
 
-    const setAppTabs = (applicant: Applicant) => {
+    const enableContactTabs = (applicant: Applicant, contactTypes: ContactType[]) => {
 
-        const currentTabs = [...tabs]
+        const currentTabs = [...contactTabs.filter(ct => ct.type === 'contact-applicant')]
+
         applicant.contacts?.forEach(c => {
-            const tab = currentTabs.find(t => t.type === contactType2tabType(c.contactTypeKey as ContactType))
-            tab!.active = true
-        })
+            if(c.contactTypeKey !== 'contact-applicant') {
+                const contactType = contactTypes.find(ct => ct.key === tabType2ContactType(c.contactTypeKey as TabType)) as ContactType
 
-        if(applicant.schoolReport && edit) {
-            const tab = currentTabs.find(t => t.type === 'schoolReport')
-            tab!.active = true
-        }
-        setTabs(currentTabs)
+                currentTabs.push({
+                    title: contactType2Title(contactType),
+                    parent: true,
+                    type: contactType2tabType(contactType?.key as ContactTypes)
+                })
+                setContactTabs(currentTabs)
+            }
+        })
     }
 
     useEffect(() => {
+        let applicant: Applicant
         if(applicantID) {
             apiService.get<Applicant>(Applicant, applicantID)
-            .then(applicant => {
-                setAppTabs(applicant)
+            .then(_applicant => {
+                applicant = _applicant
+                return apiService.get<ContactType[]>(ContactType, undefined)
+            })
+            .then(contactTypes => {
+                enableContactTabs(applicant, contactTypes)
                 setDefaultApplication(applicant)
                 formMethods.reset(applicant)
-            })   
+            })
         }
     }, [applicantID])
 
@@ -85,32 +94,12 @@ const ApplicationForm = (props: Props) => {
         apiService.save<Applicant>(Applicant, dbApplicant)
         .then(() => {
             toast("Daten wurden gespeichert!", {type: 'success'})
-            if(edit) {
+            if(admin) {
                 navigate('/applicants')
             }
         })
     }
 
-    const mapTab = (tab: ApplicationTab, index: number) => {
-        if(isContactTab(tab.type) && tab.active) {
-            const type = tabType2ContactType(tab.type)
-
-            return (
-                <Tab key={tab.type} eventKey={tab.type} title={tab.title}>
-                    <Contact type={type as ContactType} index={index} parent={tab.parent} require={true} />
-                </Tab>
-            )
-        }
-        if(tab.type === "schoolReport" && tab.active) {
-            return (
-                <Tab key={tab.type} eventKey="schoolReport" title="Schulnoten">
-                    <SchoolReport />
-                </Tab>
-            )
-        }
-    }
-
-    const activeOptionalTabs = tabs.filter(t => t.active)
 
     return (
         <FormProvider {...formMethods} >
@@ -132,7 +121,16 @@ const ApplicationForm = (props: Props) => {
                         <ApplicantDetails />
                     </Tab>
 
-                    { activeOptionalTabs.map((tab, index) => mapTab(tab, index))}                
+                    { contactTabs.map((contactTab, index) => 
+                        <Tab key={index} eventKey={contactTab.type} title={contactTab.title}>
+                            <Contact type={contactTab.type as ContactTypes} index={index} parent={contactTab.parent} require={true} />
+                        </Tab>
+                    )}
+
+                    { admin && schoolReportEnabled &&
+                    <Tab eventKey="schoolReport" title="Schulnoten">
+                        <SchoolReport />
+                    </Tab> }       
                 </Tabs>
             </Form>
         </FormProvider>

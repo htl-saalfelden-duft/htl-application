@@ -21,7 +21,7 @@
     "db:push": "./scripts/db-push.sh",
     "db:seed": "./scripts/db-seed.sh",
     "db:seed:prod": "./scripts/db-seed-prod.sh",
-    "db:prisma:g": "./scripts/generater.sh",
+    "db:prisma:g": "./scripts/prisma-generater.sh",
     "nest:g": "./scripts/nest-generate.sh",
     "prisma:g": "npx prisma generate"
   },

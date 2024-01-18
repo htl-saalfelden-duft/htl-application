@@ -86,11 +86,7 @@ const HomeTab = (props: Props) => {
     const handleEnabledSchoolReport = () => {
         setValidated(false)
 
-        //const applicant = getValues()
-
-        setSchoolReportEnabled(enabled => {
-            return !enabled
-        })
+        setSchoolReportEnabled(enabled => !enabled)
     }
 
     return (

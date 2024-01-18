@@ -8,7 +8,7 @@ server {
     ssl_certificate    /etc/ssl/public.crt;
     ssl_certificate_key    /etc/ssl/private.key;
 
-    server_name anmeldung.htl-saalfelden.at;
+    server_name anmeldung.htlsaalfelden.at;
     access_log /var/log/nginx/nginx.access.log;
     error_log /var/log/nginx/nginx.error.log;
 

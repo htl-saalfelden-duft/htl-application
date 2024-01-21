@@ -4,8 +4,8 @@ import { SchoolClass } from "./schoolClass.model"
 @Entity('application')
 export class Application {
     id?: string
-    priority!: number
-    statusKey?: string
+    priority?: number
+    statusKey?: ApplicationStatusKey
     schoolClassID!: string
     schoolClass?: SchoolClass
     applicantID?: number

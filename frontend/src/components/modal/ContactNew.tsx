@@ -1,9 +1,9 @@
 import { Button, Form, Modal } from "react-bootstrap"
 import { Controller, useForm } from "react-hook-form"
 import AsyncSelect from 'react-select/async'
-import { ContactType } from "../models/contact.model"
+import { ContactType } from "../../models/contact.model"
 import { useMemo } from "react"
-import { ApiService } from "../services/api.service"
+import { ApiService } from "../../services/api.service"
 
 interface Props {
     show: boolean

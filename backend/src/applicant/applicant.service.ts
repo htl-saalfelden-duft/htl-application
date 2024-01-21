@@ -30,7 +30,10 @@ export class ApplicantService {
 	}
 
 	getMany(): Promise<Applicant[]> {
-		return this.prisma.applicant.findMany()
+		return this.prisma.applicant.findMany({
+				include: { applications: { include: { schoolClass: true } } },
+				orderBy: {details: {lastname: 'asc'}}}
+			)
 			.catch(error => {
 				throw new ApiError(error)
 			})

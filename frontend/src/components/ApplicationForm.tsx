@@ -7,14 +7,15 @@ import Contact from "./Contact"
 import SchoolReport from "./SchoolReport"
 import { FormProvider, useForm } from "react-hook-form"
 import { Applicant } from "../models/applicant.model"
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { ApiService } from "../services/api.service"
 import { ContactType, ContactTypes } from "../models/contact.model"
 import { contactType2Title, contactType2tabType, tabType2ContactType } from "../common/tab.utils"
 import { toast } from "react-toastify"
 import { Applications } from "./Applications"
-import { getDBApplicant, setDefaultApplication, setDefaultApplicationStatus } from "../common/applicant-data.utils"
+import { getDBApplicant, isApplicantApplied, setDefaultApplication, setDefaultApplicationStatus } from "../common/applicant-data.utils"
 import { useNavigate } from "react-router-dom"
+import SubmitConfirmation from "./modal/SubmitConfirmation"
 
 interface Props {
     applicantID: string
@@ -36,7 +37,10 @@ const ApplicationForm = (props: Props) => {
 
     const apiService = useMemo(() => new ApiService(), [])
     const formMethods = useForm<Applicant>()
+    const { reset, handleSubmit, getValues } = formMethods
 
+    const [ showSubmitConfirmation, setShowSubmitConfirmation ] = useState(false)
+    const [ isApplied, setIsApplied ] = useState(false)
 
     const enableContactTabs = (applicant: Applicant, contactTypes: ContactType[]) => {
 
@@ -67,13 +71,22 @@ const ApplicationForm = (props: Props) => {
             .then(contactTypes => {
                 enableContactTabs(applicant, contactTypes)
                 setDefaultApplication(applicant)
-                formMethods.reset(applicant)
+                reset(applicant)
+
+                if(isApplicantApplied(applicant)) {
+                    setIsApplied(!admin)
+                }
             })
         }
     }, [applicantID])
 
 
-    const onSubmit = formMethods.handleSubmit((applicant) => {
+    const onSubmit = handleSubmit(() => {
+        setShowSubmitConfirmation(true)
+    })
+
+    const proceedSubmit = () => {
+        const applicant = getValues()
 
         setDefaultApplicationStatus(applicant, 'applied')
         const dbApplicant = getDBApplicant(applicant)
@@ -81,12 +94,21 @@ const ApplicationForm = (props: Props) => {
         console.log(dbApplicant)
 
         apiService.save<Applicant>(Applicant, dbApplicant).then(() => {
-            toast("Daten wurden erfolgreich gesendet", {type: 'success'})
+            toast("Ihre Bewerbung wurde erfolgreich an uns übermittelt! Sie erhalten zusätzlich eine Bestätigung per Email.", 
+            {type: 'success', autoClose: 1E4})
+
+            setShowSubmitConfirmation(false)
+
+            if(admin) {
+                navigate('/applicants')
+            } else {
+                setIsApplied(true)
+            }
         })
-    })
+    }
 
     const onSave = () => {
-        const applicant = formMethods.getValues()
+        const applicant = getValues()
 
         setDefaultApplicationStatus(applicant, 'created')
         const dbApplicant = getDBApplicant(applicant)
@@ -110,20 +132,26 @@ const ApplicationForm = (props: Props) => {
                     onSelect={(tab) => setCurrentTab(tab as TabType)}>
 
                     <Tab eventKey="home" title={<HouseFill size={20} />}>
-                        <HomeTab onSave={onSave}/>
+                        <HomeTab onSave={onSave} applied={isApplied}/>
                     </Tab>
 
                     <Tab eventKey="applications" title="Bewerbungen" >
-                        <Applications />
+                        <fieldset disabled={isApplied}>
+                            <Applications />
+                        </fieldset>
                     </Tab>
 
                     <Tab eventKey="details" title="Daten-Bewerber">
-                        <ApplicantDetails />
+                        <fieldset disabled={isApplied}>
+                            <ApplicantDetails />
+                        </fieldset>
                     </Tab>
 
                     { contactTabs.map((contactTab, index) => 
                         <Tab key={index} eventKey={contactTab.type} title={contactTab.title}>
-                            <Contact type={contactTab.type as ContactTypes} index={index} parent={contactTab.parent} require={true} />
+                            <fieldset disabled={isApplied}>
+                                <Contact type={contactTab.type as ContactTypes} index={index} parent={contactTab.parent} require={true} />
+                            </fieldset>
                         </Tab>
                     )}
 
@@ -132,6 +160,7 @@ const ApplicationForm = (props: Props) => {
                         <SchoolReport />
                     </Tab> }       
                 </Tabs>
+                <SubmitConfirmation show={showSubmitConfirmation} onSubmit={proceedSubmit} onClose={() => setShowSubmitConfirmation(false)} />
             </Form>
         </FormProvider>
     )

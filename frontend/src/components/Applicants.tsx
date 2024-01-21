@@ -6,7 +6,7 @@ import { Pencil, PlusLg } from "react-bootstrap-icons"
 import { useNavigate } from "react-router-dom"
 import { AuthService } from "../services/auth.service"
 import { toast } from "react-toastify"
-import ApplicantNew, { IApplicantNewFormInput } from "./ApplicantNew"
+import ApplicantNew, { IApplicantNewFormInput } from "./modal/ApplicantNew"
 
 export const Applicants = () => {
     const apiService = useMemo(() => new ApiService(), [])
@@ -67,6 +67,8 @@ export const Applicants = () => {
                                 <th>#</th>
                                 <th>Vorname</th>
                                 <th>Nachname</th>
+                                <th>Abteilung</th>
+                                <th>Status</th>
                                 <th>Antrags-Email</th>
                                 <th></th>
                             </tr>
@@ -77,6 +79,8 @@ export const Applicants = () => {
                                     <td>{index + 1}</td>
                                     <td>{applicant.details?.firstname}</td>
                                     <td>{applicant.details?.lastname}</td>
+                                    <td>{(applicant.applications && applicant.applications[0]?.schoolClass?.title) || '-'}</td>
+                                    <td>{(applicant.applications && applicant.applications[0]?.statusKey) || '-'}</td>
                                     <td>{applicant.email}</td>
                                     <td>
                                         <Button variant="outline-primary" className="me-2" onClick={() => {openApplicant(applicant.id as string)}}><Pencil /></Button>

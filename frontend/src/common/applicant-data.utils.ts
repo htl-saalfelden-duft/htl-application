@@ -1,6 +1,6 @@
 import { pick } from "lodash"
 import { Applicant } from "../models/applicant.model"
-import { ApplicationStatusKey } from "../models/application.model"
+import { Application, ApplicationStatusKey } from "../models/application.model"
 
 const setApplicantContactRedundances = (applicant: Applicant) => {
     let applicantContactIndex = applicant.contacts?.findIndex(c => c.contactTypeKey === 'applicant')
@@ -15,6 +15,8 @@ const setApplicationValues = (applicant: Applicant) => {
   
             application.schoolClassID = application.schoolClass?.id as string
             delete application.schoolClass
+
+            application.priority = index +1
         })
 }
 
@@ -25,8 +27,15 @@ const setDefaultApplicationStatus = (applicant: Applicant, applicationStatusKey:
 }
 
 const setDefaultApplication = (applicant: Applicant) => {
+    const defaultApplications: Application[] = [
+        {schoolClassID: ""},
+        {schoolClassID: ""},
+        {schoolClassID: ""}
+    ]
     if(!applicant.applications?.length) {
-        applicant.applications?.push({priority: 1, schoolClassID: ""})
+        defaultApplications.forEach(da => {
+            applicant.applications?.push(da)
+        })
     }   
 }
 
@@ -41,4 +50,14 @@ const getDBApplicant = (applicant: Applicant): Applicant => {
     return dbApplicant
 }
 
-export {setDefaultApplication, getDBApplicant, setDefaultApplicationStatus}
+const isApplicantApplied = (applicant: Applicant) => {
+    let applied = true
+    applicant.applications?.forEach(a => {
+        if(a.statusKey !== 'applied') {
+            applied = false
+        }
+    })
+    return applied
+}
+
+export {setDefaultApplication, getDBApplicant, setDefaultApplicationStatus, isApplicantApplied}

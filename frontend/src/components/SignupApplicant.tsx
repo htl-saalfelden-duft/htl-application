@@ -47,7 +47,7 @@ const SignupApplicant = () => {
 							</div>
 							<Form.Group className="mb-3">
 								<Form.Label htmlFor="email">
-									Email
+									Email-Adresse
 								</Form.Label>
 								<Form.Control
 									type="email"

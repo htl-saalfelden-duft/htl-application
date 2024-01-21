@@ -7,6 +7,6 @@ export class CountryService {
     constructor(private prisma: PrismaService) {}
     
     getMany(where: Prisma.CountryWhereInput): Promise<Country[]> {
-        return this.prisma.country.findMany({where}) 
+        return this.prisma.country.findMany({where, orderBy: {title: 'asc'}}) 
     }
 }

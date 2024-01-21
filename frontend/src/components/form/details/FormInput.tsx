@@ -3,13 +3,14 @@ import { useFormContext } from 'react-hook-form'
 import { Applicant } from '../../../models/applicant.model'
 import { ApplicantDetails } from '../../../models/applicant-details.model'
 import { ErrorMessege } from './ErrorMessage'
+import { hasError } from './details-form.util'
 
 interface Props {
     attr: keyof ApplicantDetails
     title: string
     required?: boolean
     className?: string
-    type?: string
+    type?: 'text' | 'email'
 }
 
 export const FormInput = (props: Props) => {
@@ -22,8 +23,6 @@ export const FormInput = (props: Props) => {
         formState: { errors }
     } = useFormContext<Applicant>()
 
-    const hasError = !!(errors.details && errors.details[attr])
-
     return (
         <Form.Group className={`mb-3 ${className}`}>
             <Form.Label htmlFor={`details.${attr}`}>
@@ -31,9 +30,15 @@ export const FormInput = (props: Props) => {
             </Form.Label>
             <Form.Control
                 type={type}
-                {...register(`details.${attr}`, { required: (required ? `Bitte ${title} angeben` : undefined) })}
+                {...register(`details.${attr}`, { 
+                    required: (required ? `Bitte ${title} angeben` : undefined),
+                    pattern: type === 'email' ? {
+                        value: /\S+@\S+\.\S+/,
+                        message: "Bitte gültige Email-Adresse eingeben",
+                    } : undefined
+                })}
                 id={`details.${attr}`}
-                isInvalid={hasError}
+                isInvalid={hasError(errors, attr)}
             />
             <ErrorMessege errors={errors} attr={attr}/>
         </Form.Group>

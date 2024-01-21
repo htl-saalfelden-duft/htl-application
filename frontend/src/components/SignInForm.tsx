@@ -36,7 +36,7 @@ const SignInForm = (props: Props) => {
 
 							<Form.Group className="mt-4 mb-3">
 								<Form.Label htmlFor="email">
-									Email address
+									Email-Addresse
 								</Form.Label>
 								<Form.Control
 									type="email"
@@ -51,7 +51,7 @@ const SignInForm = (props: Props) => {
 								)}
 							</Form.Group>
 							<Form.Group className="mb-3">
-								<Form.Label htmlFor="password">Password</Form.Label>
+								<Form.Label htmlFor="password">Passwort</Form.Label>
 								<Form.Control
 									type="password"
 									{...register("password", { required: "Bitte Passwort eingeben", maxLength: 20 })}

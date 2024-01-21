@@ -5,6 +5,7 @@ import { Applicant } from "../../../models/applicant.model"
 import { Contact as IContact } from '../../../models/contact.model'
 import { useContact } from "../../../contexts/contact.context"
 import { ErrorMessege } from "./ErrorMessage"
+import { hasError } from "./contact-form.util"
 
 export const FormSelect = (props: {
     attr: keyof IContact,
@@ -22,7 +23,7 @@ export const FormSelect = (props: {
 
     return (
 
-        <Form.Group className={`mb-3 ${className}`}>
+        <Form.Group className={`form-select-group  mb-3 ${className}`}>
             <Form.Label htmlFor={`contacts.${index}.${attr}`}>
                 {title}{required ? '*' : null}
             </Form.Label>
@@ -41,6 +42,7 @@ export const FormSelect = (props: {
                         onChange={val => field.onChange(val?.title)}
                         getOptionLabel={option => option.title as string}
                         inputId={`contacts.${index}.${attr}`}
+                        className={`${hasError(errors, index, attr) ? 'is-invalid' : ''}`}
                     />
                 )}
             />

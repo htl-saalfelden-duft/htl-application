@@ -1,6 +1,10 @@
 .list-group-item {
     border-top-width: 1px !important;
     margin-top: 1px;
+
+    &:hover:not(.list-group-item-secondary) {
+        background-color: rgb(0,0,0,0.05);
+    }
 }
 
 .invalid {

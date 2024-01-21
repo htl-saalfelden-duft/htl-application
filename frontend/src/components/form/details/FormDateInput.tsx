@@ -2,20 +2,19 @@ import { Form } from "react-bootstrap"
 import ReactDatePicker from "react-datepicker"
 import { Controller, useFormContext } from "react-hook-form"
 import { Applicant } from "../../../models/applicant.model"
-import { Contact as IContact } from '../../../models/contact.model'
-import { useContact } from "../../../contexts/contact.context"
 import { ErrorMessege } from "./ErrorMessage"
-import { hasError } from "./contact-form.util"
+import { ApplicantDetails } from "../../../models/applicant-details.model"
+import { hasError } from "./details-form.util"
 
 export const FormDateInput = (props: {
-    attr: keyof IContact,
+    attr: keyof ApplicantDetails,
     title: string,
     required?: boolean,
     className?: string
 }) => {
 
     const { attr, title, required, className } = props
-    const { index } = useContact()
+
     const {
         control,
         formState: { errors }
@@ -23,27 +22,27 @@ export const FormDateInput = (props: {
 
     return (
         <Form.Group className={`mb-3 ${className}`}>
-            <Form.Label htmlFor={`contacts.${index}.${attr}`}>
+            <Form.Label htmlFor={`details.${attr}`}>
                 {title}{required ? '*' : null}
             </Form.Label>
             <Controller
                 control={control}
-                name={`contacts.${index}.${attr}`}
+                name={`details.${attr}`}
                 rules={{
                     required: (required ? `Bitte ${title} angeben` : undefined)
                 }}
                 render={({ field }) => (
                     <ReactDatePicker
                         wrapperClassName="input-group"
-                        className={`form-control ${hasError(errors, index, attr) ? 'is-invalid' : ''}`}
+                        className={`form-control ${hasError(errors, attr) ? 'is-invalid' : ''}`}
                         placeholderText='Select date'
                         onChange={(value) => field.onChange(value)}
-                        id={`contacts.${index}.${attr}`}
+                        id={`details.${attr}`}
                         dateFormat="dd.MM.yyyy"
                         selected={field.value ? new Date(field.value as string) : undefined}
                     />
                 )} />
-            <ErrorMessege errors={errors} index={index} attr={attr}/>
+            <ErrorMessege errors={errors} attr={attr}/>
         </Form.Group>
     )
 }

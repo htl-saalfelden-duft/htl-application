@@ -26,7 +26,7 @@ export const FormTextArea = (props: { attr: keyof Contact, title: string, requir
                 as="textarea"
                 rows={3}
                 {...register(`contacts.${index}.${attr}`, { required: (required ? `Bitte ${title} angeben` : undefined) })}
-                id="annotation"
+                id={`contacts.${index}.${attr}`}
             />
             <ErrorMessege errors={errors} index={index} attr={attr}/>
         </Form.Group>

@@ -43,7 +43,7 @@ async function main() {
         })
     })
 
-    const religions = ["AAGÖ", "ALEVI", "altkath.", "armen.-apostol.", "armen.-kath.", "äthiopisch-katholisch", "Bahai", "buddhist.", "bulgarisch-katholisch", "bulg.-orth.", "byzantinisch-katholisch", "chaldäisch-katholisch", "CofE", "Christengemeinschaft", "EmK", "evang. A.B.", "evang. H.B.", "freikl.", "freikl. BBGÖ", "freikl. BEG", "freikl. ECG", "freikl. FCGÖ", "freikl. MFÖ", "griech.-kath.", "griech.-orth.", "hinduistisch", "HRÖ", "islam. (IGGÖ)", "israel.", "italo-albanisch", "Jehovas Zeugen", "Kirche der STA", "Kirche Jesu Christi HLT", "koptisch-katholisch", "kopt.-orth.", "maronitisch-katholisch", "melkitisch-katholisch", "neuapostol.", "o.B.", "orth.", "PfK Gem. Gottes iÖ", "röm.-kath.", "rumänisch-katholisch", "rumän.-orth.", "russ.-orth.", "ruthenisch-katholisch", "islam. (SCHIA)", "Sikh", "slowakisch-katholisch", "sonst", "syrisch-katholisch", "syro-malabar-katholisch", "syro-malankar-katholisch", "ukrainisch-katholisch", "ungarisch-katholisch", "VPKÖ", "Vereinigungskirsch", "",]
+    const religions = ["AAGÖ", "ALEVI", "altkath.", "armen.-apostol.", "armen.-kath.", "äthiopisch-katholisch", "Bahai", "buddhist.", "bulgarisch-katholisch", "bulg.-orth.", "byzantinisch-katholisch", "chaldäisch-katholisch", "CofE", "Christengemeinschaft", "EmK", "evang. A.B.", "evang. H.B.", "freikl.", "freikl. BBGÖ", "freikl. BEG", "freikl. ECG", "freikl. FCGÖ", "freikl. MFÖ", "griech.-kath.", "griech.-orth.", "hinduistisch", "HRÖ", "islam. (IGGÖ)", "israel.", "italo-albanisch", "Jehovas Zeugen", "Kirche der STA", "Kirche Jesu Christi HLT", "koptisch-katholisch", "kopt.-orth.", "maronitisch-katholisch", "melkitisch-katholisch", "neuapostol.", "o.B.", "orth.", "PfK Gem. Gottes iÖ", "röm.-kath.", "rumänisch-katholisch", "rumän.-orth.", "russ.-orth.", "ruthenisch-katholisch", "islam. (SCHIA)", "Sikh", "slowakisch-katholisch", "sonst", "syrisch-katholisch", "syro-malabar-katholisch", "syro-malankar-katholisch", "ukrainisch-katholisch", "ungarisch-katholisch", "VPKÖ", "Vereinigungskirsch"]
     religions.forEach(async (title) => {
         await prisma.religion.upsert({
             where: { title },
@@ -54,7 +54,7 @@ async function main() {
         })
     })
 
-    const languages = ["Malayisch", "Maltesisch", "Mongolisch", "Niederländisch/Flämisch", "Norwegisch", "Pashto", "Persisch (Farsi)", "Polnisch", "Portugiesisch", "Punjabi", "Rätoromanisch/Rumantsch", "Romanes", "Rumänisch", "Russisch", "Schwedisch", "Serbisch", "Serbokroatisch", "Singalesisch", "Slowakisch", "Slowenisch", "Sonstige afrikanische Sprachen", "Sonstige asiatische Sprachen", "Sonstige europäische Sprachen", "Sonstige Sprache(n)", "Spanisch", "Suaheli", "Syrisch", "Tagalog", "Tamilisch", "Thailändisch", "Tschechisch", "Tschetschenisch", "Türkisch", "Ukrainisch", "Ungarisch", "Urdu", "Vietnamesisch", "Vlachisch", "Weißrussisch", "Windisch", "Yoruba", "",]
+    const languages = ["Afrikaans", "Albanisch", "Amerikanische Sprachen", "Amharisch", "Arabisch", "Aramäisch", "Armenisch", "Bantusprachen", "Bengalisch", "BKS (Bosnisch/Kroatisch/Serbisch)", "Bosnisch", "Bulgarisch", "Burgenland-Kroatisch", "Chinesisch", "Chinesisch (Mandarin)", "Chinesisch (Kantonesisch)", "Dänisch", "Dari", "Deutsch", "Englisch", "Estnisch", "Finnisch", "Französisch", "Georgisch", "Griechisch", "Hebräisch", "Hindi", "Indonesisch", "Irisch", "Isländisch", "Italienisch", "Japanisch", "Kambodschanisch", "Koreanisch", "Kroatisch", "Kurdisch", "Ladinisch", "Lettisch", "Litauisch", "Makedonisch", "Malayalam", "Malayisch", "Maltesisch", "Mongolisch", "Niederländisch/Flämisch", "Norwegisch", "Pashto", "Persisch (Farsi)", "Polnisch", "Portugiesisch", "Punjabi", "Rätoromanisch/Rumantsch", "Romanes", "Rumänisch", "Russisch", "Schwedisch", "Serbisch", "Serbokroatisch", "Singalesisch", "Slowakisch", "Slowenisch", "Sonstige afrikanische Sprachen", "Sonstige asiatische Sprachen", "Sonstige europäische Sprachen", "Sonstige Sprache(n)", "Spanisch", "Suaheli", "Syrisch", "Tagalog", "Tamilisch", "Thailändisch", "Tschechisch", "Tschetschenisch", "Türkisch", "Ukrainisch", "Ungarisch", "Urdu", "Vietnamesisch", "Vlachisch", "Weißrussisch", "Windisch", "Yoruba"]
     languages.forEach(async (title) => {
         await prisma.language.upsert({
             where: { title },
@@ -129,17 +129,48 @@ async function main() {
         })
     })
 
-    const schoolClass: Prisma.SchoolClassCreateWithoutApplicationsInput = {
-        title: "HTL Informatik",
-        year: "24/25",
-        maxPupils: 36
-    }
+    const schoolclasses: Prisma.SchoolClassCreateWithoutApplicationsInput[] = [
+        {
+            title: "Höhere Abteilung für Bautechnik - Saalfelden",
+            year: "24/25",
+            maxPupils: 36
+        },
+        {
+            title: "Höhere Abteilung für Elektrotechnik - Saalfelden",
+            year: "24/25",
+            maxPupils: 36
+        },
+        {
+            title: "Höhere Abteilung für Informatik - St.Johann",
+            year: "24/25",
+            maxPupils: 36
+        },
+        {
+            title: "Höhere Abteilung für Mechatronik - Saalfelden",
+            year: "24/25",
+            maxPupils: 36
+        },
+        {
+            title: "Höhere Abteilung für Mechatronik - St.Johann",
+            year: "24/25",
+            maxPupils: 36
+        },
+        {
+            title: "Fachschule für Informationstechnik mit Sportschwerpunkt - Saalfelden",
+            year: "24/25",
+            maxPupils: 36
+        },
 
-    await prisma.schoolClass.upsert({
-        where: { title_year: { title: schoolClass.title, year: schoolClass.year } },
-        update: {},
-        create: schoolClass
+    ]
+
+    schoolclasses.forEach(async (schoolClass) => {
+        await prisma.schoolClass.upsert({
+            where: { title_year: { title: schoolClass.title, year: schoolClass.year } },
+            update: {},
+            create: schoolClass
+        })
     })
+
 
     const schoolReportGroups = ["AHS", "Standard",]
     schoolReportGroups.forEach(async (title) => {

@@ -18,3 +18,7 @@ $alert-padding-y: 0.5rem;
         height: 33px;
     }
 }
+
+.form-select-group .is-invalid > div {
+    border-color: #dc3545;
+}

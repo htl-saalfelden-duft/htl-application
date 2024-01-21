@@ -1,6 +1,6 @@
 import { Button, Form, Modal } from "react-bootstrap"
 import { useForm } from "react-hook-form"
-import { ErrorMessege } from "./form/details/ErrorMessage"
+import { ErrorMessege } from "../form/details/ErrorMessage"
 
 interface Props {
     show: boolean

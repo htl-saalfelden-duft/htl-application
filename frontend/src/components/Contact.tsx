@@ -82,7 +82,7 @@ const Contact = (props: Props) => {
 
             <Row>
                 <FormInput className="col-lg-3" attr="phone" title="Telefonnummer" required={require}/>
-                <FormInput className="col-lg-3" attr="email" title="Email" required={require} type="email"/>                   
+                <FormInput className="col-lg-3" attr="email" title="Email" required={require} type="email" />                   
             </Row>                      
 
             { parent ?

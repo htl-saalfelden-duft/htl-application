@@ -7,6 +7,6 @@ export class ReligionService {
     constructor(private prisma: PrismaService) {}
 
     getMany(where: Prisma.ReligionWhereInput): Promise<Religion[]> {
-        return this.prisma.religion.findMany({where}) 
+        return this.prisma.religion.findMany({where, orderBy: {title: 'asc'}}) 
     }
 }

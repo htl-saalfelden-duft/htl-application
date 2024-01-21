@@ -18,7 +18,6 @@ const Applications = (props: Props) => {
 	const {
 		control,
 		formState: { errors },
-		setValue,
 		register,
 	} = useFormContext<Applicant>()
 
@@ -32,11 +31,11 @@ const Applications = (props: Props) => {
 	}
 
 	const onMove = (from: number, to: number) => {
-
-		setValue(`applications.${from}.priority`, to + 1)
-		setValue(`applications.${to}.priority`, from + 1)
-
 		swap(from, to)
+	}
+
+	const onRemove = (index: number) => {
+		remove(index)
 	}
 
 	const hasError = (index: number) => !!(errors.applications && errors.applications[index] && errors.applications[index]!.schoolClass)
@@ -62,7 +61,7 @@ const Applications = (props: Props) => {
 				<tbody>
 					{fields.map((item, index) => (
 						<tr key={item.id}>
-							<td>{item.priority}</td>
+							<td>{index+1}</td>
 							<td>
 								<Controller
 									control={control}
@@ -81,13 +80,13 @@ const Applications = (props: Props) => {
 											inputId={`applications.${index}.schoolClass`}
 											classNames={{
 												control: (state) => hasError(index) ? 'form-control is-invalid' : 'form-control',
-											  }}
+											}}
 										/>
 									)}
 								/>
 							</td>
 							<td>
-								{ fields.length > 1 ? <Button variant="outline-danger" className="me-2" onClick={() => remove(index)}><Trash /></Button> : null}
+								{ fields.length > 1 ? <Button variant="outline-danger" className="me-2" onClick={() => onRemove(index)}><Trash /></Button> : null}
 								{index > 0 ? <Button variant="outline-primary" className="me-2" onClick={() => onMove(index, index - 1)}><ArrowUp /></Button> : null}
 								{index < fields.length - 1 ? <Button variant="outline-primary" className="me-2" onClick={() => onMove(index, index + 1)}><ArrowDown /></Button> : null}
 							</td>

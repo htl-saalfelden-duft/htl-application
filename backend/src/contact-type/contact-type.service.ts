@@ -7,6 +7,6 @@ export class ContactTypeService {
     constructor(private prisma: PrismaService) {}
 
     getMany(): Promise<ContactType[]> {
-        return this.prisma.contactType.findMany() 
+        return this.prisma.contactType.findMany({orderBy: {title: 'asc'}}) 
     }
 }

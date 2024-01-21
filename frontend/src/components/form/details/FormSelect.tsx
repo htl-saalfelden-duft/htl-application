@@ -4,6 +4,7 @@ import AsyncSelect from 'react-select/async'
 import { Applicant } from "../../../models/applicant.model"
 import { ErrorMessege } from "./ErrorMessage"
 import { ApplicantDetails } from "../../../models/applicant-details.model"
+import { hasError } from "./details-form.util"
 
 export const FormSelect = (props: {
     attr: keyof ApplicantDetails,
@@ -20,7 +21,7 @@ export const FormSelect = (props: {
 
     return (
 
-        <Form.Group className={`mb-3 ${className}`}>
+        <Form.Group className={`form-select-group mb-3 ${className}`}>
             <Form.Label htmlFor={`details.${attr}`}>
                 {title}{required ? '*' : null}
             </Form.Label>
@@ -39,6 +40,7 @@ export const FormSelect = (props: {
                         onChange={val => field.onChange(val?.title)}
                         getOptionLabel={option => option.title as string}
                         inputId={`details.${attr}`}
+                        className={`${hasError(errors, attr) ? 'is-invalid' : 'jooooooooo'}`}
                     />
                 )}
             />

@@ -7,6 +7,6 @@ export class SchoolReportGroupService {
     constructor(private prisma: PrismaService) {}
 
     getMany(where: Prisma.SchoolReportGroupWhereInput): Promise<SchoolReportGroup[]> {
-        return this.prisma.schoolReportGroup.findMany({where}) 
+        return this.prisma.schoolReportGroup.findMany({where, orderBy: {title: 'asc'}}) 
     }   
 }

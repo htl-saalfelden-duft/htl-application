@@ -9,17 +9,15 @@ import { Applicant } from "../models/applicant.model"
 import DatePicker from "react-datepicker";
 import { useMemo } from "react"
 import { FormInput } from "./form/details/FormInput"
-import { ErrorMessege } from "./form/details/ErrorMessage"
 import { FormSelect } from "./form/details/FormSelect"
-import { Arrow90degDown, ExclamationCircle, Lightbulb } from "react-bootstrap-icons"
+import { ExclamationCircle, Lightbulb } from "react-bootstrap-icons"
+import { FormDateInput } from "./form/details/FormDateInput"
 
 const ApplicantDetails = () => {
     const apiService = useMemo(() => new ApiService(), [])
 
     const {
-        register,
-        control,
-        formState: { errors }
+        register
     } = useFormContext<Applicant>()  
 
     const getCountries = (inputValue: string) => {
@@ -50,31 +48,7 @@ const ApplicantDetails = () => {
                 </Row>
 
                 <Row className="mb-3">
-                    <Form.Group className="mb-3 col-lg">
-                        <Form.Label htmlFor="birthdate">
-                            Geburtsdatum*
-                        </Form.Label>
-                        <Controller
-                            control={control}
-                            name='details.birthdate'
-                            rules={{
-                                required: "Bitte Geburtsdatum eingeben",
-                            }}
-                            render={({ field }) => (
-                                <DatePicker
-                                    wrapperClassName="input-group"
-                                    className="form-control"
-                                    placeholderText='Select date'
-                                    onChange={(value) => field.onChange(value)}
-                                    id="birthdate"
-                                    dateFormat="dd.MM.yyy"
-                                    selected={field.value ? new Date(field.value) : undefined}
-                                />
-                            )} 
-                        />              
-                        <ErrorMessege errors={errors} attr="birthdate" />
-                    </Form.Group>
-
+                    <FormDateInput attr="birthdate" title="Geburtsdatum" className="col-lg" required={true}/>
                     <FormInput attr="svnr" title="SVN" className="col-lg" required={true} />
                     <FormInput attr="svInstitution" title="Sozialversicherungs-Anstalt" className="col-lg" required={true} />                                                             
                 </Row>

@@ -7,6 +7,6 @@ export class SchoolClassService {
     constructor(private prisma: PrismaService) {}
     
     getMany(where: Prisma.SchoolClassWhereInput): Promise<SchoolClass[]> {
-        return this.prisma.schoolClass.findMany({where}) 
+        return this.prisma.schoolClass.findMany({where, orderBy: {title: 'asc'}}) 
     }    
 }

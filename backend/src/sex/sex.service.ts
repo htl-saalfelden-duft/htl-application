@@ -7,6 +7,6 @@ export class SexService {
     constructor(private prisma: PrismaService) {}
 
     getMany(): Promise<Sex[]> {
-        return this.prisma.sex.findMany() 
+        return this.prisma.sex.findMany({orderBy: {title: 'asc'}}) 
     }
 }

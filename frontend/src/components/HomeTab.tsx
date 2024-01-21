@@ -1,17 +1,18 @@
-import { Button, Form, ListGroup } from "react-bootstrap"
+import { Alert, Button, Form, ListGroup } from "react-bootstrap"
 import { Applicant } from "../models/applicant.model"
 import { useFormContext } from "react-hook-form"
 import { useState } from "react"
 import "./HomeTab.scss"
 import { TabType, useTabs } from "../contexts/tabs.context"
 import { toast } from "react-toastify"
-import Dsgvo from "./Dsgvo"
+import Dsgvo from "./modal/Dsgvo"
 import { useNavigate } from "react-router-dom"
 import { Plus, Trash } from "react-bootstrap-icons"
-import ContactNew, { IContactNewFormInput } from "./ContactNew"
+import ContactNew, { IContactNewFormInput } from "./modal/ContactNew"
 
 interface Props {
     onSave: () => void
+    applied: boolean
 }
 
 const HomeTab = (props: Props) => {
@@ -106,25 +107,19 @@ const HomeTab = (props: Props) => {
 
                 <ListGroup.Item
                     className={errorClass(!!errors.applications)}
-                    action
-                    onClick={() => changeTab('applications')}
-                >
+                    onClick={() => changeTab('applications')}>
                     Bewerbungen <br /><small>(min. eine Fachrichtung)</small>
                 </ListGroup.Item>
 
                 <ListGroup.Item
                     className={errorClass(!!errors.details)}
-                    action
-                    onClick={() => changeTab('details')}
-                >
+                    onClick={() => changeTab('details')}>
                     Daten des Bewerbers <br /><small>(vollstandig ausgefüllt)</small>
                 </ListGroup.Item>
 
                 <ListGroup.Item
                     className={errorClass(!!errors?.contacts && !!errors.contacts[0])}
-                    action
-                    onClick={() => changeTab('contact-applicant')}
-                >
+                    onClick={() => changeTab('contact-applicant')} >
                     Kontakt des Bewerbers <br /><small>(vollstandig ausgefüllt)</small>
                 </ListGroup.Item>
 
@@ -173,6 +168,7 @@ const HomeTab = (props: Props) => {
             {!admin && 
             <Form.Group className={`mb-3`}>
                 <Form.Check
+                    disabled={props.applied}
                     type="checkbox"
                     id="dsgvo"
                     label={(<>Ich stimme der<Button className="btn-dsgvo" variant="link" onClick={() => setShowDsgvo(true)}>Datenschutzgrundverordnung</Button>der HTL Saalfelden zu.</>)}
@@ -187,12 +183,16 @@ const HomeTab = (props: Props) => {
             <Dsgvo show={showDsgvo} onClose={() => setShowDsgvo(false)}/>
             <ContactNew show={showContactNew} onSubmit={handleAddContact} onClose={() => setShowContactNew(false)}/>
 
-            <div className="d-flex mt-5">
-                <Button className="me-3" variant="success" type="submit" disabled={!isValid} title="Der Antrag lässt sich erst abschicken, wenn alle Daten vorhanden sind.">Antrag abschicken</Button>
-                <Button className="me-3" variant="outline-warning" onClick={validateForm}>Antrag prüfen</Button>
-                <Button className="me-3" variant="outline-secondary" onClick={props.onSave}>Daten Speichern</Button>
-                {admin && <Button className="me-3" variant="outline-secondary" onClick={() => navigate('/applicants')}>Zurück</Button>}
-            </div>
+            { !props.applied || admin ? 
+                <div className="d-flex mt-5">
+                    <Button className="me-3" variant="success" type="submit" disabled={!isValid} title="Der Antrag lässt sich erst abschicken, wenn alle Daten vorhanden sind.">Antrag abschicken</Button>
+                    <Button className="me-3" variant="outline-warning" onClick={validateForm}>Antrag prüfen</Button>
+                    <Button className="me-3" variant="outline-secondary" onClick={props.onSave}>Daten Speichern</Button>
+                    {admin && <Button className="me-3" variant="outline-secondary" onClick={() => navigate('/applicants')}>Zurück</Button>}
+                </div>
+                :
+                <Alert variant="success">Ihr Antrag wurde erfolgreich abgegeben!</Alert>
+            }
         </>
     )
 }

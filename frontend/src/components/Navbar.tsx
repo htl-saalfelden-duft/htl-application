@@ -23,7 +23,7 @@ const Navigationbar = () => {
                 <NavDropdown title={
                     <PersonCircle color="white" size={40} title={currentUser?.email} />
                 } id="basic-nav-dropdown" align="end">
-                    <NavDropdown.Item onClick={triggerSignOut}>Sign Out</NavDropdown.Item>
+                    <NavDropdown.Item onClick={triggerSignOut}>Abmelden</NavDropdown.Item>
                 </NavDropdown>
             </div>
         </Navbar>

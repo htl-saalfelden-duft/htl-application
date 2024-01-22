@@ -20,7 +20,7 @@ const SignInUser = () => {
 	})
 
 	return (
-		<SignInForm onSubmit={onSubmit}/>
+		<SignInForm onSubmit={onSubmit} isUser={true}/>
 	)
 }
 

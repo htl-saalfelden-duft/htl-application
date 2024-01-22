@@ -1,4 +1,5 @@
-import { SignUpFormInput } from "../components/SignupApplicant";
+import { SignUpApplicantFormInput } from "../components/SignupApplicant";
+import { SignUpUserFormInput } from "../components/SignupUser";
 import { Applicant } from "../models/applicant.model";
 import { User } from "../models/user.model";
 import { ApiService } from "./api.service";
@@ -31,7 +32,7 @@ export class AuthService extends ApiService {
         })
     }
 
-    signUpApplicant(data: SignUpFormInput) {
+    signUpApplicant(data: SignUpApplicantFormInput) {
         return super.post(Applicant, 'register', data)
     }
 
@@ -48,6 +49,10 @@ export class AuthService extends ApiService {
             this.setSession(response)
         })
     }
+
+    signUpUser(data: SignUpUserFormInput) {
+        return super.post(User, 'register', data)
+    }    
 
     signOut(): void {
         localStorage.removeItem('idToken')

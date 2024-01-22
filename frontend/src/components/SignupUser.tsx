@@ -8,28 +8,29 @@ import { useMemo } from 'react';
 import htlLogo128 from '../assets/images/htl-saalfelden-logo_128.png'
 
 
-export interface SignUpApplicantFormInput {
+export interface SignUpUserFormInput {
 	email: string
+    name: string
 	password: string
 	passwordConfirmation?: string
 }
 
-const SignupApplicant = () => {
+const SignupUser = () => {
 	const navigate = useNavigate()
-	const { signUpApplicant } = useMemo(() => new AuthService(), [])
+	const { signUpUser } = useMemo(() => new AuthService(), [])
 
 	const {
 		register,
 		watch,
 		handleSubmit,
 		formState: { errors }
-	} = useForm<SignUpApplicantFormInput>()
+	} = useForm<SignUpUserFormInput>()
 
 	const onSubmit = handleSubmit((data) => {
-		signUpApplicant(data)
+		signUpUser(data)
 			.then(() => {
-				toast("Sie haben sich erfolgreich angemeldet. Sie erhalten ihren Zugangslink per E-Mail.")
-				navigate("/signin-applicant")
+				toast("User erfolgreich angelegt.")
+				navigate("/applicants")
 			}, (err) => {
 				toast(err.response.data.message)
 			})
@@ -43,8 +44,24 @@ const SignupApplicant = () => {
 						<Form onSubmit={onSubmit}>
 							<div className="d-flex flex-row-reverse">
 								<img src={htlLogo128} width={64} alt="htl-logo" />
-								<h5 className="card-title mt-4 flex-grow-1">Bewerbungsseite - Zugang beantragen</h5>
+								<h5 className="card-title mt-4 flex-grow-1">Bewerbungsseite - User anlegen</h5>
 							</div>
+							<Form.Group className="mb-3">
+								<Form.Label htmlFor="name">
+									Name
+								</Form.Label>
+								<Form.Control
+									type="text"
+									{...register("name", { required: "Bitte Name eingeben" })}
+									id="name"
+									isInvalid={!!errors.name}
+								/>
+								{errors.name && (
+									<Form.Text className="text-danger">
+										{errors.name.message}
+									</Form.Text>
+								)}
+							</Form.Group>                            
 							<Form.Group className="mb-3">
 								<Form.Label htmlFor="email">
 									Email-Adresse
@@ -101,4 +118,4 @@ const SignupApplicant = () => {
 	)
 }
 
-export default SignupApplicant;
+export default SignupUser;

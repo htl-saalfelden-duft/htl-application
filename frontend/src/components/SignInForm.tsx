@@ -9,9 +9,11 @@ export interface ISignInFormInput {
 
 interface Props {
     onSubmit: (data: ISignInFormInput) => void
+	isUser?: boolean
 }
 
 const SignInForm = (props: Props) => {
+	const {onSubmit , isUser = false} = props
 
     const { 
 		register, 
@@ -19,8 +21,8 @@ const SignInForm = (props: Props) => {
 		formState: { errors }
 	} = useForm<ISignInFormInput>()
 
-	const onSubmit = handleSubmit((data) => {
-        props.onSubmit(data)
+	const onFormSubmit = handleSubmit((data) => {
+        onSubmit(data)
 	})
 
 	return (
@@ -28,12 +30,11 @@ const SignInForm = (props: Props) => {
 			<Row className='justify-content-md-center'>
 				<Card className='col-lg-5 mt-5'>
 					<CardBody>
-						<Form onSubmit={onSubmit}>
+						<Form onSubmit={onFormSubmit}>
                             <div className="d-flex flex-row-reverse">
-                                <img src={htlLogo128} width={64} alt="htl-logo" />
-							    <h5 className="card-title mt-4 flex-grow-1">Bewerbungsseite - Einloggen</h5>
+                                <a href={isUser ? "/signin-applicant": "/signin-user"}><img src={htlLogo128} width={64} alt="htl-logo" /></a>
+							    <h5 className="card-title mt-4 flex-grow-1">Bewerbungsseite - {isUser ? 'Admin' : 'Einloggen'}</h5>
                             </div>
-
 							<Form.Group className="mt-4 mb-3">
 								<Form.Label htmlFor="email">
 									Email-Addresse

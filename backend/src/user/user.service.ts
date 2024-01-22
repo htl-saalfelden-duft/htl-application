@@ -16,6 +16,7 @@ export class UserService {
 
     create(data: Prisma.UserCreateInput): Promise<User> {
         this.setPassword(data, (data as any).password)
+
         return this.prisma.user.create({
             data,
         })
@@ -52,5 +53,7 @@ export class UserService {
     private setPassword(user: Prisma.UserCreateInput, password: string) {
         const passHash = crypto.createHmac('sha512', process.env.HMAC_SECRET).update(password).digest('hex')
         user.passwordHash = passHash
+        delete (user as any).password
+		delete (user as any).passwordConfirmation
     }
 }

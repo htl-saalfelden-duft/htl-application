@@ -5,12 +5,13 @@ import { Alert, Container } from "react-bootstrap";
 
 interface Props {
   userType?: UserType
+  admin?: boolean
   redirectPath: string
   children?: any
 }
 
-const ProtectedRoute = ({ userType, redirectPath, children }: Props) => {
-  const { userType: userTypeAuth, isSignedIn } = useAuth()
+const ProtectedRoute = ({ userType, admin = false, redirectPath, children }: Props) => {
+  const { userType: userTypeAuth, isSignedIn, isAdmin } = useAuth()
 
   if (!isSignedIn) {
     return <Navigate to={redirectPath} replace />;
@@ -20,7 +21,11 @@ const ProtectedRoute = ({ userType, redirectPath, children }: Props) => {
       <>
         <Navigationbar />
         <Container>
-          {userType === userTypeAuth ? <Outlet /> : <Alert className="mt-4" variant="danger">Sorry, but this route is not allowed!</Alert>}
+          {
+          (userType === userTypeAuth && (!admin || (isAdmin && admin)))  ? 
+            <Outlet /> : 
+            <Alert className="mt-4" variant="danger">Sorry, but this route is not allowed!</Alert>
+          }
 
         </Container>
       </>

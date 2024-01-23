@@ -14,6 +14,15 @@ export class UserService {
         return this.prisma.user.findUnique({where})
     }
 
+	getMany(): Promise<User[]> {
+		return this.prisma.user.findMany({
+            orderBy: {name: 'asc'}}
+        )
+        .catch(error => {
+            throw new ApiError(error)
+        })
+	}    
+
     create(data: Prisma.UserCreateInput): Promise<User> {
         this.setPassword(data, (data as any).password)
 
@@ -21,6 +30,19 @@ export class UserService {
             data,
         })
     }
+
+    // updatePassword(where, changePasswordDto: ChangePasswordDto): Promise<User> {
+    //     this.setPassword(changePasswordDto, (changePasswordDto as any).password)
+
+    //     return this.prisma.user.findUnique({where})
+    //     .then((user:User) => {
+    //         user.passwordHash = changePasswordDto.password
+    //         return this.prisma.applicant.update({
+    //             where,
+    //             changePasswordDto
+    //         })
+    //     })
+    // }
 
     checkCredentials(signInDto: SignInDto): Observable<string> {
         return this.getByEmail(signInDto.email).pipe(

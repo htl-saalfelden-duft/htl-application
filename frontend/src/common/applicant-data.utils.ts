@@ -50,14 +50,14 @@ const getDBApplicant = (applicant: Applicant): Applicant => {
     return dbApplicant
 }
 
-const isApplicantApplied = (applicant: Applicant) => {
-    let applied = true
-    applicant.applications?.forEach(a => {
-        if(a.statusKey !== 'applied') {
-            applied = false
-        }
-    })
-    return applied
-}
+// const isApplicantApplied = (applicant: Applicant) => {
+//     let applied = true
+//     applicant.applications?.forEach(a => {
+//         if(a.statusKey !== 'applied') {
+//             applied = false
+//         }
+//     })
+//     return applied
+// }
 
-export {setDefaultApplication, getDBApplicant, setDefaultApplicationStatus, isApplicantApplied}
+export {setDefaultApplication, getDBApplicant, setDefaultApplicationStatus}

@@ -12,7 +12,7 @@ const SignInApplicant = () => {
 	const onSubmit = ((data: ISignInFormInput) => {
         signIn(data.email, data.password)
         .then(() => {
-			toast("Willkommen in der HTL-Bewerbungsseite!")
+			toast("Willkommen im HTL-Bewerber-Portal!")
 			navigate("/home")
         }, (err) => {
 			toast(err.response.data.message)

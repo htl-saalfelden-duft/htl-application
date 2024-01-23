@@ -11,4 +11,4 @@ export class Application {
     applicantID?: number
 }
 
-export type ApplicationStatusKey = 'created' | 'applied' | 'inProgress' | 'completed'
+export type ApplicationStatusKey = 'created' | 'applied' | 'accepted' | 'rejected'

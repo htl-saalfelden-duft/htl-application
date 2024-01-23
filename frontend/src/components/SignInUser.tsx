@@ -7,12 +7,12 @@ const SignInUser = () => {
 	const navigate = useNavigate()
 	const { setUserType, signIn } = useAuth()
 
-	setUserType('user')
+	setUserType('administration')
 
 	const onSubmit = ((data: ISignInFormInput) => {
         signIn(data.email, data.password)
         .then(() => {
-			toast("Willkommen in der HTL-Bewerbungsseite!")
+			toast("Willkommen im HTL-Bewerber-Portal!")
 			navigate("/applicants")
         }, (err) => {
 			toast(err.response.data.message)

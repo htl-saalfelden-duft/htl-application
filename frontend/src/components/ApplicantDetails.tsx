@@ -1,12 +1,11 @@
 import { Alert, Form, Row } from "react-bootstrap"
-import { Controller, useFormContext } from "react-hook-form"
+import { useFormContext } from "react-hook-form"
 import { ApiService } from "../services/api.service"
 import { Country } from "../models/country.model"
 import { Language } from "../models/language.model"
 import { Sex } from "../models/sex.model"
 import { Religion } from "../models/religion.model"
 import { Applicant } from "../models/applicant.model"
-import DatePicker from "react-datepicker";
 import { useMemo } from "react"
 import { FormInput } from "./form/details/FormInput"
 import { FormSelect } from "./form/details/FormSelect"

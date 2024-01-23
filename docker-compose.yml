@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
     backend:
-        image: htl_application_backend_dev
+        image: htl_application_backend
         container_name: htl_application_backend_dev
         build:
             context: ./backend
@@ -15,34 +15,59 @@ services:
         env_file:
             - ./backend/.env
         environment:
-            - DATABASE_URL=mongodb://root:secret@mongo1:27017/htlApplication?authSource=admin&replicaSet=rs0&directConnection=true
+            RSA_PUBLIC_KEY_FILE: /run/secrets/rsa_public_key
+            RSA_PRIVATE_KEY_FILE: /run/secrets/rsa_private_key
+            HMAC_SECRET: ${HMAC_SECRET}
+            EMAIL_VERIFICATION_TOKEN_SECRET: ${EMAIL_VERIFICATION_TOKEN_SECRET}
+            MONGODB_USER: ${MONGODB_USER}
+            MONGODB_PASSWORD: ${MONGODB_PASSWORD}
+            SMTP_PASSWORD: ${SMTP_PASSWORD}
+        secrets:
+            - rsa_public_key
+            - rsa_private_key
         depends_on:
-            - mongo1
+            - mongo
 
-    mongo1:
-        hostname: mongo1
+    mongo:
+        container_name: htl_application_mongo
+        hostname: mongo
         build:
             context: ./docker/mongo/
         expose:
             - 27017
         ports:
             - 27017:27017
+        healthcheck:
+            test: echo "try { rs.status() } catch (err) { use admin; db.auth('root', ${MONGODB_PASSWORD}); rs.initiate({_id:'rs0',members:[{_id:0,host:'localhost:27017'}]}) }" | mongosh --port 27017 --quiet
+            interval: 5s
+            timeout: 30s
+            start_period: 0s
+            start_interval: 1s
+            retries: 30            
         volumes:
             - mongo-data1:/data/db
         environment:
             MONGO_PORT: 27017
-            MONGO_INITDB_ROOT_USERNAME: root
-            MONGO_INITDB_ROOT_PASSWORD: secret
+            MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USER}
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
         command: --keyFile /data/keyfile.pem --replSet rs0
 
     mongo-express:
+        container_name: htl_application_mongoexpress
         image: mongo-express
         ports:
             - 8081:8081
         environment:
-            ME_CONFIG_MONGODB_ADMINUSERNAME: root
-            ME_CONFIG_MONGODB_ADMINPASSWORD: secret
-            ME_CONFIG_MONGODB_URL: mongodb://root:secret@mongo1:27017?replicaSet=rs0&directConnection=true
+            ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGODB_USER}
+            ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGODB_PASSWORD}
+            ME_CONFIG_MONGODB_URL: mongodb://root:secret@mongo:27017?replicaSet=rs0&directConnection=true
+
+
+secrets:
+    rsa_public_key:
+        file: rsa_public.pem
+    rsa_private_key:
+        file: rsa_private.pem
 volumes:
     mongo-data1:
     mongo-data2:

@@ -5,10 +5,14 @@ import * as crypto from 'crypto'
 import { Observable, catchError, from, map, mergeMap } from 'rxjs';
 import { ApiError, ApiErrorType } from 'src/common/api-error';
 import { SignInDto } from 'src/auth/sign-in.dto';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class ApplicantService {
-	constructor(private prisma: PrismaService) { }
+	constructor(
+		private prisma: PrismaService,
+		private readonly emailService: MailerService
+	) { }
 
 	// Exclude keys from user
 	// exclude<Applicant, Key extends keyof Applicant>(applicant: Applicant, keys: Key[]): Omit<Applicant, Key> {
@@ -59,13 +63,21 @@ export class ApplicantService {
 		}
 		data = {...data, ...{applications}}
 
-		return this.prisma.applicant.update({
+		return this.prisma.applicant.findUnique({where})
+		.then(prevApplicant => {
+			//Has status from applicant changed from created to applied?
+			if(prevApplicant.statusKey === 'created' && data.statusKey === 'applied') {
+				return this.sendConfirmationMail(data.email)
+			} else {
+				return 
+			}
+		}).then(() => this.prisma.applicant.update({
 			where,
 			data
+		}))
+		.catch(error => {
+			throw new ApiError(error)
 		})
-			.catch(error => {
-				throw new ApiError(error)
-			})
 	}
 
 	delete(where: Prisma.ApplicantWhereUniqueInput): Promise<Applicant> {
@@ -94,7 +106,9 @@ export class ApplicantService {
 					throw new ApiError(ApiErrorType.USER_NOT_FOUND)
 				}
 			}),
-			catchError((error) => { throw new ApiError(error)})
+			catchError((error) => { 
+				throw new ApiError(error)
+			})
 		)
 	}
 
@@ -112,16 +126,32 @@ export class ApplicantService {
 					})
 				}
 			}),
-			catchError((error) => { throw new ApiError(error)})
+			catchError((error) => { 
+				throw new ApiError(error)
+			})
 		)
 	}
 
 	private getByEmail(email: string): Observable<Applicant> {
 		return from(this.prisma.applicant.findUnique({
-			where: { email: email }
+			where: { email }
 		})).pipe(
-			catchError((error) => { throw new ApiError(error)})
+			catchError((error) => { 
+				throw new ApiError(error)
+			})
 		)
+	}
+
+	private sendConfirmationMail(email) {
+		return this.emailService.sendMail({
+			to: email,
+			subject: 'Anmeldung HTBLA Saalfelden',
+			template: 'apply-confirmation',
+		})
+		.catch((err) => {
+			console.error(err)
+			return
+		})
 	}
 
 	private setPassword(applicant: Prisma.ApplicantCreateInput, password: string) {

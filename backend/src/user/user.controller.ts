@@ -24,13 +24,18 @@ export class UserController {
     @Post('signIn')
     signIn(@Body() signInDto: SignInDto): Observable<TokenDto> {
       return this.userService.checkCredentials(signInDto).pipe(
-        map(id => this.authService.createToken(id, 'user'))
+        map(id => this.authService.createToken(id, 'administration'))
       )
     }
 
     @Get(':id')
     show(@Param('id') id: string): Promise<User> {
         return this.userService.getOne({id})
+    }
+
+    @Get()
+    async getMany(): Promise<User[]> {
+      return this.userService.getMany()
     }
 
     @Public()
@@ -43,11 +48,6 @@ export class UserController {
         })
       )
     }
-
-    // @Get()
-    // index(@Request() req: any): Promise<User[]> {
-    //     return this.userService.index(req.query)
-    // }
 
     // @Patch('password_new')
     // changePW(@Request() req: any, @Body() changePasswordDto: ChangePasswordDto): Promise<any> {

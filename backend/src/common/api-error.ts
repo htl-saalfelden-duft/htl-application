@@ -29,9 +29,12 @@ export class ApiError extends HttpException {
     public apiError: string
 
     constructor(error: ApiErrorType | any) {
+        console.error(error)
+
         const apiError: IApiError = ApiError.getError(error)
 
-        let response;
+        let response:string;
+        
         if (apiError.httpStatus == HttpStatus.BAD_REQUEST) {
             response = HttpException.createBody(error)
         } else {
@@ -134,14 +137,24 @@ export class ApiError extends HttpException {
                 break             
             default:
                 if(error instanceof Prisma.PrismaClientKnownRequestError) {
+                    console.error(error.code, error.meta)
                     const { code, meta } = error
                     switch (code) {
                         case 'P2002':
-                            const constraint = meta?.target
+                            const target = meta?.target
+                            let title = target as string
+
+                            let message = `Unique constraint failed on the ${target}`
+
+                            if(target === 'Applicant_email_key') {
+                                title = "Email exists"
+                                message = "You are already signed up with this email!"
+                            }
+
                             apiError = {
                                 httpStatus: HttpStatus.UNPROCESSABLE_ENTITY,
-                                title: constraint as string,
-                                message: `Unique constraint failed on the ${constraint}`
+                                title,
+                                message
                             }
                             break;
                         default:
@@ -154,7 +167,7 @@ export class ApiError extends HttpException {
                     }
 
                 } else {
-                    console.log(error) //Leave this for logging error in teminal
+                    console.error(error) //Leave this for logging error in teminal
                     apiError = {
                         httpStatus: HttpStatus.BAD_REQUEST,
                         title: undefined,

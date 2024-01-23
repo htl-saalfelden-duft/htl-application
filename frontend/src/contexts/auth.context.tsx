@@ -17,7 +17,7 @@ interface AuthValues {
     setUserType: (type: UserType) => void
 }
 
-export type UserType = 'user' | 'applicant'
+export type UserType = 'administration' | 'applicant'
 
 const AuthContext = React.createContext<AuthValues>(undefined as any )
 
@@ -43,7 +43,7 @@ const AuthProvider = (props: Props) => {
                 setCurrentUser(currentUser)
                 setIsSignedIn(true)
             })
-        } else if(userType === 'user') {
+        } else if(userType === 'administration') {
             return authService.signInUser({email, password})
             .then(() => authService.loadCurrentUser())
             .then((currentUser) => {

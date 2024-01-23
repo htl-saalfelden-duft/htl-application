@@ -83,3 +83,8 @@ run in production
 ```sh
  docker compose -f docker-compose-prod.yml up -V --build
 ```
+
+## Upload files to provider
+```sh
+scp file htl:/home/htl-application
+```

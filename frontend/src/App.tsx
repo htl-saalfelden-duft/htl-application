@@ -10,7 +10,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import SignInUser from "./components/SignInUser";
 import { Applicants } from "./components/Applicants";
 import Applicant from "./components/Applicant";
-import SignupUser from "./components/SignupUser";
+import { Users } from "./components/Users";
 
 function App() {
   return (
@@ -26,12 +26,12 @@ function App() {
           <Route element={<ProtectedRoute userType="applicant" redirectPath="/signin-applicant" />}>
               <Route path="home" element={<Applicant />} />
           </Route>
-          <Route element={<ProtectedRoute userType="user" redirectPath="/signin-user"/>}>
+          <Route element={<ProtectedRoute userType="administration" redirectPath="/signin-user"/>}>
               <Route path="applicants" element={<Applicants />} />
               <Route path="applicant" element={<Applicant />} />
           </Route>
-          <Route element={<ProtectedRoute userType="user"  admin={true} redirectPath="/signin-user"/>}>
-              <Route path="signup-user" element={<SignupUser />} />
+          <Route element={<ProtectedRoute userType="administration" admin={true} redirectPath="/signin-user"/>}>
+              <Route path="users" element={<Users />} />
           </Route>              
         </Routes>
       </Router>

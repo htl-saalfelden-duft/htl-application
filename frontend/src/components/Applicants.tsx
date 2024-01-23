@@ -2,19 +2,17 @@ import { useEffect, useMemo, useState } from "react"
 import { ApiService } from "../services/api.service"
 import { Applicant } from "../models/applicant.model"
 import { Button, Card, CardBody, Row, Table } from "react-bootstrap"
-import { Pencil, PlusLg } from "react-bootstrap-icons"
+import { FileEarmarkPdf, Pencil, PlusLg } from "react-bootstrap-icons"
 import { useNavigate } from "react-router-dom"
-import { AuthService } from "../services/auth.service"
+import ApplicantNew from "./modal/ApplicantNew"
 import { toast } from "react-toastify"
-import ApplicantNew, { IApplicantNewFormInput } from "./modal/ApplicantNew"
 
 export const Applicants = () => {
     const apiService = useMemo(() => new ApiService(), [])
-    const { signUpApplicant } = useMemo(() => new AuthService(), [])
     const navigate = useNavigate()
 
     const [applicants, setApplicants] = useState<Applicant[]>()
-    const [showNewApplicant, setShowNewApplicant] = useState(false)
+    const [showApplicantNew, setShowApplicantNew] = useState(false)
 
     const loadApplicants = () => {
         apiService.get<Applicant[]>(Applicant)
@@ -27,33 +25,28 @@ export const Applicants = () => {
         loadApplicants()
     }, [])
 
+    const onCloseApplicantNew = () => {
+        setShowApplicantNew(false)
+        loadApplicants()
+    }
+
     const openApplicant = (id: string) => {
         navigate("/applicant", { state: {id} })
     }
 
-    const newApplicant = (formData: IApplicantNewFormInput) => {
-        const applicant = {...{
-            emailConfirmed: true,
-        }, ...formData}
-        signUpApplicant(applicant)
-        .then(() => {
-            setShowNewApplicant(false)
-            toast("Bewerber angelegt")
-            loadApplicants()
-        }, (err) => {
-            toast(err.response.data.message)
-        })
+    const createPdf = (idf: string) => {
+        toast("Comming soon!")
     }
 
     return (
         <>
         <Row className='justify-content-md-center'>
             <div className="d-flex justify-content-between mt-5">
-                <h4>Bewerberdaten</h4>
+                <h4>Bewerber</h4>
                 <Button
                     variant="outline-secondary"
                     className="mb-2"
-                    onClick={() => setShowNewApplicant(true)}
+                    onClick={() => setShowApplicantNew(true)}
                     title="Neuen Bewerber anlegen"
                 >
                     <PlusLg/>
@@ -67,7 +60,7 @@ export const Applicants = () => {
                                 <th>#</th>
                                 <th>Vorname</th>
                                 <th>Nachname</th>
-                                <th>Abteilung</th>
+                                <th>Abteilung Prio.1</th>
                                 <th>Status</th>
                                 <th>Antrags-Email</th>
                                 <th></th>
@@ -80,10 +73,11 @@ export const Applicants = () => {
                                     <td>{applicant.details?.firstname}</td>
                                     <td>{applicant.details?.lastname}</td>
                                     <td>{(applicant.applications && applicant.applications[0]?.schoolClass?.title) || '-'}</td>
-                                    <td>{(applicant.applications && applicant.applications[0]?.statusKey) || '-'}</td>
+                                    <td>{applicant.statusKey}</td>
                                     <td>{applicant.email}</td>
                                     <td>
-                                        <Button variant="outline-primary" className="me-2" onClick={() => {openApplicant(applicant.id as string)}}><Pencil /></Button>
+                                        <Button variant="outline-primary" className="me-2" onClick={() => {openApplicant(applicant.id!)}}><Pencil /></Button>
+                                        <Button variant="outline-danger" className="me-2" onClick={() => {createPdf(applicant.id!)}}><FileEarmarkPdf /></Button>
                                     </td>
                                 </tr>
                             ))}
@@ -92,7 +86,7 @@ export const Applicants = () => {
                 </CardBody>
             </Card>
         </Row>
-        <ApplicantNew show={showNewApplicant} onSubmit={newApplicant} onClose={() => setShowNewApplicant(false)} />
+        <ApplicantNew show={showApplicantNew} onClose={onCloseApplicantNew} />
         </>
     )
 }

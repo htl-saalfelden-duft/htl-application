@@ -1,7 +1,7 @@
 import { Nav, NavDropdown, Navbar } from "react-bootstrap"
 import { useAuth } from "../contexts/auth.context"
 import { useNavigate } from "react-router-dom"
-import { PersonCircle } from 'react-bootstrap-icons';
+import { People, PersonCircle } from 'react-bootstrap-icons';
 import htlLogoWhite from '../assets/images/htl-saalfelden-logo_white.png'
 
 const Navigationbar = () => {
@@ -19,11 +19,15 @@ const Navigationbar = () => {
     return(        
         <Navbar bg="dark" data-bs-theme="dark" expand="false" className="bg-body-tertiary">
             <Navbar.Brand href="#" className="ms-2"><img src={htlLogoWhite} alt="" /></Navbar.Brand>
-            <div className="flex-grow-1 ms-4">
-                {isAdmin &&
-                <Nav.Item className="ml-4">
-                    <Nav.Link href="/signup-user" className="text-white">New User</Nav.Link>
+            <div className="d-flex flex-grow-1 ms-4 text-white">
+                <Nav.Item>
+                    <Nav.Link href="/applicants" className="text-white">Bewerber</Nav.Link>
                 </Nav.Item>
+
+                {isAdmin &&
+                    <NavDropdown title="Admin" className="ms-4">
+                        <NavDropdown.Item href="/users"><People /><span className="ms-2">Show Users</span></NavDropdown.Item>
+                    </NavDropdown>
                 }
             </div>
             <div className="me-2">

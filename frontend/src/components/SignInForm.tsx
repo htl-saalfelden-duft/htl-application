@@ -33,7 +33,7 @@ const SignInForm = (props: Props) => {
 						<Form onSubmit={onFormSubmit}>
                             <div className="d-flex flex-row-reverse">
                                 <a href={isUser ? "/signin-applicant": "/signin-user"}><img src={htlLogo128} width={64} alt="htl-logo" /></a>
-							    <h5 className="card-title mt-4 flex-grow-1">Bewerbungsseite - {isUser ? 'Admin' : 'Einloggen'}</h5>
+							    <h5 className="card-title mt-4 flex-grow-1">HTL-Bewerber-Portal - {isUser ? 'Admin' : 'Login'}</h5>
                             </div>
 							<Form.Group className="mt-4 mb-3">
 								<Form.Label htmlFor="email">
@@ -41,7 +41,7 @@ const SignInForm = (props: Props) => {
 								</Form.Label>
 								<Form.Control
 									type="email"
-									{...register("email", { required: "Bitte Email eingeben", maxLength: 20 })}
+									{...register("email", { required: "Bitte Email eingeben" })}
 									id="email"
 									isInvalid={!!errors.email}
 								/>
@@ -55,7 +55,7 @@ const SignInForm = (props: Props) => {
 								<Form.Label htmlFor="password">Passwort</Form.Label>
 								<Form.Control
 									type="password"
-									{...register("password", { required: "Bitte Passwort eingeben", maxLength: 20 })}
+									{...register("password", { required: "Bitte Passwort eingeben" })}
 									id="password"
 									isInvalid={!!errors.password}
 								/>

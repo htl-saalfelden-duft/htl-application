@@ -13,9 +13,11 @@ import { ContactType, ContactTypes } from "../models/contact.model"
 import { contactType2Title, contactType2tabType, tabType2ContactType } from "../common/tab.utils"
 import { toast } from "react-toastify"
 import { Applications } from "./Applications"
-import { getDBApplicant, isApplicantApplied, setDefaultApplication, setDefaultApplicationStatus } from "../common/applicant-data.utils"
+import { getDBApplicant, setDefaultApplication, setDefaultApplicationStatus } from "../common/applicant-data.utils"
 import { useNavigate } from "react-router-dom"
 import SubmitConfirmation from "./modal/SubmitConfirmation"
+import { useAuth } from "../contexts/auth.context"
+
 
 interface Props {
     applicantID: string
@@ -32,6 +34,8 @@ const ApplicationForm = (props: Props) => {
         admin,
         schoolReportEnabled
     } = useTabs()
+
+    const { userType } = useAuth()
 
     const navigate = useNavigate()
 
@@ -73,7 +77,7 @@ const ApplicationForm = (props: Props) => {
                 setDefaultApplication(applicant)
                 reset(applicant)
 
-                if(isApplicantApplied(applicant)) {
+                if(applicant.statusKey === 'applied') {
                     setIsApplied(!admin)
                 }
             })
@@ -91,11 +95,22 @@ const ApplicationForm = (props: Props) => {
         setDefaultApplicationStatus(applicant, 'applied')
         const dbApplicant = getDBApplicant(applicant)
 
+        dbApplicant.statusKey = 'applied'
+
         console.log(dbApplicant)
 
         apiService.save<Applicant>(Applicant, dbApplicant).then(() => {
-            toast("Ihre Bewerbung wurde erfolgreich an uns übermittelt! Sie erhalten zusätzlich eine Bestätigung per Email.", 
-            {type: 'success', autoClose: 1E4})
+            if(userType === 'applicant') {
+                toast(
+                    "Ihre Bewerbung wurde erfolgreich an uns übermittelt! Sie erhalten zusätzlich eine Bestätigung per Email.", 
+                    {type: 'success', autoClose: 1E4}
+                )
+            } else {
+                toast(
+                    "Bewerberdaten gespeichert!", 
+                    {type: 'success'}
+                ) 
+            }
 
             setShowSubmitConfirmation(false)
 

@@ -40,6 +40,7 @@ export const FormDateInput = (props: {
                         id={`details.${attr}`}
                         dateFormat="dd.MM.yyyy"
                         selected={field.value ? new Date(field.value as string) : undefined}
+                        showYearDropdown
                     />
                 )} />
             <ErrorMessege errors={errors} attr={attr}/>

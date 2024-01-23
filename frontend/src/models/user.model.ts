@@ -6,4 +6,5 @@ export class User {
     name!: string
     email!: string
     userRoleKey!: string
+    active!: boolean
 }

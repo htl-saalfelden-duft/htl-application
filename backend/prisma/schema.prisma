@@ -33,6 +33,7 @@ model Applicant {
 	emailConfirmed			Boolean		@default(false)
 
 	passwordHash			String?
+	statusKey				String?		@default("created") //ApplicantStatus
 	active					Boolean		@default(true)
 	dsgvo					Boolean		@default(false)
 
@@ -78,7 +79,7 @@ model Application {
     schoolClass   	SchoolClass? 	@relation(fields: [schoolClassID], references: [id])
     schoolClassID 	String?      	@db.ObjectId
 
-	statusKey		String			//ApplicationStatus
+	statusKey		String			@default("created") //ApplicationStatus
 
 	createdAt		DateTime		@default(now())
 }
@@ -180,6 +181,14 @@ model Religion {
 }
 
 model ApplicationStatus {
+    id    	String 	@id @default(auto()) @map("_id") @db.ObjectId
+	schema	Int		@default(1)
+
+	key		String  @unique
+    title 	String
+}
+
+model ApplicantStatus {
     id    	String 	@id @default(auto()) @map("_id") @db.ObjectId
 	schema	Int		@default(1)
 

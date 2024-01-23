@@ -9,9 +9,12 @@ export class Applicant {
     id?: string
     email?: string
     password?: string
+    statusKey?: ApplicantStatusKey
     dsgvo?: boolean
     contacts?: Contact[]
     schoolReport?: SchoolReport
     details?: ApplicantDetails
     applications?: Application[]
-} 
+}
+
+export type ApplicantStatusKey = 'created' | 'applied' | 'registered' | 'completed'

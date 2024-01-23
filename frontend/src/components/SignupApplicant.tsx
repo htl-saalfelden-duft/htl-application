@@ -12,6 +12,7 @@ export interface SignUpApplicantFormInput {
 	email: string
 	password: string
 	passwordConfirmation?: string
+	statusKey?: string
 }
 
 const SignupApplicant = () => {
@@ -25,7 +26,7 @@ const SignupApplicant = () => {
 		formState: { errors }
 	} = useForm<SignUpApplicantFormInput>()
 
-	const onSubmit = handleSubmit((data) => {
+	const onSubmit = handleSubmit((data) => {		
 		signUpApplicant(data)
 			.then(() => {
 				toast("Sie haben sich erfolgreich angemeldet. Sie erhalten ihren Zugangslink per E-Mail.")
@@ -42,8 +43,8 @@ const SignupApplicant = () => {
 					<CardBody>
 						<Form onSubmit={onSubmit}>
 							<div className="d-flex flex-row-reverse">
-								<img src={htlLogo128} width={64} alt="htl-logo" />
-								<h5 className="card-title mt-4 flex-grow-1">Bewerbungsseite - Zugang beantragen</h5>
+								<a href='/signin-applicant'><img src={htlLogo128} width={64} alt="htl-logo" /></a>
+								<h5 className="card-title mt-4 flex-grow-1">HTL-Bewerbungsplattform - Zugang beantragen</h5>
 							</div>
 							<Form.Group className="mb-3">
 								<Form.Label htmlFor="email">

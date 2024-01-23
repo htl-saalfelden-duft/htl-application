@@ -16,6 +16,8 @@ interface Props {
 }
 
 const HomeTab = (props: Props) => {
+    const {onSave, applied} = props
+
     const [validated, setValidated] = useState(false)
     const [showDsgvo, setShowDsgvo] = useState(false)
     const [showContactNew, setShowContactNew] = useState(false)
@@ -95,7 +97,7 @@ const HomeTab = (props: Props) => {
             { !admin ?
             <>
                 <h4 className="mt-4 mb-4">Sehr geehrte Erziehungsberechtigte, <br/>sehr geehrte BewerberInnen! </h4>
-                <p>Sie befinden sich auf der Bewerbungsseite der HTL Saalfelden. Bitte füllen Sie das Formular vollständig aus.</p>
+                <p>Sie befinden sich im Bewerber-Portal der HTL Saalfelden. Bitte füllen Sie das Formular vollständig aus.</p>
             </>
             : 
             <>
@@ -134,7 +136,8 @@ const HomeTab = (props: Props) => {
                                 variant="outline-secondary"
                                 onClick={() => setShowContactNew(true)}
                                 title="Kontakt hinzufügen"
-                                size="sm">
+                                size="sm"
+                                disabled={applied}>
                                 <Plus/>
                             </Button>
                         </div>
@@ -150,6 +153,7 @@ const HomeTab = (props: Props) => {
                             onClick={() => handleRemoveContact(index)}
                             title="Kontakt entfernen"
                             size="sm"
+                            disabled={applied}
                         >
                             <Trash/>
                         </Button>
@@ -157,7 +161,8 @@ const HomeTab = (props: Props) => {
                 )}
 
                 {admin && <ListGroup.Item
-                    className={`d-flex ${schoolReportEnabled &&  errorClass(!!errors.schoolReport)}`}>
+                    className={`d-flex ${schoolReportEnabled &&  errorClass(!!errors.schoolReport)}`}
+                    onClick={() => changeTab('schoolReport')}>
                     <Form.Check type="checkbox" id="activate-schoolreport" className="mt-2" onChange={() => handleEnabledSchoolReport()} checked={schoolReportEnabled} />
                     <div className={"ms-3 " + (!schoolReportEnabled ? "text-muted" : '')}>
                         Schulnoten
@@ -168,7 +173,7 @@ const HomeTab = (props: Props) => {
             {!admin && 
             <Form.Group className={`mb-3`}>
                 <Form.Check
-                    disabled={props.applied}
+                    disabled={applied}
                     type="checkbox"
                     id="dsgvo"
                     label={(<>Ich stimme der<Button className="btn-dsgvo" variant="link" onClick={() => setShowDsgvo(true)}>Datenschutzgrundverordnung</Button>der HTL Saalfelden zu.</>)}
@@ -183,11 +188,11 @@ const HomeTab = (props: Props) => {
             <Dsgvo show={showDsgvo} onClose={() => setShowDsgvo(false)}/>
             <ContactNew show={showContactNew} onSubmit={handleAddContact} onClose={() => setShowContactNew(false)}/>
 
-            { !props.applied || admin ? 
+            { !applied || admin ? 
                 <div className="d-flex mt-5">
                     <Button className="me-3" variant="success" type="submit" disabled={!isValid} title="Der Antrag lässt sich erst abschicken, wenn alle Daten vorhanden sind.">Antrag abschicken</Button>
                     <Button className="me-3" variant="outline-warning" onClick={validateForm}>Antrag prüfen</Button>
-                    <Button className="me-3" variant="outline-secondary" onClick={props.onSave}>Daten Speichern</Button>
+                    <Button className="me-3" variant="outline-secondary" onClick={onSave}>Daten Speichern</Button>
                     {admin && <Button className="me-3" variant="outline-secondary" onClick={() => navigate('/applicants')}>Zurück</Button>}
                 </div>
                 :

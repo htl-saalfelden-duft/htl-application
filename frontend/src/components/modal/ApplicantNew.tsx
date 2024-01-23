@@ -1,11 +1,13 @@
 import { Button, Form, Modal } from "react-bootstrap"
 import { useForm } from "react-hook-form"
 import { ErrorMessege } from "../form/details/ErrorMessage"
+import { useMemo } from "react"
+import { AuthService } from "../../services/auth.service"
+import { toast } from "react-toastify"
 
 interface Props {
     show: boolean
     onClose: () => void
-    onSubmit: (applicant: IApplicantNewFormInput) => void
 }
 
 export interface IApplicantNewFormInput {
@@ -16,7 +18,9 @@ export interface IApplicantNewFormInput {
 
 const ApplicantNew = (props: Props) => {
 
-    const { show, onSubmit, onClose } = props
+    const { show, onClose } = props
+
+    const { signUpApplicant } = useMemo(() => new AuthService(), [])
 
     const {
         register,
@@ -25,7 +29,15 @@ const ApplicantNew = (props: Props) => {
     } = useForm<IApplicantNewFormInput>()
 
     const onFormSubmit = handleSubmit((data) => {
-        onSubmit(data)
+        const applicant = {...data, emailConfirmed: true}
+
+        signUpApplicant(applicant)
+        .then(() => {
+            toast("Bewerber angelegt")
+            onClose()
+        }, (err) => {
+            toast(err.response.data.message)
+        })
     })
 
     return (
@@ -66,7 +78,7 @@ const ApplicantNew = (props: Props) => {
                         </Form.Label>
                         <Form.Control
                             type="email"
-                            {...register("email", { required: "Bitte Email eingeben", maxLength: 20 })}
+                            {...register("email", { required: "Bitte Email eingeben" })}
                             id="email"
                             isInvalid={!!errors.email}
                         />
@@ -79,9 +91,9 @@ const ApplicantNew = (props: Props) => {
                     <Form.Group className="mb-3 col-lg-6">
                         <Form.Label htmlFor="password">Password</Form.Label>
                         <Form.Control
-                            type="password"
+                            type="text"
                             autoComplete="new-password"
-                            {...register("password", { required: "Bitte Passwort eingeben", maxLength: 20 })}
+                            {...register("password", { required: "Bitte Passwort eingeben" })}
                             id="password"
                             isInvalid={!!errors.password}
                         />

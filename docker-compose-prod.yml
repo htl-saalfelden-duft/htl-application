@@ -47,7 +47,7 @@ services:
         ports:
             - 27017:27017
         healthcheck:
-            test: echo "try { rs.status() } catch (err) { use admin; db.auth('root', 'secret'); rs.initiate({_id:'rs0',members:[{_id:0,host:'localhost:27017'}]}) }" | mongosh --port 27017 --quiet
+            test: echo "try { rs.status() } catch (err) { use admin; db.auth(${MONGODB_USER}, ${MONGODB_PASSWORD}); rs.initiate({_id:'rs0',members:[{_id:0,host:'localhost:27017'}]}) }" | mongosh --port 27017 --quiet
             interval: 5s
             timeout: 30s
             start_period: 0s
@@ -57,8 +57,8 @@ services:
             - "mongo_data:/data/db"
             - "mongo_config:/data/configdb"
         environment:
-            MONGO_INITDB_ROOT_USERNAME: root
-            MONGO_INITDB_ROOT_PASSWORD: secret
+            MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USER}
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
 
 secrets:
     rsa_public_key:

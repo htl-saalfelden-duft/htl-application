@@ -11,4 +11,10 @@ export class Application {
     applicantID?: number
 }
 
+@Entity('applicationStatus')
+export class ApplicationStatus {
+    key!: string
+    title!: string
+}
+
 export type ApplicationStatusKey = 'created' | 'applied' | 'accepted' | 'rejected'

@@ -4,7 +4,6 @@ import { ApplicantModule } from './applicant/applicant.module';
 import { ApplicationModule } from './application/application.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
-// import { EmailConfirmationModule } from './email-confirmation/email-confirmation.module';
 import { ConfigModule } from '@nestjs/config';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { mailConfig } from './config/mail.config';
@@ -17,6 +16,7 @@ import { SexModule } from './sex/sex.module';
 import { SchoolClassModule } from './school-class/school-class.module';
 import { SchoolReportGroupModule } from './school-report-group/school-report-group.module';
 import { TitleModule } from './title/title.module';
+import { ApplicantStatusModule } from './applicant-status/applicant-status.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -24,6 +24,7 @@ import { TitleModule } from './title/title.module';
     AuthModule,
     UserModule,
     ApplicantModule,
+    ApplicantStatusModule,
     ApplicationModule,
     LanguageModule,
     ReligionModule,

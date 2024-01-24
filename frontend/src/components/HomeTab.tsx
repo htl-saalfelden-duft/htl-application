@@ -12,11 +12,11 @@ import ContactNew, { IContactNewFormInput } from "./modal/ContactNew"
 
 interface Props {
     onSave: () => void
-    applied: boolean
+    locked: boolean
 }
 
 const HomeTab = (props: Props) => {
-    const {onSave, applied} = props
+    const {onSave, locked} = props
 
     const [validated, setValidated] = useState(false)
     const [showDsgvo, setShowDsgvo] = useState(false)
@@ -137,7 +137,7 @@ const HomeTab = (props: Props) => {
                                 onClick={() => setShowContactNew(true)}
                                 title="Kontakt hinzufügen"
                                 size="sm"
-                                disabled={applied}>
+                                disabled={locked}>
                                 <Plus/>
                             </Button>
                         </div>
@@ -153,7 +153,7 @@ const HomeTab = (props: Props) => {
                             onClick={() => handleRemoveContact(index)}
                             title="Kontakt entfernen"
                             size="sm"
-                            disabled={applied}
+                            disabled={locked}
                         >
                             <Trash/>
                         </Button>
@@ -173,7 +173,7 @@ const HomeTab = (props: Props) => {
             {!admin && 
             <Form.Group className={`mb-3`}>
                 <Form.Check
-                    disabled={applied}
+                    disabled={locked}
                     type="checkbox"
                     id="dsgvo"
                     label={(<>Ich stimme der<Button className="btn-dsgvo" variant="link" onClick={() => setShowDsgvo(true)}>Datenschutzgrundverordnung</Button>der HTL Saalfelden zu.</>)}
@@ -188,7 +188,8 @@ const HomeTab = (props: Props) => {
             <Dsgvo show={showDsgvo} onClose={() => setShowDsgvo(false)}/>
             <ContactNew show={showContactNew} onSubmit={handleAddContact} onClose={() => setShowContactNew(false)}/>
 
-            { !applied || admin ? 
+            { (!locked || admin) 
+                ? 
                 <div className="d-flex mt-5">
                     <Button className="me-3" variant="success" type="submit" disabled={!isValid} title="Der Antrag lässt sich erst abschicken, wenn alle Daten vorhanden sind.">Antrag abschicken</Button>
                     <Button className="me-3" variant="outline-warning" onClick={validateForm}>Antrag prüfen</Button>

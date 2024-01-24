@@ -47,10 +47,10 @@ const Applications = (props: Props) => {
 			<Button
 				variant="outline-secondary"
 				className="mb-2"
-				onClick={() => append({ priority: fields.length + 1, schoolClassID: "" })}>
+				onClick={() => append({ priority: fields.length + 1, schoolClassID: "", statusKey: "created" })}>
 				<PlusLg/>
 			</Button>
-			<Table striped bordered hover className="application-table">
+			<Table hover className="application-table">
 				<thead>
 					<tr>
 						<th className="col-prio">Priorität</th>

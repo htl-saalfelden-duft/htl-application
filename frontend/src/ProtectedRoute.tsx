@@ -22,9 +22,8 @@ const ProtectedRoute = ({ userType, admin = false, redirectPath, children }: Pro
         <Navigationbar />
         <Container>
           {
-          (userType === userTypeAuth && (!admin || (isAdmin && admin)))  ? 
-            <Outlet /> : 
-            <Alert className="mt-4" variant="danger">Sorry, but this route is not allowed!</Alert>
+          (userType === userTypeAuth && (!admin || (isAdmin && admin)))  && 
+            <Outlet />
           }
 
         </Container>

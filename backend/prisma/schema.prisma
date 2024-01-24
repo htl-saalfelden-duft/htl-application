@@ -42,6 +42,7 @@ model Applicant {
     applications  			Application[]
     schoolReport  			SchoolReport?
 
+	registeredAt			DateTime?
 	createdAt				DateTime	@default(now())
 }
 

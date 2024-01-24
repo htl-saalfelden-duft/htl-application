@@ -17,4 +17,10 @@ export class Applicant {
     applications?: Application[]
 }
 
+@Entity('applicantStatus')
+export class ApplicantStatus {
+    key!: string
+    title!: string
+}
+
 export type ApplicantStatusKey = 'created' | 'applied' | 'registered' | 'completed'

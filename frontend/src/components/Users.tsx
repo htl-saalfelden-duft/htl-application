@@ -39,7 +39,7 @@ export const Users = () => {
             </div>
             <Card >
                 <CardBody>
-                    <Table striped bordered hover className="application-table">
+                    <Table hover className="application-table">
                         <thead>
                             <tr>
                                 <th>#</th>

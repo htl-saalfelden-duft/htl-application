@@ -13,7 +13,7 @@ import { ContactType, ContactTypes } from "../models/contact.model"
 import { contactType2Title, contactType2tabType, tabType2ContactType } from "../common/tab.utils"
 import { toast } from "react-toastify"
 import { Applications } from "./Applications"
-import { getDBApplicant, setDefaultApplication, setDefaultApplicationStatus } from "../common/applicant-data.utils"
+import { getDBApplicant, setApplicationStatus, setDefaultApplication } from "../common/applicant-data.utils"
 import { useNavigate } from "react-router-dom"
 import SubmitConfirmation from "./modal/SubmitConfirmation"
 import { useAuth } from "../contexts/auth.context"
@@ -44,7 +44,7 @@ const ApplicationForm = (props: Props) => {
     const { reset, handleSubmit, getValues } = formMethods
 
     const [ showSubmitConfirmation, setShowSubmitConfirmation ] = useState(false)
-    const [ isApplied, setIsApplied ] = useState(false)
+    const [ isLocked, setIsLocked ] = useState(false)
 
     const enableContactTabs = (applicant: Applicant, contactTypes: ContactType[]) => {
 
@@ -78,7 +78,7 @@ const ApplicationForm = (props: Props) => {
                 reset(applicant)
 
                 if(applicant.statusKey === 'applied') {
-                    setIsApplied(!admin)
+                    setIsLocked(!admin)
                 }
             })
         }
@@ -86,16 +86,20 @@ const ApplicationForm = (props: Props) => {
 
 
     const onSubmit = handleSubmit(() => {
-        setShowSubmitConfirmation(true)
+        if(userType === 'administration') {
+            proceedSubmit()
+        } else {
+            setShowSubmitConfirmation(true)
+        }
     })
 
     const proceedSubmit = () => {
         const applicant = getValues()
 
-        setDefaultApplicationStatus(applicant, 'applied')
-        const dbApplicant = getDBApplicant(applicant)
+        setApplicationStatus(applicant, 'applied')
+        applicant.statusKey = 'applied'
 
-        dbApplicant.statusKey = 'applied'
+        const dbApplicant = getDBApplicant(applicant)
 
         console.log(dbApplicant)
 
@@ -117,7 +121,7 @@ const ApplicationForm = (props: Props) => {
             if(admin) {
                 navigate('/applicants')
             } else {
-                setIsApplied(true)
+                setIsLocked(true)
             }
         })
     }
@@ -125,7 +129,11 @@ const ApplicationForm = (props: Props) => {
     const onSave = () => {
         const applicant = getValues()
 
-        setDefaultApplicationStatus(applicant, 'created')
+        // This is only if administration would edit after applicant is applied AND applications added
+        if(applicant.statusKey === 'applied') {
+            setApplicationStatus(applicant, 'applied')
+        }
+
         const dbApplicant = getDBApplicant(applicant)
 
         apiService.save<Applicant>(Applicant, dbApplicant)
@@ -147,24 +155,24 @@ const ApplicationForm = (props: Props) => {
                     onSelect={(tab) => setCurrentTab(tab as TabType)}>
 
                     <Tab eventKey="home" title={<HouseFill size={20} />}>
-                        <HomeTab onSave={onSave} applied={isApplied}/>
+                        <HomeTab onSave={onSave} locked={isLocked}/>
                     </Tab>
 
                     <Tab eventKey="applications" title="Bewerbungen" >
-                        <fieldset disabled={isApplied}>
+                        <fieldset disabled={isLocked}>
                             <Applications />
                         </fieldset>
                     </Tab>
 
                     <Tab eventKey="details" title="Daten-Bewerber">
-                        <fieldset disabled={isApplied}>
+                        <fieldset disabled={isLocked}>
                             <ApplicantDetails />
                         </fieldset>
                     </Tab>
 
                     { contactTabs.map((contactTab, index) => 
                         <Tab key={index} eventKey={contactTab.type} title={contactTab.title}>
-                            <fieldset disabled={isApplied}>
+                            <fieldset disabled={isLocked}>
                                 <Contact type={contactTab.type as ContactTypes} index={index} parent={contactTab.parent} require={true} />
                             </fieldset>
                         </Tab>

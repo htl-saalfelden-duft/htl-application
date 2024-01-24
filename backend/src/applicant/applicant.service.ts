@@ -6,6 +6,7 @@ import { Observable, catchError, from, map, mergeMap } from 'rxjs';
 import { ApiError, ApiErrorType } from 'src/common/api-error';
 import { SignInDto } from 'src/auth/sign-in.dto';
 import { MailerService } from '@nestjs-modules/mailer';
+import { join } from 'path';
 
 @Injectable()
 export class ApplicantService {
@@ -147,6 +148,11 @@ export class ApplicantService {
 			to: email,
 			subject: 'Anmeldung HTBLA Saalfelden',
 			template: 'apply-confirmation',
+			attachments: [{
+				filename: 'mint_guetesiegel.png',
+				path: join(__dirname, '../../assets/images/mint_guetesiegel.png'),
+				cid: 'ee41a8ed-bbb8-4612-b7f5-064e89621d9f'
+			}]
 		})
 		.catch((err) => {
 			console.error(err)

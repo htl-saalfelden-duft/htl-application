@@ -20,7 +20,7 @@ const setApplicationValues = (applicant: Applicant) => {
         })
 }
 
-const setDefaultApplicationStatus = (applicant: Applicant, applicationStatusKey: ApplicationStatusKey) => {
+const setApplicationStatus = (applicant: Applicant, applicationStatusKey: ApplicationStatusKey) => {
     applicant.applications!.forEach(application => {
         application.statusKey = applicationStatusKey
     })
@@ -28,9 +28,9 @@ const setDefaultApplicationStatus = (applicant: Applicant, applicationStatusKey:
 
 const setDefaultApplication = (applicant: Applicant) => {
     const defaultApplications: Application[] = [
-        {schoolClassID: ""},
-        {schoolClassID: ""},
-        {schoolClassID: ""}
+        {schoolClassID: "", statusKey: 'created'},
+        {schoolClassID: "", statusKey: 'created'},
+        {schoolClassID: "", statusKey: 'created'}
     ]
     if(!applicant.applications?.length) {
         defaultApplications.forEach(da => {
@@ -60,4 +60,4 @@ const getDBApplicant = (applicant: Applicant): Applicant => {
 //     return applied
 // }
 
-export {setDefaultApplication, getDBApplicant, setDefaultApplicationStatus}
+export {setDefaultApplication, getDBApplicant, setApplicationStatus}

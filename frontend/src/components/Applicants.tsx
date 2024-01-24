@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom"
 import ApplicantNew from "./modal/ApplicantNew"
 import "./Applicants.scss"
 import ConfirmationPdf from "./modal/ConfirmationPdf"
+import { toast } from "react-toastify"
+import moment from "moment"
 
 export const Applicants = () => {
     const apiService = useMemo(() => new ApiService(), [])
@@ -21,6 +23,19 @@ export const Applicants = () => {
         apiService.get<Applicant[]>(Applicant)
         .then(result => {
             setApplicants(result)
+        })
+    }
+
+    const saveApplicant = () => {
+        const applicant: Applicant = {
+            id: confirmationPdfApplicant?.id,
+            statusKey: 'registered',
+            registeredAt: new Date()
+        }
+
+        return apiService.save<Applicant>(Applicant, applicant)
+        .then(() => {
+            toast('Das Anmeldedatum wurde gespeichert.')
         })
     }
 
@@ -43,6 +58,12 @@ export const Applicants = () => {
 
     const openApplicant = (id: string) => {
         navigate("/applicant", { state: {id} })
+    }
+
+    const onConfirmationSubmit = () => {
+        saveApplicant()
+        .then(() => setConfirmationPdfApplicant(undefined))
+        loadApplicants()
     }
 
     return (
@@ -69,6 +90,7 @@ export const Applicants = () => {
                                 <th>Nachname</th>
                                 <th>Abteilung Prio.1</th>
                                 <th>Status</th>
+                                <th>Anmeldedatum</th>
                                 <th>Antrags-Email</th>
                                 <th></th>
                             </tr>
@@ -81,6 +103,7 @@ export const Applicants = () => {
                                     <td>{applicant.details?.lastname}</td>
                                     <td>{(applicant.applications && applicant.applications[0]?.schoolClass?.title) || '-'}</td>
                                     <td>{applicantStatuses?.find(as => as.key === applicant.statusKey)?.title || ''}</td>
+                                    <td>{applicant.registeredAt && moment(applicant.registeredAt).format('DD.MM.YYYY')}</td>
                                     <td>{applicant.email}</td>
                                     <td>
                                         <Button variant="outline-primary" className="me-2" onClick={() => {openApplicant(applicant.id!)}}><Pencil /></Button>
@@ -94,7 +117,11 @@ export const Applicants = () => {
             </Card>
         </Row>
         <ApplicantNew show={showApplicantNew} onClose={onCloseApplicantNew} />
-        <ConfirmationPdf show={!!confirmationPdfApplicant} applicant={confirmationPdfApplicant!} onClose={() => setConfirmationPdfApplicant(undefined)}/>
+        <ConfirmationPdf 
+            show={!!confirmationPdfApplicant}
+            applicant={confirmationPdfApplicant!}
+            onClose={() => setConfirmationPdfApplicant(undefined)}
+            onSubmit={onConfirmationSubmit}/>
         </>
     )
 }

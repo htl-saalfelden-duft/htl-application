@@ -7,6 +7,6 @@ export class ApplicantStatusService {
     constructor(private prisma: PrismaService) {}
 
     getMany(): Promise<ApplicantStatus[]> {
-        return this.prisma.applicationStatus.findMany({orderBy: {title: 'asc'}}) 
+        return this.prisma.applicantStatus.findMany({orderBy: {title: 'asc'}}) 
     }
 }

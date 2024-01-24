@@ -7,12 +7,13 @@ import { Applicant } from "../../models/applicant.model"
 interface Props {
     show: boolean
     onClose: () => void
+    onSubmit: () => void
     applicant: Applicant
 }
 
 const ConfirmationPdf = (props: Props) => {
 
-    const { show, onClose, applicant } = props
+    const { show, onClose, onSubmit, applicant } = props
 
     return (
         <Modal show={show} onHide={onClose} size="lg" className="pdf-confirmation">
@@ -23,8 +24,11 @@ const ConfirmationPdf = (props: Props) => {
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={onClose}>
-                    Schließen
+                    Abbrechen
                 </Button>
+                <Button variant="danger" onClick={onSubmit} disabled={applicant?.statusKey !== "applied"}>
+                    Angemeldet setzen
+                </Button>                
             </Modal.Footer>
         </Modal>
     )

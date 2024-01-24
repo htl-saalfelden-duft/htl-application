@@ -58,11 +58,14 @@ export class ApplicantService {
 
 	update(params: { data: Prisma.ApplicantUpdateInput, where: Prisma.ApplicantWhereUniqueInput }): Promise<Applicant> {
 		let { data, where } = params;
-		const applications = {
-			deleteMany: {},
-			createMany: { data: data.applications as Prisma.ApplicationCreateManyApplicantInput }
+
+		if(data.applications) {
+			const applications = {
+				deleteMany: {},
+				createMany: { data: data.applications as Prisma.ApplicationCreateManyApplicantInput }
+			}
+			data = {...data, ...{applications}}
 		}
-		data = {...data, ...{applications}}
 
 		return this.prisma.applicant.findUnique({where})
 		.then(prevApplicant => {

@@ -11,6 +11,7 @@ export class Applicant {
     password?: string
     statusKey?: ApplicantStatusKey
     dsgvo?: boolean
+    registeredAt?: Date
     contacts?: Contact[]
     schoolReport?: SchoolReport
     details?: ApplicantDetails

@@ -103,7 +103,8 @@ const ApplicationForm = (props: Props) => {
 
         console.log(dbApplicant)
 
-        apiService.save<Applicant>(Applicant, dbApplicant).then(() => {
+        apiService.save<Applicant>(Applicant, dbApplicant)
+        .then(() => {
             if(userType === 'applicant') {
                 toast(
                     "Ihre Bewerbung wurde erfolgreich an uns übermittelt! Sie erhalten zusätzlich eine Bestätigung per Email.", 

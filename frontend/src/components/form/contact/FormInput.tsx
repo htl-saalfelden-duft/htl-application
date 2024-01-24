@@ -5,7 +5,6 @@ import { Applicant } from '../../../models/applicant.model'
 import { useContact } from '../../../contexts/contact.context'
 import { ErrorMessege } from './ErrorMessage'
 import { hasError } from './contact-form.util'
-import { truncate } from 'lodash'
 
 interface Props { 
     attr: keyof Contact

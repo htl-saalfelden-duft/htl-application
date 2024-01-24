@@ -11,6 +11,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         backgroundColor: '#E4E4E4'
     },
+    title: {
+        fontSize: 25,
+        marginTop: 200,
+        textAlign: 'center'
+    },
     section: {
         margin: 10,
         padding: 10,
@@ -26,7 +31,6 @@ export const Confirmation = (props: Props) => {
         <Document title="Anmeldebestätigung">
             <Page size="A4" style={styles.page}>
                 <View style={styles.section}>
-                    <Text>Bestätigung für</Text>
                     <Text>{applicant?.details?.firstname} {applicant?.details?.lastname}</Text>
                 </View>
             </Page>

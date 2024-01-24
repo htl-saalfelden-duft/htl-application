@@ -7,8 +7,6 @@ import { ErrorMessege } from './ErrorMessage'
 
 export const FormTextArea = (props: { attr: keyof Contact, title: string, required?: boolean, className?: string, type?: string }) => {
     const { attr, title, required, className } = props
-    let { type } = props
-    type ||= 'text'
 
     const { index } = useContact()
 

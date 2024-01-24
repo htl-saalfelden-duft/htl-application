@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { UserType, useAuth } from "./contexts/auth.context";
 import Navigationbar from "./components/Navbar";
-import { Alert, Container } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 
 interface Props {
   userType?: UserType

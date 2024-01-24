@@ -84,7 +84,7 @@ model Application {
 	createdAt		DateTime		@default(now())
 }
 type Contact {
-    title          			String?
+    title          			String?		//Title
     degree					String?
 	sufixDegree				String?
     firstname     			String?
@@ -204,6 +204,13 @@ model Sex {
 }
 
 model SchoolReportGroup {
+    id    	String 	@id @default(auto()) @map("_id") @db.ObjectId
+	schema	Int		@default(1)
+
+    title 	String @unique
+}
+
+model Title {
     id    	String 	@id @default(auto()) @map("_id") @db.ObjectId
 	schema	Int		@default(1)
 

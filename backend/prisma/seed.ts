@@ -145,6 +145,10 @@ async function main() {
         {
             key: "father",
             title: "Vater"
+        },
+        {
+            key: "others",
+            title: "Andere"
         }
     ]
     for (let index = 0; index < contactTypes.length; index++) {
@@ -157,7 +161,7 @@ async function main() {
         })
     }
 
-    const sex = ["männlich", "weiblich", "divers", "offen", "keine Angabe", "inter",]
+    const sex = ["männlich", "weiblich", "divers", "offen", "keine Angabe", "inter"]
     for (let index = 0; index < sex.length; index++) {
         const title = sex[index];
 
@@ -226,6 +230,19 @@ async function main() {
             }
         })
     }
+
+    const titles = ["Herr", "Frau"]
+    for (let index = 0; index < titles.length; index++) {
+        const title = titles[index];
+
+        await prisma.title.upsert({
+            where: { title },
+            update: {},
+            create: {
+                title
+            }
+        })
+    }    
 }
 
 main()

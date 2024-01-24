@@ -12,6 +12,7 @@ import { Applicant } from '../models/applicant.model'
 import { FormTextArea } from './form/contact/FormTextArea'
 import { FormDateInput } from './form/contact/FormDateInput'
 import { useTabs } from '../contexts/tabs.context'
+import { Title } from '../models/title.model'
 
 interface Props {
     type: ContactTypes
@@ -42,12 +43,16 @@ const Contact = (props: Props) => {
         return apiService.get<Country[]>(Country, undefined, { title: inputValue })
     }
 
+    const getTitles = (inputValue: string) => {
+        return apiService.get<Title[]>(Title, undefined, { title: inputValue })
+    }    
+
     return (
         <ContactProvider index={index}>
             {parent ? 
             <>
                 <Row>
-                    <FormInput className="col-2" attr="title" title="Anrede" />
+                    <FormSelect className="col-2" attr="title" title="Anrede" required={require} loadOptions={getTitles}/>
                     <FormInput className="col-2" attr="degree" title="Akad.Grad" />
                     <FormInput className="col-2" attr="sufixDegree" title="Akad. Grad nachg." />
                 </Row>
@@ -85,16 +90,15 @@ const Contact = (props: Props) => {
                 <FormInput className="col-lg-3" attr="email" title="Email" required={require} type="email" />                   
             </Row>                      
 
-            { parent ?
+            { parent &&
                 <FormCheck className="col-lg" attr="legalGardian" title="Erziehungsberechtigt"/>
-            :
-                <FormCheck className="col-lg" attr="pupilInBoardingSchool" title="Internat oder Extern"/>
             }
 
             {parent ?
             <>
                 {admin &&
                 <>
+                    <FormCheck className="col-lg" attr="pupilInBoardingSchool" title="Internat oder Extern"/>
                     <FormCheck className="col-lg" attr="liableToPay" title="Zahlungspflichtig"/>
                     <FormCheck className="col-lg" attr="decitionTo" title="Entscheide an"/>
                     <FormCheck className="col-lg" attr="postTo" title="Post an"/>

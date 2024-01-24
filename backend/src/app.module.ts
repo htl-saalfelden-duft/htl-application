@@ -16,13 +16,13 @@ import { ApplicationStatusModule } from './application-status/application-status
 import { SexModule } from './sex/sex.module';
 import { SchoolClassModule } from './school-class/school-class.module';
 import { SchoolReportGroupModule } from './school-report-group/school-report-group.module';
+import { TitleModule } from './title/title.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
     MailerModule.forRoot(mailConfig),
     AuthModule,
     UserModule,
-    // EmailConfirmationModule,
     ApplicantModule,
     ApplicationModule,
     LanguageModule,
@@ -31,6 +31,7 @@ import { SchoolReportGroupModule } from './school-report-group/school-report-gro
     ContactTypeModule,
     ApplicationStatusModule,
     SexModule,
+    TitleModule,
     SchoolClassModule,
     SchoolReportGroupModule,
   ],

@@ -9,8 +9,7 @@ interface Props {
 // Create styles
 const styles = StyleSheet.create({
     page: {
-        flexDirection: 'row',
-        backgroundColor: '#E4E4E4'
+        flexDirection: 'row'
     },
     title1: {
         fontSize: 20,

@@ -62,8 +62,10 @@ export const Applicants = () => {
 
     const onConfirmationSubmit = () => {
         saveApplicant()
-        .then(() => setConfirmationPdfApplicant(undefined))
-        loadApplicants()
+        .then(() => {
+            setConfirmationPdfApplicant(undefined)
+            loadApplicants()
+        })
     }
 
     return (
@@ -88,10 +90,11 @@ export const Applicants = () => {
                                 <th>#</th>
                                 <th>Vorname</th>
                                 <th>Nachname</th>
-                                <th>Abteilung Prio.1</th>
+                                <th style={{width: '30%'}}>Abteilung Prio.1</th>
                                 <th>Status</th>
                                 <th>Anmeldedatum</th>
                                 <th>Antrags-Email</th>
+                                <th>Email bestätigt</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -105,9 +108,12 @@ export const Applicants = () => {
                                     <td>{applicantStatuses?.find(as => as.key === applicant.statusKey)?.title || ''}</td>
                                     <td>{applicant.registeredAt && moment(applicant.registeredAt).format('DD.MM.YYYY')}</td>
                                     <td>{applicant.email}</td>
+                                    <td><div className="form-check"><input type="checkbox" className="form-check-input" checked={applicant.emailConfirmed} disabled /></div></td>
                                     <td>
-                                        <Button variant="outline-primary" className="me-2" onClick={() => {openApplicant(applicant.id!)}}><Pencil /></Button>
-                                        <Button variant="outline-danger" className="me-2" onClick={() => {setConfirmationPdfApplicant(applicant)}} disabled={applicant.statusKey==="created"}><FileEarmarkPdf /></Button>
+                                        <div className="d-flex" style={{gap: '6px'}}>
+                                            <Button variant="outline-primary" onClick={() => {openApplicant(applicant.id!)}}><Pencil /></Button>
+                                            <Button variant="outline-danger" onClick={() => {setConfirmationPdfApplicant(applicant)}} disabled={applicant.statusKey==="created"}><FileEarmarkPdf /></Button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

@@ -26,11 +26,6 @@ const Contact = (props: Props) => {
 
     const apiService = useMemo(() => new ApiService(), [])
 
-    // const [type, setType] = useState(props.type)
-    // const [parent, setParent] = useState(props.parent)
-    // const [index, setIndex] = useState(props.index)
-    // const [require, setRequire] = useState(props.require)
-
     const {
         register
     } = useFormContext<Applicant>()

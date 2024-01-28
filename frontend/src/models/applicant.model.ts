@@ -8,6 +8,7 @@ import { SchoolReport } from "./schoolReport.model"
 export class Applicant {
     id?: string
     email?: string
+    emailConfirmed?: boolean
     password?: string
     statusKey?: ApplicantStatusKey
     dsgvo?: boolean

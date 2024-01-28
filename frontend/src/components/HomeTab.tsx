@@ -7,7 +7,7 @@ import { TabType, useTabs } from "../contexts/tabs.context"
 import { toast } from "react-toastify"
 import Dsgvo from "./modal/Dsgvo"
 import { useNavigate } from "react-router-dom"
-import { Plus, Trash } from "react-bootstrap-icons"
+import { ExclamationCircle, Plus, Trash } from "react-bootstrap-icons"
 import ContactNew, { IContactNewFormInput } from "./modal/ContactNew"
 
 interface Props {
@@ -184,6 +184,27 @@ const HomeTab = (props: Props) => {
                     </Form.Text>
                 )}	                
             </Form.Group>}
+
+            {admin &&
+            <>
+                <Form.Group className={`mb-3`}>
+                    <Form.Check
+                        disabled={locked}
+                        type="checkbox"
+                        id="emailConfirmed"
+                        label="Email bestätigt"
+                        {...register(`emailConfirmed`, { required: "Bitte bestätigen Sie die Emailadresse"})}/>
+                    {errors.emailConfirmed && (
+                        <Form.Text className="text-danger">
+                            {errors.emailConfirmed.message}
+                        </Form.Text>
+                    )}	                
+                </Form.Group>
+                <Alert variant="warning" className="mb-3">
+                    <ExclamationCircle size={32} className="me-2"/>Bitte nur verwenden, wenn es Probleme bei der Email-Bestätigung gibt!
+                </Alert>
+            </>
+            }         
 
             <Dsgvo show={showDsgvo} onClose={() => setShowDsgvo(false)}/>
             <ContactNew show={showContactNew} onSubmit={handleAddContact} onClose={() => setShowContactNew(false)}/>

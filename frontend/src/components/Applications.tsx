@@ -1,6 +1,5 @@
 import { useMemo } from "react"
 import { ApiService } from "../services/api.service"
-
 import { Alert, Button, Form, Table } from "react-bootstrap"
 import { ArrowDown, ArrowUp, ExclamationCircle, PlusLg, Trash } from "react-bootstrap-icons"
 import { SchoolClass } from "../models/schoolClass.model"
@@ -39,7 +38,6 @@ const Applications = (props: Props) => {
 	}
 
 	const hasError = (index: number) => !!(errors.applications && errors.applications[index] && errors.applications[index]!.schoolClass)
-
 
 	return (
 		<>
@@ -84,6 +82,13 @@ const Applications = (props: Props) => {
 										/>
 									)}
 								/>
+								{errors.applications &&
+									errors.applications[index] &&
+									errors.applications[index]!.schoolClass && (
+										<Form.Text className="text-danger">
+											{errors.applications![index]!.schoolClass?.message}
+										</Form.Text>
+									)}
 							</td>
 							<td>
 								{ fields.length > 1 ? <Button variant="outline-danger" className="me-2" onClick={() => onRemove(index)}><Trash /></Button> : null}
@@ -94,6 +99,10 @@ const Applications = (props: Props) => {
 					))}
 				</tbody>
 			</Table>
+
+			<Alert variant="warning" className="mb-3">
+                <ExclamationCircle size={32} className="me-2"/>Bitte entfernen Sie die nicht benötigten Felder!
+            </Alert>
 
 			<Form.Group className="mb-3">
 				<Form.Label htmlFor="details.secondChoiceSchool">Zweitwunschschule</Form.Label>

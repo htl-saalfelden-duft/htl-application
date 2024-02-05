@@ -43,10 +43,10 @@ const SignupApplicant = () => {
 					<CardBody>
 						<Form onSubmit={onSubmit}>
 							<div className="d-flex flex-row-reverse">
-								<a href='/signin-applicant'><img src={htlLogo128} width={64} alt="htl-logo" /></a>
-								<h5 className="card-title mt-4 flex-grow-1">HTL-Bewerbungsplattform - Zugang beantragen</h5>
+								<button className="btn btn-link" onClick={() => navigate('/signin-applicant')}><img src={htlLogo128} width={64} alt="htl-logo" /></button>
+								<h5 className="card-title mt-4 flex-grow-1">HTL-Bewerber-Portal - Registrieren</h5>
 							</div>
-							<Form.Group className="mb-3">
+							<Form.Group className="mt-3 mb-3">
 								<Form.Label htmlFor="email">
 									Email-Adresse
 								</Form.Label>
@@ -77,7 +77,7 @@ const SignupApplicant = () => {
 									</Form.Text>
 								)}
 							</Form.Group>
-							<Form.Group className="mb-3">
+							<Form.Group className="mb-4">
 								<Form.Label htmlFor="password-confirmation">Passwort bestätigen</Form.Label>
 								<Form.Control
 									type="password"
@@ -93,7 +93,10 @@ const SignupApplicant = () => {
 									</Form.Text>
 								)}
 							</Form.Group>
-							<Button variant="outline-primary" type="submit">Absenden</Button>
+							<div className='d-flex justify-content-between'>
+								<Button variant="outline-primary" type="submit">Zugang beantragen</Button>
+								<Button variant="link" onClick={() => navigate("/signin-applicant")}>Einloggen</Button>
+							</div>
 						</Form>
 					</CardBody>
 				</Card>

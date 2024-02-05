@@ -74,7 +74,7 @@ model Application {
 
 	priority		Int
 
-    applicant   	Applicant 		@relation(fields: [applicantID], references: [id])
+    applicant   	Applicant 		@relation(fields: [applicantID], references: [id], onDelete: Cascade)
     applicantID		String    		@db.ObjectId
 
     schoolClass   	SchoolClass? 	@relation(fields: [schoolClassID], references: [id])

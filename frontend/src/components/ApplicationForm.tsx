@@ -15,7 +15,7 @@ import { toast } from "react-toastify"
 import { Applications } from "./Applications"
 import { getDBApplicant, setApplicationStatus, setDefaultApplication } from "../common/applicant-data.utils"
 import { useNavigate } from "react-router-dom"
-import SubmitConfirmation from "./modal/SubmitConfirmation"
+import SubmitConfirmation from "./modal/SubmitConf"
 import { useAuth } from "../contexts/auth.context"
 
 

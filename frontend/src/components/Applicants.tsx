@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState } from "react"
 import { ApiService } from "../services/api.service"
 import { Applicant, ApplicantStatus } from "../models/applicant.model"
 import { Button, Card, CardBody, Row, Table } from "react-bootstrap"
-import { FileEarmarkPdf, Pencil, PlusLg } from "react-bootstrap-icons"
+import { FileEarmarkPdf, Pencil, PlusLg, Trash } from "react-bootstrap-icons"
 import { useNavigate } from "react-router-dom"
 import ApplicantNew from "./modal/ApplicantNew"
 import "./Applicants.scss"
 import ConfirmationPdf from "./modal/ConfirmationPdf"
 import { toast } from "react-toastify"
 import moment from "moment"
+import DeleteApplicantConfirmation from "./modal/DeleteApplicantConf"
 
 export const Applicants = () => {
     const apiService = useMemo(() => new ApiService(), [])
@@ -17,6 +18,7 @@ export const Applicants = () => {
     const [applicants, setApplicants] = useState<Applicant[]>()
     const [applicantStatuses, setApplicantStatuses] = useState<ApplicantStatus[]>()
     const [showApplicantNew, setShowApplicantNew] = useState(false)
+    const [deleteConfirmationApplicant, setDeleteConfirmationApplicant] = useState<Applicant>()
     const [confirmationPdfApplicant, setConfirmationPdfApplicant] = useState<Applicant>()
 
     const loadApplicants = () => {
@@ -34,9 +36,6 @@ export const Applicants = () => {
         }
 
         return apiService.save<Applicant>(Applicant, applicant)
-        .then(() => {
-            toast('Das Anmeldedatum wurde gespeichert.')
-        })
     }
 
     const loadApplicantStatuses = () => {
@@ -60,9 +59,21 @@ export const Applicants = () => {
         navigate("/applicant", { state: {id} })
     }
 
+    const onDeleteConfirmationSubmit = () => {
+        const id = deleteConfirmationApplicant!.id!
+
+        return apiService.delete<Applicant>(Applicant, id)
+        .then(() => {
+            toast('Bewerber gelöscht.')
+            setDeleteConfirmationApplicant(undefined)
+            loadApplicants()
+        })
+    }
+
     const onConfirmationSubmit = () => {
         saveApplicant()
         .then(() => {
+            toast('Das Anmeldedatum wurde gespeichert.')
             setConfirmationPdfApplicant(undefined)
             loadApplicants()
         })
@@ -113,6 +124,7 @@ export const Applicants = () => {
                                         <div className="d-flex" style={{gap: '6px'}}>
                                             <Button variant="outline-primary" onClick={() => {openApplicant(applicant.id!)}}><Pencil /></Button>
                                             <Button variant="outline-danger" onClick={() => {setConfirmationPdfApplicant(applicant)}} disabled={applicant.statusKey==="created"}><FileEarmarkPdf /></Button>
+                                            <Button variant="danger" onClick={() => {setDeleteConfirmationApplicant(applicant)}} disabled={applicant.statusKey==="registered" || applicant.statusKey==="completed"}><Trash /></Button>
                                         </div>
                                     </td>
                                 </tr>
@@ -127,7 +139,11 @@ export const Applicants = () => {
             show={!!confirmationPdfApplicant}
             applicant={confirmationPdfApplicant!}
             onClose={() => setConfirmationPdfApplicant(undefined)}
-            onSubmit={onConfirmationSubmit}/>
+            onSubmit={onConfirmationSubmit} />
+        <DeleteApplicantConfirmation 
+            show={!!deleteConfirmationApplicant}
+            onSubmit={onDeleteConfirmationSubmit}
+            onClose={() => setDeleteConfirmationApplicant(undefined)} />
         </>
     )
 }

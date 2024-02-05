@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Request, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Request, UseGuards } from "@nestjs/common";
 import { Applicant, Prisma } from "@prisma/client";
 import { Observable, from, map, mergeMap } from "rxjs";
 import { Public } from "src/auth/public.decorator";
@@ -100,4 +100,9 @@ export class ApplicantController {
       })
     )
   }
+
+  @Delete(':id')
+  delete(@Param('id') id: string): Promise<Applicant> {
+      return this.applicantService.delete({ id })
+  }  
 }

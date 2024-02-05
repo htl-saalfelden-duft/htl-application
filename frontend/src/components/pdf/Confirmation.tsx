@@ -1,6 +1,7 @@
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
 import { Applicant } from '../../models/applicant.model';
 import moment from 'moment';
+import htlLogo128 from '../../assets/images/htl-saalfelden-logo_128.png'
 
 interface Props {
     applicant: Applicant
@@ -35,6 +36,9 @@ export const Confirmation = (props: Props) => {
     return (
         <Document title="Anmeldebestätigung">
             <Page size="A4" style={styles.page}>
+                <View style={{position: 'absolute', top: '40px', right: '40px'}}>
+                    <Image src={htlLogo128} style={{width: '50px', height: '50px'}}/>
+                </View>
                 <View style={{textAlign: 'center', margin: 20, marginTop: 150, width: '100%'}}>
                     <Text style={styles.title1}>Anmeldung für das Schuljahr 2024/2025</Text>
 

@@ -1,6 +1,7 @@
 import { Button, Card, CardBody, Container, Form, Row } from "react-bootstrap"
 import { useForm } from "react-hook-form"
 import htlLogo128 from '../assets/images/htl-saalfelden-logo_128.png'
+import { useNavigate } from "react-router-dom"
 
 export interface ISignInFormInput {
 	email: string
@@ -14,6 +15,7 @@ interface Props {
 
 const SignInForm = (props: Props) => {
 	const {onSubmit , isUser = false} = props
+	const navigate = useNavigate()
 
     const { 
 		register, 
@@ -32,10 +34,10 @@ const SignInForm = (props: Props) => {
 					<CardBody>
 						<Form onSubmit={onFormSubmit}>
                             <div className="d-flex flex-row-reverse">
-                                <a href={isUser ? "/signin-applicant": "/signin-user"}><img src={htlLogo128} width={64} alt="htl-logo" /></a>
+                                <button className="btn btn-link" onClick={() => navigate(isUser ? "/signin-applicant": "/signin-user")}><img src={htlLogo128} width={64} alt="htl-logo" /></button>
 							    <h5 className="card-title mt-4 flex-grow-1">HTL-Bewerber-Portal - {isUser ? 'Admin' : 'Login'}</h5>
                             </div>
-							<Form.Group className="mt-4 mb-3">
+							<Form.Group className="mt-3 mb-3">
 								<Form.Label htmlFor="email">
 									Email-Addresse
 								</Form.Label>
@@ -51,7 +53,7 @@ const SignInForm = (props: Props) => {
 									</Form.Text>
 								)}
 							</Form.Group>
-							<Form.Group className="mb-3">
+							<Form.Group className="mb-4">
 								<Form.Label htmlFor="password">Passwort</Form.Label>
 								<Form.Control
 									type="password"
@@ -64,8 +66,11 @@ const SignInForm = (props: Props) => {
 									{errors.password.message}
 									</Form.Text>
 								)}								
-							</Form.Group>										
-							<Button variant="outline-primary" type="submit">Sign In</Button>
+							</Form.Group>
+							<div className='d-flex justify-content-between'>
+								<Button variant="outline-primary" type="submit">Einloggen</Button>
+								{!isUser && <Button variant="link" onClick={() => navigate("/signup-applicant")}>Zugang beantragen</Button>}
+							</div>									
 						</Form>
 					</CardBody>
 				</Card>

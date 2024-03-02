@@ -9,6 +9,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { join } from 'path';
 import { checkIfFileOrDirectoryExists, createFile, getFile } from 'src/common/storage.helper';
 import { AsyncParser } from '@json2csv/node';
+import { string as defaultStringFormatter } from '@json2csv/formatters';
 
 @Injectable()
 export class ApplicantService {
@@ -126,9 +127,14 @@ export class ApplicantService {
 				if (!csvData || !csvFields) {
 					return Promise.reject("Unable to transform applicants data for CSV.");
 				}
-				//const opts = { fields: csvFields }
+				const opts = { 
+					fields: csvFields,
+					formatters: {
+						string: this.stringOrDateFormatter()
+					}
+				}
 
-				const parser = new AsyncParser()
+				const parser = new AsyncParser(opts)
 
 				return parser.parse(csvData).promise()
 			})
@@ -172,30 +178,73 @@ export class ApplicantService {
 
 	private transformApplicantsDataForCSV(applicants: Applicant[]) {
 		const normApplicants = []
-		applicants.forEach(applicant => {
-			let { details, contacts, schoolReport, id, schema, emailConfirmed, passwordHash, statusKey,active, dsgvo, registeredAt, createdAt, ...normData } = applicant
-			delete normData['applications']
+		const headerApplicant = new Set<string>()
+		const headerContacts = new Set<string>()
+		const headerSchoolReports = new Set<string>()
+		const headerApplications = new Set<string>()
 
+		applicants.forEach(applicant => {
+			//let { details, contacts, schoolReport, id, schema, emailConfirmed, passwordHash, statusKey,active, dsgvo, registeredAt, createdAt, ...normData } = applicant
+			//delete normData['applications']
+
+			let normData = {
+				statusKey: applicant.statusKey,
+				email: applicant.email
+			}
+
+			this.addKeysToSet(headerApplicant, normData)
+
+			//Details
 			const flatDetails = this.flatten(applicant.details)
+			this.addKeysToSet(headerApplicant, flatDetails)
+
 			normData = {...normData, ...flatDetails}
 
+			//Contacts
 			applicant.contacts.forEach(contact => {
 				const pre = contact.contactTypeKey
 				const flatContact = this.flatten(contact, pre)
+				this.addKeysToSet(headerContacts, flatContact)
+
 				normData = {...normData, ...flatContact}
 			})
 
+			//SchoolReport
 			const flatSchoolRep = this.flatten(applicant.schoolReport)
+			this.addKeysToSet(headerSchoolReports, flatSchoolRep)
+
 			normData = {...normData, ...flatSchoolRep}
+
+			//Applications
+			applicant['applications'].forEach(application => {
+				const pre = `subjectarea-prio${application.priority}`
+
+				const rawApplication = {
+					title: application.schoolClass.title
+				}
+				const flatApplication = this.flatten(rawApplication, pre)
+				this.addKeysToSet(headerApplications, flatApplication)
+				
+				normData = {...normData, ...flatApplication}
+			})
 
 			normApplicants.push(normData)
 		})
 
-		return [normApplicants, []]
+		const header = [...headerApplicant, ...headerContacts, ...headerSchoolReports, ...headerApplications]
+
+		return [normApplicants, header]
 	}
 
 	private flatten(obj, pre?) {
 		return obj ? Object.keys(obj).reduce((a, c) => (a[`${pre ? pre + '-' : ''}${c}`] = obj[c], a), {}) : {}
+	}
+
+	private addKeysToSet(set: Set<string>, obj: any): void {		
+		const keys = Object.keys(obj)
+		keys.forEach(k => {
+			set.add(k)
+		})
 	}
 
 	private getByEmail(email: string): Observable<Applicant> {
@@ -232,4 +281,19 @@ export class ApplicantService {
 		delete (applicant as any).passwordConfirmation
 
 	}
+
+	private isIso8601(value) {
+		const iso8601 = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?(([+-]\d\d:\d\d)|Z)?$/
+		if (value === null || value === undefined) {
+			return false
+		}
+  
+		return iso8601.test(value)
+	}
+
+	private stringOrDateFormatter = (stringFormatter = defaultStringFormatter()) =>
+		(item) =>
+			this.isIso8601(item)
+			? new Date(item).toLocaleDateString('de-DE')
+			: stringFormatter(item);
 }

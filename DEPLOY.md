@@ -88,3 +88,10 @@ run in production
 ```sh
 scp file htl:/home/htl-application
 ```
+
+## Rebuild Images
+```sh
+docker compose -f docker-compose-prod.yml build backend
+docker compose -f docker-compose-prod.yml build frontend
+docker compose -f docker-compose-prod.yml up --force-recreate
+```

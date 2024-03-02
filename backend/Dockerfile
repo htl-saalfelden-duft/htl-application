@@ -33,7 +33,7 @@ FROM node:18-alpine As build
 
 WORKDIR /usr/src/app
 
-COPY --chown=node:node package*.json ./f
+COPY --chown=node:node package*.json ./
 
 COPY --chown=node:node prisma ./prisma/
 

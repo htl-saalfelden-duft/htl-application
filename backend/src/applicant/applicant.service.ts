@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Applicant, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import * as crypto from 'crypto'
@@ -7,6 +7,8 @@ import { ApiError, ApiErrorType } from 'src/common/api-error';
 import { SignInDto } from 'src/auth/sign-in.dto';
 import { MailerService } from '@nestjs-modules/mailer';
 import { join } from 'path';
+import { checkIfFileOrDirectoryExists, createFile, getFile } from 'src/common/storage.helper';
+import { AsyncParser } from '@json2csv/node';
 
 @Injectable()
 export class ApplicantService {
@@ -15,14 +17,7 @@ export class ApplicantService {
 		private readonly emailService: MailerService
 	) { }
 
-	// Exclude keys from user
-	// exclude<Applicant, Key extends keyof Applicant>(applicant: Applicant, keys: Key[]): Omit<Applicant, Key> {
-	//   return Object.fromEntries(
-	//     Object.entries(applicant).filter(([key]) => !keys.includes("key")
-	//   )
-	// }
-
-	getOne(select: Prisma.ApplicantSelect, where: Prisma.ApplicantWhereUniqueInput): Promise<Applicant> {
+	getOne(where: Prisma.ApplicantWhereUniqueInput): Promise<Applicant> {
 		return this.prisma.applicant.findUnique({
 			//select,
 			where,
@@ -34,11 +29,13 @@ export class ApplicantService {
 			})
 	}
 
-	getMany(): Promise<Applicant[]> {
+	getMany(where: Prisma.ApplicantWhereInput=undefined): Promise<Applicant[]> {
 		return this.prisma.applicant.findMany({
-				include: { applications: { include: { schoolClass: true } } },
-				orderBy: {details: {lastname: 'asc'}}}
-			)
+			include: { applications: { include: { schoolClass: true } } },
+			orderBy: { details: { lastname: 'asc' } },
+			where
+		}
+		)
 			.catch(error => {
 				throw new ApiError(error)
 			})
@@ -59,29 +56,29 @@ export class ApplicantService {
 	update(params: { data: Prisma.ApplicantUpdateInput, where: Prisma.ApplicantWhereUniqueInput }): Promise<Applicant> {
 		let { data, where } = params;
 
-		if(data.applications) {
+		if (data.applications) {
 			const applications = {
 				deleteMany: {},
 				createMany: { data: data.applications as Prisma.ApplicationCreateManyApplicantInput }
 			}
-			data = {...data, ...{applications}}
+			data = { ...data, ...{ applications } }
 		}
 
-		return this.prisma.applicant.findUnique({where})
-		.then(prevApplicant => {
-			//Has status from applicant changed from created to applied?
-			if(prevApplicant.statusKey === 'created' && data.statusKey === 'applied') {
-				return this.sendConfirmationMail(data.email)
-			} else {
-				return 
-			}
-		}).then(() => this.prisma.applicant.update({
-			where,
-			data
-		}))
-		.catch(error => {
-			throw new ApiError(error)
-		})
+		return this.prisma.applicant.findUnique({ where })
+			.then(prevApplicant => {
+				//Has status from applicant changed from created to applied?
+				if (prevApplicant.statusKey === 'created' && data.statusKey === 'applied') {
+					return this.sendConfirmationMail(data.email)
+				} else {
+					return
+				}
+			}).then(() => this.prisma.applicant.update({
+				where,
+				data
+			}))
+			.catch(error => {
+				throw new ApiError(error)
+			})
 	}
 
 	delete(where: Prisma.ApplicantWhereUniqueInput): Promise<Applicant> {
@@ -110,13 +107,50 @@ export class ApplicantService {
 					throw new ApiError(ApiErrorType.USER_NOT_FOUND)
 				}
 			}),
-			catchError((error) => { 
+			catchError((error) => {
 				throw new ApiError(error)
 			})
 		)
 	}
 
-	public confirmEmail(email: string): Observable<any> {
+
+	exportApplicantDataToCSV(where: Prisma.ApplicantWhereInput=undefined): Promise<string> {
+		const filePath = `exports`;
+		const fileName = `applicants-${new Date().toISOString()}.csv`;
+
+		return this.getMany(where) // Some function that gets applicants data.
+			.then(async (applicants) => {
+				const [csvData, csvFields] =
+					this.transformApplicantsDataForCSV(applicants); // Some function that returns you csv data & fields.
+
+				if (!csvData || !csvFields) {
+					return Promise.reject("Unable to transform applicants data for CSV.");
+				}
+				//const opts = { fields: csvFields }
+
+				const parser = new AsyncParser()
+
+				return parser.parse(csvData).promise()
+			})
+			.then(csv => {
+				return createFile(filePath, fileName, csv);
+			})
+			.then(() => Promise.resolve(fileName))
+			.catch((error) => Promise.reject(error));
+	}
+
+	getExportedApplicantsCSV(filename: string): Promise<string> {
+		const filePath = `exports/${filename}`;
+
+		if (!checkIfFileOrDirectoryExists(filePath)) {
+			throw new NotFoundException('Applicants export not found.');
+		}
+
+		return getFile(filePath, 'utf8')
+		.then(res => res.toString())
+	}
+
+	confirmEmail(email: string): Observable<any> {
 		return from(this.getByEmail(email)).pipe(
 			mergeMap(application => {
 				if (application.emailConfirmed) {
@@ -130,17 +164,45 @@ export class ApplicantService {
 					})
 				}
 			}),
-			catchError((error) => { 
+			catchError((error) => {
 				throw new ApiError(error)
 			})
 		)
+	}
+
+	private transformApplicantsDataForCSV(applicants: Applicant[]) {
+		const normApplicants = []
+		applicants.forEach(applicant => {
+			let { details, contacts, schoolReport, id, schema, emailConfirmed, passwordHash, statusKey,active, dsgvo, registeredAt, createdAt, ...normData } = applicant
+			delete normData['applications']
+
+			const flatDetails = this.flatten(applicant.details)
+			normData = {...normData, ...flatDetails}
+
+			applicant.contacts.forEach(contact => {
+				const pre = contact.contactTypeKey
+				const flatContact = this.flatten(contact, pre)
+				normData = {...normData, ...flatContact}
+			})
+
+			const flatSchoolRep = this.flatten(applicant.schoolReport)
+			normData = {...normData, ...flatSchoolRep}
+
+			normApplicants.push(normData)
+		})
+
+		return [normApplicants, []]
+	}
+
+	private flatten(obj, pre?) {
+		return obj ? Object.keys(obj).reduce((a, c) => (a[`${pre ? pre + '-' : ''}${c}`] = obj[c], a), {}) : {}
 	}
 
 	private getByEmail(email: string): Observable<Applicant> {
 		return from(this.prisma.applicant.findUnique({
 			where: { email }
 		})).pipe(
-			catchError((error) => { 
+			catchError((error) => {
 				throw new ApiError(error)
 			})
 		)
@@ -157,10 +219,10 @@ export class ApplicantService {
 				cid: 'ee41a8ed-bbb8-4612-b7f5-064e89621d9f'
 			}]
 		})
-		.catch((err) => {
-			console.error(err)
-			return
-		})
+			.catch((err) => {
+				console.error(err)
+				return
+			})
 	}
 
 	private setPassword(applicant: Prisma.ApplicantCreateInput, password: string) {
@@ -168,5 +230,6 @@ export class ApplicantService {
 		applicant.passwordHash = passHash
 		delete (applicant as any).password
 		delete (applicant as any).passwordConfirmation
+
 	}
 }

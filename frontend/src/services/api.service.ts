@@ -1,11 +1,12 @@
+import { AxiosRequestConfig } from "axios";
 import { Entity, EntityType } from "../models/entity";
 import { api } from "./configs/axiosConfigs"
 
 export class ApiService {
-    getPath<T>(target: EntityType<T>,path: string, id?: any, params?: any): Promise<T> {
+    getPath<T>(target: EntityType<T>,path: string, id?: any, config?: AxiosRequestConfig): Promise<T> {
         const route = Entity.getRoute(target);
         const url: string = id ? `${route}/${path}/${id}` : `${route}/${path}`;
-        return api.get<T>(url, { params }).then(response => response.data)
+        return api.get<T>(url, config).then(response => response.data)
     }
 
     get<T>(target: EntityType<T>, id?: string, params?: any): Promise<T> {

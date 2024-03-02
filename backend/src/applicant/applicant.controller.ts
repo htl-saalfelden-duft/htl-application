@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Request, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Request, Response, UseGuards } from "@nestjs/common";
 import { Applicant, Prisma } from "@prisma/client";
 import { Observable, from, map, mergeMap } from "rxjs";
 import { Public } from "src/auth/public.decorator";
@@ -10,6 +10,7 @@ import { SignInDto } from "src/auth/sign-in.dto";
 import { AuthService } from "src/auth/auth.service";
 import { TokenDto } from "src/auth/token.dto";
 import { EmailConfirmationGuard } from "src/email-confirmation/email-confirmation.guard";
+import { Response as ExpressResponse } from "express";
 
 @Controller('applicant')
 export class ApplicantController {
@@ -24,18 +25,27 @@ export class ApplicantController {
   current(@Request() req: any): Promise<Applicant> {
     // User comes from validate-function in jwt-strategy
     return this.applicantService.getOne({
-      id: true,
-      email: true
-    }, {
       id: req.user.id
     })
   }
 
+  @Get("/export-csv")
+  async export(@Response() res: ExpressResponse, @Query('statusKey') statusKey: string): Promise<ExpressResponse> {
+    return await this.applicantService.exportApplicantDataToCSV({statusKey})
+    .then(
+      async (fileName) =>
+        await this.applicantService.getExportedApplicantsCSV(fileName)
+        .then((csvData) => {
+          res.set("Content-Type", "text/csv")
+
+          return res.send(csvData);
+        })
+    )
+  }
+
   @Get(':id')
   async getOne(@Param('id') id: string): Promise<Applicant> {
-    return this.applicantService.getOne(null, {
-      id
-    })
+    return this.applicantService.getOne({id})
   }
 
   @Get()
@@ -91,7 +101,7 @@ export class ApplicantController {
   @Public()
   @Post(':id/resendConfirmation')
   resendConfirmation(@Param('id') id: string): Observable<unknown> {
-    return from(this.applicantService.getOne(null, { id })).pipe(
+    return from(this.applicantService.getOne({ id })).pipe(
       mergeMap(applicant => {
         if (applicant.emailConfirmed) {
           throw new ApiError(ApiErrorType.EMAIL_ALREADY_CONFIRMED);
@@ -103,6 +113,6 @@ export class ApplicantController {
 
   @Delete(':id')
   delete(@Param('id') id: string): Promise<Applicant> {
-      return this.applicantService.delete({ id })
-  }  
+    return this.applicantService.delete({ id })
+  }
 }

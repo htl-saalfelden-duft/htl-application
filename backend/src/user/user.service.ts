@@ -12,6 +12,10 @@ export class UserService {
 
     getOne(where: Prisma.UserWhereUniqueInput): Promise<User> {
         return this.prisma.user.findUnique({where})
+        .then(user => {
+            delete user.passwordHash
+            return user
+        })
     }
 
 	getMany(): Promise<User[]> {

@@ -34,7 +34,7 @@ npm run db:prisma:g
 ### Added npm-package
 Rebuild container
 ```sh
-sudo docker compose up --build -V
+docker compose up --build -V
 ```
 ### Updating indices
 ```sh

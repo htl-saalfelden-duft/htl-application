@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { ApiService } from "../services/api.service"
 import { Applicant, ApplicantStatus } from "../models/applicant.model"
 import { Button, Card, CardBody, Row, Table } from "react-bootstrap"
-import { FileEarmarkPdf, Pencil, PlusLg, Trash } from "react-bootstrap-icons"
+import { DatabaseDown, FileEarmarkPdf, Pencil, PlusLg, Trash } from "react-bootstrap-icons"
 import { useNavigate } from "react-router-dom"
 import ApplicantNew from "./modal/ApplicantNew"
 import "./Applicants.scss"
@@ -10,9 +10,12 @@ import ConfirmationPdf from "./modal/ConfirmationPdf"
 import { toast } from "react-toastify"
 import moment from "moment"
 import DeleteApplicantConfirmation from "./modal/DeleteApplicantConf"
+import { useAuth } from "../contexts/auth.context"
+import fileDownload from "js-file-download"
 
 export const Applicants = () => {
     const apiService = useMemo(() => new ApiService(), [])
+    const { isAdmin } = useAuth()
     const navigate = useNavigate()
 
     const [applicants, setApplicants] = useState<Applicant[]>()
@@ -79,19 +82,42 @@ export const Applicants = () => {
         })
     }
 
+    const download = () => {
+        apiService.getPath<any>(Applicant, 'export-csv', undefined, {
+            responseType: 'blob',
+            params: {statusKey: "registered"}
+        })
+        .then(result => {
+            const filename = `applicants-${new Date().toISOString()}.csv`
+            fileDownload(result, filename)
+        })
+    }
+
     return (
         <>
         <Row className='justify-content-md-center'>
             <div className="d-flex justify-content-between mt-5">
                 <h4>Bewerber</h4>
-                <Button
-                    variant="outline-secondary"
-                    className="mb-2"
-                    onClick={() => setShowApplicantNew(true)}
-                    title="Neuen Bewerber anlegen"
-                >
-                    <PlusLg/>
-                </Button>
+
+                <div className="mb-2">
+                    { isAdmin && <Button
+                        variant="outline-secondary"
+                        className="ms-2"
+                        onClick={() => download()}
+                        title="CSV download"
+                    >
+                        <DatabaseDown/>
+                    </Button>}
+
+                    <Button
+                        variant="outline-secondary"
+                        className="ms-2"
+                        onClick={() => setShowApplicantNew(true)}
+                        title="Neuen Bewerber anlegen"
+                    >
+                        <PlusLg/>
+                    </Button>
+                </div>
             </div>
             <Card >
                 <CardBody>

@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from "react"
+import { FormEvent, useEffect, useMemo, useState } from "react"
 import { ApiService } from "../services/api.service"
 import { Applicant, ApplicantStatus } from "../models/applicant.model"
-import { Button, Card, CardBody, Row, Table } from "react-bootstrap"
-import { DatabaseDown, FileEarmarkPdf, Pencil, PlusLg, Trash } from "react-bootstrap-icons"
+import { Button, Card, CardBody, Form, Row, Table } from "react-bootstrap"
+import { DatabaseDown, FileEarmarkPdf, Funnel, FunnelFill, Pencil, PlusLg, Trash } from "react-bootstrap-icons"
 import { useNavigate } from "react-router-dom"
 import ApplicantNew from "./modal/ApplicantNew"
 import "./Applicants.scss"
@@ -21,11 +21,15 @@ export const Applicants = () => {
     const [applicants, setApplicants] = useState<Applicant[]>()
     const [applicantStatuses, setApplicantStatuses] = useState<ApplicantStatus[]>()
     const [showApplicantNew, setShowApplicantNew] = useState(false)
+    const [showAll, setShowAll] = useState(false)
     const [deleteConfirmationApplicant, setDeleteConfirmationApplicant] = useState<Applicant>()
     const [confirmationPdfApplicant, setConfirmationPdfApplicant] = useState<Applicant>()
 
-    const loadApplicants = () => {
-        apiService.get<Applicant[]>(Applicant)
+    const loadApplicants = (search: string = '') => {
+        let params: any = { all: showAll}
+        if (search) params.search = search
+        
+        apiService.get<Applicant[]>(Applicant, undefined, params)
         .then(result => {
             setApplicants(result)
         })
@@ -51,7 +55,7 @@ export const Applicants = () => {
     useEffect(() => {
         loadApplicants()
         loadApplicantStatuses()
-    }, [])
+    }, [showAll])
 
     const onCloseApplicantNew = () => {
         setShowApplicantNew(false)
@@ -93,13 +97,25 @@ export const Applicants = () => {
         })
     }
 
+    const handleSearch = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault()
+        const form = event.target as HTMLFormElement
+        const input = form.elements.namedItem('search') as HTMLInputElement
+        loadApplicants(input.value)
+    }
+
     return (
         <>
         <Row className='justify-content-md-center'>
             <div className="d-flex justify-content-between mt-5">
                 <h4>Bewerber</h4>
-
                 <div className="mb-2">
+                    <Form style={{display: 'inline-block'}} onSubmit={handleSearch}>
+                        <Form.Group className="mb-3">
+                            <Form.Control type="text" placeholder="Suche" name="search" />
+                        </Form.Group>
+                    </Form>
+                    
                     { isAdmin && <Button
                         variant="outline-secondary"
                         className="ms-2"
@@ -109,6 +125,14 @@ export const Applicants = () => {
                         <DatabaseDown/>
                     </Button>}
 
+                    <Button
+                        variant="outline-secondary"
+                        className="ms-2"
+                        onClick={() => setShowAll(current => !current)}
+                        title={showAll ? "Bewerber nur von diesem Jahr anzeigen" : "Alle Bewerber anzeigen"}
+                    >
+                        { showAll ? <Funnel/> : <FunnelFill/> }
+                    </Button>
                     <Button
                         variant="outline-secondary"
                         className="ms-2"
@@ -150,7 +174,7 @@ export const Applicants = () => {
                                         <div className="d-flex" style={{gap: '6px'}}>
                                             <Button variant="outline-primary" onClick={() => {openApplicant(applicant.id!)}}><Pencil /></Button>
                                             <Button variant="outline-danger" onClick={() => {setConfirmationPdfApplicant(applicant)}} disabled={applicant.statusKey==="created"}><FileEarmarkPdf /></Button>
-                                            <Button variant="danger" onClick={() => {setDeleteConfirmationApplicant(applicant)}} disabled={applicant.statusKey==="registered" || applicant.statusKey==="completed"}><Trash /></Button>
+                                            <Button variant="danger" onClick={() => {setDeleteConfirmationApplicant(applicant)}} disabled={(applicant.statusKey==="registered" || applicant.statusKey==="completed") && !isAdmin}><Trash /></Button>
                                         </div>
                                     </td>
                                 </tr>

@@ -32,7 +32,7 @@ export class ApplicantService {
 
 	getMany(where: Prisma.ApplicantWhereInput=undefined): Promise<Applicant[]> {
 		return this.prisma.applicant.findMany({
-			include: { applications: { include: { schoolClass: true } } },
+			include: { applications: { include: { schoolClass: true } }},
 			orderBy: { details: { lastname: 'asc' } },
 			where
 		}

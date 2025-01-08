@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma.service';
 import * as crypto from 'crypto'
 import { SignInDto } from 'src/auth/sign-in.dto';
 import { ApiError, ApiErrorType } from 'src/common/api-error';
+import { ChangePasswordDto } from 'src/auth/change-password.dto';
 
 @Injectable()
 export class UserService {
@@ -27,11 +28,20 @@ export class UserService {
         })
 	}    
 
-    create(data: Prisma.UserCreateInput): Promise<User> {
-        this.setPassword(data, (data as any).password)
+    create(data: User): Promise<User> {
+        this.setPassword(data as User, (data as any).password)
 
         return this.prisma.user.create({
             data,
+        })
+    }
+
+    update(data: User): Promise<User> {
+        this.setPassword(data, (data as any).password)
+
+        return this.prisma.user.update({
+            data,
+            where: {id: data.id}
         })
     }
 
@@ -76,7 +86,7 @@ export class UserService {
         }))
     }
     
-    private setPassword(user: Prisma.UserCreateInput, password: string) {
+    private setPassword(user: User, password: string) {
         const passHash = crypto.createHmac('sha512', process.env.HMAC_SECRET).update(password).digest('hex')
         user.passwordHash = passHash
         delete (user as any).password

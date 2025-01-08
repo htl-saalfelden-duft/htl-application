@@ -2,7 +2,7 @@
 # BUILD FOR LOCAL DEVELOPMENT
 ###################
 
-FROM node:18-alpine As development
+FROM node:20.1.0-alpine As development
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -13,8 +13,10 @@ WORKDIR /usr/src/app
 COPY --chown=node:node package*.json ./
 COPY --chown=node:node prisma ./prisma/
 
-# Install app dependencies using the `npm ci` command instead of `npm install`
-RUN npm ci
+# Install app dependencies using the `npm ci` command or `npm install`
+RUN npm i
+
+RUN npm install -g @nestjs/cli
 
 # Bundle app source
 COPY --chown=node:node . .
@@ -29,12 +31,11 @@ USER node
 # BUILD FOR PRODUCTION
 ###################
 
-FROM node:18-alpine As build
+FROM node:20.1.0-alpine As build
 
 WORKDIR /usr/src/app
 
 COPY --chown=node:node package*.json ./
-
 COPY --chown=node:node prisma ./prisma/
 
 # In order to run `npm run build` we need access to the Nest CLI.
@@ -42,7 +43,6 @@ COPY --chown=node:node prisma ./prisma/
 # In the previous development stage we ran `npm ci` which installed all dependencies.
 # So we can copy over the node_modules directory from the development image into this build image.
 COPY --chown=node:node --from=development /usr/src/app/node_modules ./node_modules
-
 COPY --chown=node:node . .
 
 # Run the build command which creates the production bundle
@@ -62,7 +62,7 @@ USER node
 # PRODUCTION
 ###################
 
-FROM node:18-alpine As production
+FROM node:20.1.0-alpine As production
 
 # Copy the bundled code from the build stage to the production image
 COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules

@@ -10,6 +10,9 @@ export class SchoolClassController {
 
     @Get()
     async getMany(@Query('title') title: string): Promise<SchoolClass[]> {
-        return this.countryService.getMany({title: {contains: title}})
+        return this.countryService.getMany({
+            title: {contains: title},
+            active: true
+        })
     }    
 }

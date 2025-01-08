@@ -40,7 +40,7 @@ export class UserController {
 
     @Public()
     @Post('register')
-    register(@Body() dto: Prisma.UserCreateInput): Observable<User> {
+    register(@Body() dto: User): Observable<User> {
       return from(this.userService.create(dto)).pipe(
         map((user) => {
           delete user.passwordHash

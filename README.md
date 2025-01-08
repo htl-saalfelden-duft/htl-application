@@ -36,7 +36,7 @@ Rebuild container
 ```sh
 docker compose up --build -V
 ```
-### Updating indices
+### Updating DB
 ```sh
 npm run db:push
 ```

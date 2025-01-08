@@ -11,6 +11,7 @@ import { AuthService } from "src/auth/auth.service";
 import { TokenDto } from "src/auth/token.dto";
 import { EmailConfirmationGuard } from "src/email-confirmation/email-confirmation.guard";
 import { Response as ExpressResponse } from "express";
+import { contains } from "class-validator";
 
 @Controller('applicant')
 export class ApplicantController {
@@ -49,8 +50,18 @@ export class ApplicantController {
   }
 
   @Get()
-  async getMany(): Promise<Applicant[]> {
-    return this.applicantService.getMany()
+  async getMany(@Query('all') all: string, @Query('search') search: string): Promise<Applicant[]> {    
+    let where: any = all == 'true' ? {} : { NOT: {statusKey: 'completed'} }
+
+    // is: is a sugessted workaround from https://github.com/prisma/prisma/issues/25882
+    if (search) {
+      where.OR = [
+        { details: {is: { firstname: {contains: search}}} },
+        { details: {is: { lastname: {contains: search}}} },
+        { email: {contains: search } }
+      ]
+    }
+    return this.applicantService.getMany(where)
   }
 
   @Patch(':id')

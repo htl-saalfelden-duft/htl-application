@@ -68,6 +68,7 @@ export class ApplicantController {
   update(@Body() dto: Applicant): Promise<Applicant> {
     const { id } = dto
     delete dto.id
+    
     return this.applicantService.update({
       where: { id },
       data: dto

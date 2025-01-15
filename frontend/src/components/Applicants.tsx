@@ -9,9 +9,10 @@ import "./Applicants.scss"
 import ConfirmationPdf from "./modal/ConfirmationPdf"
 import { toast } from "react-toastify"
 import moment from "moment"
-import DeleteApplicantConfirmation from "./modal/DeleteApplicantConf"
+import DeleteApplicantConfirmation from "./modal/DeleteConfirmation"
 import { useAuth } from "../contexts/auth.context"
 import fileDownload from "js-file-download"
+import DeleteConfirmation from "./modal/DeleteConfirmation"
 
 export const Applicants = () => {
     const apiService = useMemo(() => new ApiService(), [])
@@ -66,7 +67,7 @@ export const Applicants = () => {
         navigate("/applicant", { state: {id} })
     }
 
-    const onDeleteConfirmationSubmit = () => {
+    const deleteApplicant = () => {
         const id = deleteConfirmationApplicant!.id!
 
         return apiService.delete<Applicant>(Applicant, id)
@@ -190,9 +191,10 @@ export const Applicants = () => {
             applicant={confirmationPdfApplicant!}
             onClose={() => setConfirmationPdfApplicant(undefined)}
             onSubmit={onConfirmationSubmit} />
-        <DeleteApplicantConfirmation 
+        <DeleteConfirmation 
             show={!!deleteConfirmationApplicant}
-            onSubmit={onDeleteConfirmationSubmit}
+            entityName="Bewerber"
+            onSubmit={deleteApplicant}
             onClose={() => setDeleteConfirmationApplicant(undefined)} />
         </>
     )

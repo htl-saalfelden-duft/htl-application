@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Request } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Request } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Prisma, User } from '@prisma/client';
 import { Public } from 'src/auth/public.decorator';
@@ -9,59 +9,60 @@ import { TokenDto } from 'src/auth/token.dto';
 
 @Controller('user')
 export class UserController {
-    constructor(
-        private readonly userService: UserService,
-        private readonly authService: AuthService
-    ) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly authService: AuthService
+  ) { }
 
-    @Get('current')
-    current(@Request() req: any): Promise<User> {
-      // User comes from validate-function in jwt-strategy
-      return this.userService.getOne({id: req.user.id})
-    }
+  @Get('current')
+  current(@Request() req: any): Promise<Partial<User>> {
+    // User comes from validate-function in jwt-strategy
+    return this.userService.getOne({ id: req.user.id })
+  }
 
-    @Public()
-    @Post('signIn')
-    signIn(@Body() signInDto: SignInDto): Observable<TokenDto> {
-      return this.userService.checkCredentials(signInDto).pipe(
-        map(id => this.authService.createToken(id, 'administration'))
-      )
-    }
+  @Public()
+  @Post('signIn')
+  signIn(@Body() signInDto: SignInDto): Observable<TokenDto> {
+    return this.userService.checkCredentials(signInDto).pipe(
+      map(id => this.authService.createToken(id, 'administration'))
+    )
+  }
 
-    @Get(':id')
-    show(@Param('id') id: string): Promise<User> {
-        return this.userService.getOne({id})
-    }
+  @Get(':id')
+  show(@Param('id') id: string): Promise<Partial<User>> {
+    return this.userService.getOne({ id })
+  }
 
-    @Get()
-    async getMany(): Promise<User[]> {
-      return this.userService.getMany()
-    }
+  @Get()
+  async getMany(): Promise<Partial<User>[]> {
+    return this.userService.getMany()
+  }
 
-    @Public()
-    @Post('register')
-    register(@Body() dto: User): Observable<User> {
-      return from(this.userService.create(dto)).pipe(
-        map((user) => {
-          delete user.passwordHash
-          return user
-        })
-      )
-    }
+  @Public()
+  @Post('register')
+  register(@Body() dto: User): Observable<Partial<User>> {
+    return from(this.userService.create(dto))
+  }
 
-    // @Patch('password_new')
-    // changePW(@Request() req: any, @Body() changePasswordDto: ChangePasswordDto): Promise<any> {
-    //     // User comes from validate-function in jwt-strategy
-    //     return this.userService.updatePassword(req.user, changePasswordDto)
-    // }
+  // @Patch('password_new')
+  // changePW(@Request() req: any, @Body() changePasswordDto: ChangePasswordDto): Promise<any> {
+  //     // User comes from validate-function in jwt-strategy
+  //     return this.userService.updatePassword(req.user, changePasswordDto)
+  // }
 
-    // @Patch(':id')
-    // update(@Body() dto: User): Promise<User> {
-    //     return this.userService.update(dto)
-    // }
+  @Patch(':id')
+  update(@Body() dto: User): Observable<Partial<User>> {
+    const { id } = dto
+    delete dto.id
 
-    // @Delete(':id')
-    // delete(@Param('id') id: number): Observable<DeleteResult> {
-    //     return this.userService.delete(id)
-    // }     
+    return from(this.userService.update({
+      data: dto,
+      where: { id }
+    }))
+  }
+
+  @Delete(':id')
+  delete(@Param('id') id: string): Observable<Partial<User>> {
+    return from(this.userService.delete(id))
+  }
 }

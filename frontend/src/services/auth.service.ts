@@ -1,5 +1,5 @@
 import { SignUpApplicantFormInput } from "../components/SignupApplicant";
-import { UserNewFormInput } from "../components/modal/UserNew";
+import { UserEditFormInput } from "../components/modal/UserEdit";
 import { Applicant } from "../models/applicant.model";
 import { User } from "../models/user.model";
 import { ApiService } from "./api.service";
@@ -50,7 +50,7 @@ export class AuthService extends ApiService {
         })
     }
 
-    signUpUser(data: UserNewFormInput) {
+    signUpUser(data: UserEditFormInput) {
         return super.post(User, 'register', data)
     }    
 

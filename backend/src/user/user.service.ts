@@ -11,16 +11,16 @@ import { ChangePasswordDto } from 'src/auth/change-password.dto';
 export class UserService {
     constructor(private prisma: PrismaService) {}
 
-    getOne(where: Prisma.UserWhereUniqueInput): Promise<User> {
-        return this.prisma.user.findUnique({where})
-        .then(user => {
-            delete user.passwordHash
-            return user
+    getOne(where: Prisma.UserWhereUniqueInput): Promise<Partial<User>> {
+        return this.prisma.user.findUnique({
+            where,
+            omit: {passwordHash: true},
         })
     }
 
-	getMany(): Promise<User[]> {
+	getMany(): Promise<Partial<User>[]> {
 		return this.prisma.user.findMany({
+            omit: {passwordHash: true},
             orderBy: {name: 'asc'}}
         )
         .catch(error => {
@@ -28,20 +28,41 @@ export class UserService {
         })
 	}    
 
-    create(data: User): Promise<User> {
+    create(data: User): Promise<Partial<User>> {
         this.setPassword(data as User, (data as any).password)
 
         return this.prisma.user.create({
+            omit: {passwordHash: true},
             data,
+        })
+        .catch(error => {
+            throw new ApiError(error)
         })
     }
 
-    update(data: User): Promise<User> {
-        this.setPassword(data, (data as any).password)
+    update(params: { data: Prisma.UserUpdateInput, where: Prisma.UserWhereUniqueInput }): Promise<Partial<User>> {
+        let { data, where } = params;
+
+        if((data as any).password)
+            this.setPassword(data as User, (data  as any).password)
 
         return this.prisma.user.update({
+            omit: {passwordHash: true},
             data,
-            where: {id: data.id}
+            where
+        })
+        .catch(error => {
+            throw new ApiError(error)
+        })
+    }
+
+    delete(id: string): Promise<Partial<User>> {
+        return this.prisma.user.delete({
+            omit: {passwordHash: true},
+            where: {id}
+        })
+        .catch(error => {
+            throw new ApiError(error)
         })
     }
 

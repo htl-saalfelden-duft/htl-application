@@ -3,21 +3,22 @@ import { ExclamationCircle } from "react-bootstrap-icons"
 
 interface Props {
     show: boolean
+    entityName: string
     onClose: () => void
     onSubmit: () => void
 }
 
-const DeleteApplicantConfirmation = (props: Props) => {
+const DeleteConfirmation = (props: Props) => {
 
-    const { show, onClose, onSubmit } = props
+    const { show, entityName, onClose, onSubmit } = props
 
     return (
         <Modal show={show} onHide={onClose} size="sm">
             <Modal.Header closeButton className="text-danger">
-                <Modal.Title><ExclamationCircle size={32} className="me-2"/>Bewerber löschen</Modal.Title>
+                <Modal.Title><ExclamationCircle size={32} className="me-2"/>{entityName} löschen</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <p>Wollen Sie den Bewerber wirklich löschen?</p>
+                <p>Wollen Sie das wirklich machen?</p>
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="outline-secondary" onClick={onClose}>
@@ -31,4 +32,4 @@ const DeleteApplicantConfirmation = (props: Props) => {
     )
 }
 
-export default DeleteApplicantConfirmation
+export default DeleteConfirmation

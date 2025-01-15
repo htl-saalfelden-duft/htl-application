@@ -15,7 +15,7 @@ import { Users } from "./components/Users";
 function App() {
   return (
     <AuthProvider>
-      <ToastContainer />
+      <ToastContainer position="bottom-right" />
       <Router>
         <Routes>
           <Route index element={<Navigate to="home" replace />} />

@@ -2,48 +2,82 @@ import { useForm } from 'react-hook-form';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { AuthService } from '../../services/auth.service';
 import { toast } from 'react-toastify';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
+import { ApiService } from '../../services/api.service';
+import { User } from '../../models/user.model';
 
 interface Props {
 	show: boolean
+	userID?: string
 	onClose: () => void
 }
 
-export interface UserNewFormInput {
+export interface UserEditFormInput {
+	id?: string
 	email: string
 	name: string
-	password: string
+	password?: string
 	passwordConfirmation?: string
 }
 
-const UserNew = (props: Props) => {
+const UserEdit = (props: Props) => {
 	const { show, onClose } = props
 
 	const { signUpUser } = useMemo(() => new AuthService(), [])
+	const apiService = useMemo(() => new ApiService(), [])
 
 	const {
 		register,
 		watch,
 		handleSubmit,
+		reset,
 		formState: { errors }
-	} = useForm<UserNewFormInput>()
+	} = useForm<UserEditFormInput>()
 
 	const onFormSubmit = handleSubmit((data) => {
-		signUpUser(data)
-		.then(() => {
-			toast("User erfolgreich angelegt.")
-			onClose()
-		}, (err) => {
-			toast(err.response.data.message)
-		})
+		if(props.userID) {
+			data.id = props.userID
+
+			if(!data.password) {
+				delete data.password
+				delete data.passwordConfirmation
+			}
+
+			apiService.save<User>(User, data as any)
+			.then(() => {
+				toast("User erfolgreich gespeichert.")
+				onClose()
+			}, (err) => {
+				toast(err.response.data.message)
+			})			
+		} else {
+			signUpUser(data)
+			.then(() => {
+				toast("User erfolgreich angelegt.")
+				onClose()
+			}, (err) => {
+				toast(err.response.data.message)
+			})
+		}
 	})
 
+	const handleShow = () => {
+		if(props.userID) {
+			apiService.get<User>(User, props.userID)
+			.then(user => {
+				reset(user)
+			})
+		} else {
+			reset({name: '', email: '', password: '', passwordConfirmation: ''})
+		}
+	}
+
 	return (
-		<Modal show={show} onHide={onClose} size="lg">
+		<Modal show={show} onShow={handleShow} onHide={onClose} size="lg">
 			<Modal.Header closeButton>
-				<Modal.Title>Neuer User</Modal.Title>
+				<Modal.Title>{props.userID ? "User ändern":"Neuer User"}</Modal.Title>
 			</Modal.Header>
-			<Form onSubmit={onFormSubmit}>
+			<Form onSubmit={onFormSubmit} autoComplete='off'>
 				<Modal.Body>
 					<Form.Group className="mb-3">
 						<Form.Label htmlFor="name">
@@ -70,6 +104,7 @@ const UserNew = (props: Props) => {
 							{...register("email", { required: "Bitte Email eingeben" })}
 							id="email"
 							isInvalid={!!errors.email}
+							autoComplete="new-password"
 						/>
 						{errors.email && (
 							<Form.Text className="text-danger">
@@ -81,9 +116,10 @@ const UserNew = (props: Props) => {
 						<Form.Label htmlFor="password">Passwort</Form.Label>
 						<Form.Control
 							type="password"
-							{...register("password", { required: "Bitte Passwort eingeben", minLength: 4 })}
+							{...register("password", { required: !props.userID ? "Bitte Passwort eingeben" : undefined, minLength: 4 })}
 							id="password"
 							isInvalid={!!errors.password}
+							autoComplete="new-password"
 						/>
 						{errors.password && (
 							<Form.Text className="text-danger">
@@ -96,9 +132,10 @@ const UserNew = (props: Props) => {
 						<Form.Label htmlFor="password-confirmation">Passwort bestätigen</Form.Label>
 						<Form.Control
 							type="password"
-							{...register("passwordConfirmation", { required: "Bitte Passwort-Bestätigung eingeben", minLength: 4, validate: (value) => { return value === watch('password') } })}
+							{...register("passwordConfirmation", { required: !props.userID ? "Bitte Passwort-Bestätigung eingeben": undefined, minLength: 4, validate: (value) => { return value === watch('password') } })}
 							id="password-confirmation"
 							isInvalid={!!errors.passwordConfirmation}
+							autoComplete="new-password"
 						/>
 						{errors.passwordConfirmation && (
 							<Form.Text className="text-danger">
@@ -113,7 +150,7 @@ const UserNew = (props: Props) => {
 					<Button variant="outline-secondary" onClick={onClose}>
 						Abbrechen
 					</Button>
-					<Button variant="outline-primary" onClick={onFormSubmit}>
+					<Button variant="outline-primary" type='submit'>
 						Speichern
 					</Button>
 				</Modal.Footer>
@@ -122,4 +159,4 @@ const UserNew = (props: Props) => {
 	)
 }
 
-export default UserNew;
+export default UserEdit;

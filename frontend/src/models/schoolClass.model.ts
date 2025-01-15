@@ -4,4 +4,5 @@ import { Entity } from "../common/decorators/entity.decorator";
 export class SchoolClass {
     id!: string
     title!: string
+    year!: string
 }

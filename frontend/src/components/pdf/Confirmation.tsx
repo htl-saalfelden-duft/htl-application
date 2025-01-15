@@ -1,7 +1,7 @@
 import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
 import { Applicant } from '../../models/applicant.model';
 import moment from 'moment';
-import htlLogo128 from '../../assets/images/htl-saalfelden-logo_128.png'
+import htlLogo128 from '../../assets/images/htl-logo.png'
 
 interface Props {
     applicant: Applicant
@@ -40,7 +40,7 @@ export const Confirmation = (props: Props) => {
                     <Image src={htlLogo128} style={{width: '50px', height: '50px'}}/>
                 </View>
                 <View style={{textAlign: 'center', margin: 20, marginTop: 150, width: '100%'}}>
-                    <Text style={styles.title1}>Anmeldung für das Schuljahr 2024/2025</Text>
+                    <Text style={styles.title1}>Anmeldung für das Schuljahr {applicant?.applications?.find(a => a.priority === 1)?.schoolClass?.year}</Text>
 
                     <Text style={{...styles.title2, marginTop: 40}}>{applicant?.details?.firstname} {applicant?.details?.moreFirstname && `${applicant?.details?.moreFirstname} `}{applicant?.details?.lastname}, geboren am {moment(applicant?.details?.birthdate).format('DD.MM.YYYY')}</Text>
                     <Text style={{...styles.text, marginTop: 15, marginBottom: 15}}>meldet sich an der HTL Saalfelden für die Abteilung/en:</Text>

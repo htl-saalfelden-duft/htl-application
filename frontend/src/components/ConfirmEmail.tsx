@@ -4,7 +4,7 @@ import { Applicant } from '../models/applicant.model';
 import { Card, CardBody, Container, Row } from 'react-bootstrap';
 import { useMemo } from 'react';
 import { toast } from 'react-toastify';
-import htlLogo128 from '../assets/images/htl-saalfelden-logo_128.png'
+import htlLogo128 from '../assets/images/htl-logo.png'
 
 
 const ConfirmEmail = () => {

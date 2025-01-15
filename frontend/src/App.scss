@@ -10,18 +10,21 @@ $alert-padding-y: 0.5rem;
     --bs-form-valid-background-color: #dc35451c;
 }
 
+.navbar-htl{
+    background-color: #c10a25 !important;
+    padding: 1.5rem;
+    color: white;
+}
+
 .navbar-brand {
     padding-top: 0;
     padding-bottom: 0;
 
     img {
-        height: 33px;
+        height: auto;
+        width: auto;
     }
 }
-
-// .nav-item .nav-link {
-//     padding-top: 7px
-// }
 
 .form-select-group .is-invalid > div {
     border-color: #dc3545;

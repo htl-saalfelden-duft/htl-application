@@ -1,6 +1,6 @@
 import { Button, Card, CardBody, Container, Form, Row } from "react-bootstrap"
 import { useForm } from "react-hook-form"
-import htlLogo128 from '../assets/images/htl-saalfelden-logo_128.png'
+import htlLogo128 from '../assets/images/htl-logo.png'
 import { useNavigate } from "react-router-dom"
 
 export interface ISignInFormInput {

@@ -5,7 +5,7 @@ import { AuthService } from '../services/auth.service';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useMemo } from 'react';
-import htlLogo128 from '../assets/images/htl-saalfelden-logo_128.png'
+import htlLogo128 from '../assets/images/htl-logo.png'
 
 
 export interface SignUpApplicantFormInput {

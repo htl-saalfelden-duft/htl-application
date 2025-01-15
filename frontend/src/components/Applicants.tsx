@@ -9,7 +9,6 @@ import "./Applicants.scss"
 import ConfirmationPdf from "./modal/ConfirmationPdf"
 import { toast } from "react-toastify"
 import moment from "moment"
-import DeleteApplicantConfirmation from "./modal/DeleteConfirmation"
 import { useAuth } from "../contexts/auth.context"
 import fileDownload from "js-file-download"
 import DeleteConfirmation from "./modal/DeleteConfirmation"
@@ -23,7 +22,7 @@ export const Applicants = () => {
     const [applicantStatuses, setApplicantStatuses] = useState<ApplicantStatus[]>()
     const [showApplicantNew, setShowApplicantNew] = useState(false)
     const [showAll, setShowAll] = useState(false)
-    const [deleteConfirmationApplicant, setDeleteConfirmationApplicant] = useState<Applicant>()
+    const [deleteConfirmationApplicantID, setDeleteConfirmationApplicantID] = useState<string>()
     const [confirmationPdfApplicant, setConfirmationPdfApplicant] = useState<Applicant>()
 
     const loadApplicants = (search: string = '') => {
@@ -68,12 +67,10 @@ export const Applicants = () => {
     }
 
     const deleteApplicant = () => {
-        const id = deleteConfirmationApplicant!.id!
-
-        return apiService.delete<Applicant>(Applicant, id)
+        apiService.delete<Applicant>(Applicant, deleteConfirmationApplicantID!)
         .then(() => {
             toast('Bewerber gelöscht.')
-            setDeleteConfirmationApplicant(undefined)
+            setDeleteConfirmationApplicantID(undefined)
             loadApplicants()
         })
     }
@@ -175,7 +172,7 @@ export const Applicants = () => {
                                         <div className="d-flex" style={{gap: '6px'}}>
                                             <Button variant="outline-primary" onClick={() => {openApplicant(applicant.id!)}}><Pencil /></Button>
                                             <Button variant="outline-danger" onClick={() => {setConfirmationPdfApplicant(applicant)}} disabled={applicant.statusKey==="created"}><FileEarmarkPdf /></Button>
-                                            <Button variant="danger" onClick={() => {setDeleteConfirmationApplicant(applicant)}} disabled={(applicant.statusKey==="registered" || applicant.statusKey==="completed") && !isAdmin}><Trash /></Button>
+                                            <Button variant="danger" onClick={() => {setDeleteConfirmationApplicantID(applicant.id)}} disabled={(applicant.statusKey==="registered" || applicant.statusKey==="completed") && !isAdmin}><Trash /></Button>
                                         </div>
                                     </td>
                                 </tr>
@@ -192,10 +189,10 @@ export const Applicants = () => {
             onClose={() => setConfirmationPdfApplicant(undefined)}
             onSubmit={onConfirmationSubmit} />
         <DeleteConfirmation 
-            show={!!deleteConfirmationApplicant}
+            show={!!deleteConfirmationApplicantID}
             entityName="Bewerber"
             onSubmit={deleteApplicant}
-            onClose={() => setDeleteConfirmationApplicant(undefined)} />
+            onClose={() => setDeleteConfirmationApplicantID(undefined)} />
         </>
     )
 }

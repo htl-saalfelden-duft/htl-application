@@ -35,9 +35,7 @@ export const Users = () => {
     }
 
     const deleteUser = () => {
-        const userID = deleteConfirmationUserID!
-
-        apiService.delete(User, userID)
+        apiService.delete(User, deleteConfirmationUserID!)
             .then(() => {
                 toast('User gelöscht.')
                 setDeleteConfirmationUserID(undefined)

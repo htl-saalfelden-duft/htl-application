@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { AuthService } from '../../services/auth.service';
 import { toast } from 'react-toastify';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { ApiService } from '../../services/api.service';
 import { User } from '../../models/user.model';
 

@@ -9,7 +9,7 @@ export class ApplicantStatusController {
     ){}
     
     @Get()
-    async getMany(): Promise<ApplicantStatus[]> {
+    async getMany(): Promise<Partial<ApplicantStatus>[]> {
         return this.applicantStatusService.getMany()
     }
 }

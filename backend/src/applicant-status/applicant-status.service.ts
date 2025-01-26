@@ -6,7 +6,9 @@ import { PrismaService } from 'src/prisma.service';
 export class ApplicantStatusService {
     constructor(private prisma: PrismaService) {}
 
-    getMany(): Promise<ApplicantStatus[]> {
-        return this.prisma.applicantStatus.findMany({orderBy: {title: 'asc'}}) 
+    getMany(): Promise<Partial<ApplicantStatus>[]> {
+        return this.prisma.applicantStatus.findMany(
+            { select: { key: true, title: true } }
+        ) 
     }
 }

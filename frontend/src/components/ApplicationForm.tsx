@@ -35,7 +35,7 @@ const ApplicationForm = (props: Props) => {
         schoolReportEnabled
     } = useTabs()
 
-    const { userType } = useAuth()
+    const { isAdministration } = useAuth()
 
     const navigate = useNavigate()
 
@@ -86,7 +86,7 @@ const ApplicationForm = (props: Props) => {
 
 
     const onSubmit = handleSubmit(() => {
-        if(userType === 'administration') {
+        if(isAdministration) {
             proceedSubmit()
         } else {
             setShowSubmitConfirmation(true)
@@ -105,16 +105,16 @@ const ApplicationForm = (props: Props) => {
 
         apiService.save<Applicant>(Applicant, dbApplicant)
         .then(() => {
-            if(userType === 'applicant') {
-                toast(
-                    "Ihre Bewerbung wurde erfolgreich an uns übermittelt! Sie erhalten zusätzlich eine Bestätigung per Email.", 
-                    {type: 'success', autoClose: 1E4}
-                )
-            } else {
+            if(isAdministration) {
                 toast(
                     "Bewerberdaten gespeichert!", 
                     {type: 'success'}
-                ) 
+                )
+            } else {
+                toast(
+                    "Ihre Bewerbung wurde erfolgreich an uns übermittelt! Sie erhalten zusätzlich eine Bestätigung per Email.", 
+                    {type: 'success', autoClose: 1E4}
+                )                
             }
 
             setShowSubmitConfirmation(false)

@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Request, Response, UseGuards } from "@nestjs/common";
 import { Applicant, Prisma } from "@prisma/client";
-import { Observable, from, map, mergeMap } from "rxjs";
+import { Observable, filter, from, map, mergeMap, toArray } from "rxjs";
 import { Public } from "src/auth/public.decorator";
 import { EmailConfirmationService } from "src/email-confirmation/email-confirmation.service";
 import { ApplicantService } from "./applicant.service";
@@ -50,8 +50,18 @@ export class ApplicantController {
   }
 
   @Get()
-  async getMany(@Query('all') all: string, @Query('search') search: string): Promise<Applicant[]> {    
-    let where: any = all == 'true' ? {} : { NOT: {statusKey: 'completed'} }
+  getMany(@Query('statusKey') statusKey: string, @Query('schoolClass') schoolClass: string,@Query('search') search: string): Observable<Applicant[]> {    
+    //let where: any = all == 'true' ? {} : { NOT: {statusKey: 'completed'} }
+    let where: Prisma.ApplicantWhereInput = { }
+    if(statusKey) {
+      where.statusKey = statusKey
+    } else {
+      where.NOT = { statusKey: 'completed' }
+    }
+
+    if(schoolClass) {
+      where.applications = {  some: { schoolClass: { title: schoolClass } } }
+    }
 
     // is: is a sugessted workaround from https://github.com/prisma/prisma/issues/25882
     if (search) {
@@ -61,7 +71,17 @@ export class ApplicantController {
         { email: {contains: search } }
       ]
     }
-    return this.applicantService.getMany(where)
+    return from(this.applicantService.getMany(where)).pipe(
+      mergeMap(applicants => applicants),
+      filter(applicant => {
+        if(!schoolClass) {
+          return true
+        } else {
+          return applicant['applications'][0].schoolClass.title === schoolClass}
+        }
+      ),  
+      toArray()
+    )
   }
 
   @Patch(':id')

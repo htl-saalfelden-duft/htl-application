@@ -32,11 +32,11 @@ const SignInForm = (props: Props) => {
 			<Row className='justify-content-md-center'>
 				<Card className='col-lg-5 mt-5'>
 					<CardBody>
+						<div className="d-flex flex-row-reverse">
+							<button className="btn btn-link" onClick={() => navigate(isUser ? "/signin-applicant": "/signin-user")}><img src={htlLogo128} width={64} alt="htl-logo" /></button>
+							<h5 className="card-title mt-4 flex-grow-1">HTL-Bewerber-Portal - {isUser ? 'Admin' : 'Login'}</h5>
+                        </div>
 						<Form onSubmit={onFormSubmit}>
-                            <div className="d-flex flex-row-reverse">
-                                <button className="btn btn-link" onClick={() => navigate(isUser ? "/signin-applicant": "/signin-user")}><img src={htlLogo128} width={64} alt="htl-logo" /></button>
-							    <h5 className="card-title mt-4 flex-grow-1">HTL-Bewerber-Portal - {isUser ? 'Admin' : 'Login'}</h5>
-                            </div>
 							<Form.Group className="mt-3 mb-3">
 								<Form.Label htmlFor="email">
 									Email-Addresse

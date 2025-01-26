@@ -58,6 +58,7 @@ const ContactNew = (props: Props) => {
                                     defaultOptions
                                     onChange={val => field.onChange(val)}
                                     getOptionLabel={option => option.title}
+                                    getOptionValue={option => option.title}
                                     inputId="contactType"
                                 />
                             )}

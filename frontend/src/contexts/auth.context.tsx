@@ -10,6 +10,7 @@ interface Props {
 interface AuthValues {
     currentUser: User | Applicant | undefined,
     isAdmin: boolean
+    isAdministration: boolean
     isSignedIn: boolean,
     signIn: (email: string, password: string) => Promise<void>,
     signOut: () => void
@@ -63,9 +64,15 @@ const AuthProvider = (props: Props) => {
         Object.prototype.hasOwnProperty.call(currentUser, 'userRoleKey') &&
         (currentUser as User).userRoleKey === 'admin')
 
+    const isAdministration = 
+            (!!currentUser &&
+            Object.prototype.hasOwnProperty.call(currentUser, 'userRoleKey') &&
+            userType === 'administration')
+
     const value = {
         currentUser,
         isAdmin,
+        isAdministration,
         isSignedIn,
         signIn,
         signOut,

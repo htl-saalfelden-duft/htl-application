@@ -51,7 +51,7 @@ const Applications = (props: Props) => {
 			<Table hover className="application-table">
 				<thead>
 					<tr>
-						<th className="col-prio">Priorität</th>
+						<th className="col-prio">Prio</th>
 						<th>Ausbildungsrichtung</th>
 						<th className="col-action"></th>
 					</tr>
@@ -75,6 +75,7 @@ const Applications = (props: Props) => {
 											value={field.value}
 											onChange={val => field.onChange(val)}
 											getOptionLabel={option => option.title as string}
+											getOptionValue={option => option.title as string}
 											inputId={`applications.${index}.schoolClass`}
 											classNames={{
 												control: (state) => hasError(index) ? 'form-control is-invalid' : 'form-control',

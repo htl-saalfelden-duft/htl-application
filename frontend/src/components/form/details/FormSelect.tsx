@@ -39,8 +39,9 @@ export const FormSelect = (props: {
                         value={{ title: field.value }}
                         onChange={val => field.onChange(val?.title)}
                         getOptionLabel={option => option.title as string}
+                        getOptionValue={option => option.title as string}
                         inputId={`details.${attr}`}
-                        className={`${hasError(errors, attr) ? 'is-invalid' : 'jooooooooo'}`}
+                        className={`${hasError(errors, attr) ? 'is-invalid' : ''}`}
                     />
                 )}
             />

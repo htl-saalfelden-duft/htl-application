@@ -47,15 +47,15 @@ const Contact = (props: Props) => {
             {parent ? 
             <>
                 <Row>
-                    <FormSelect className="col-2" attr="title" title="Anrede" required={require} loadOptions={getTitles}/>
-                    <FormInput className="col-2" attr="degree" title="Akad.Grad" />
-                    <FormInput className="col-2" attr="sufixDegree" title="Akad. Grad nachg." />
+                    <FormSelect className="col-lg-2 col-sm-12" attr="title" title="Anrede" required={require} loadOptions={getTitles}/>
+                    <FormInput className="col-lg-2 col-sm-12" attr="degree" title="Akad.Grad" />
+                    <FormInput className="col-lg-2 col-sm-12" attr="sufixDegree" title="Akad. Grad nachg." />
                 </Row>
 
                 <Row>
-                    <FormInput className="col-3" attr="firstname" title="Vorname" required={require}/>
-                    <FormInput className="col-3" attr="moreFirstname" title="Weitere Vornamen"/>
-                    <FormInput className="col-3" attr="lastname" title="Nachname" required={require}/>               
+                    <FormInput className="col-lg-3 col-sm-12" attr="firstname" title="Vorname" required={require}/>
+                    <FormInput className="col-lg-3 col-sm-12" attr="moreFirstname" title="Weitere Vornamen"/>
+                    <FormInput className="col-lg-3 col-sm-12" attr="lastname" title="Nachname" required={require}/>               
                 </Row>
 
                 <Row className='mt-3 mb-3'>

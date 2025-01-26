@@ -9,7 +9,7 @@ export class SchoolClassController {
     ){}
 
     @Get()
-    async getMany(@Query('title') title: string): Promise<SchoolClass[]> {
+    async getMany(@Query('title') title: string): Promise<Partial<SchoolClass>[]> {
         return this.countryService.getMany({
             title: {contains: title},
             active: true

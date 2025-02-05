@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Applicant, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import * as crypto from 'crypto'
-import { Observable, catchError, from, map, mergeMap } from 'rxjs';
+import { Observable, catchError, forkJoin, from, map, mergeMap } from 'rxjs';
 import { ApiError, ApiErrorType } from 'src/common/api-error';
 import { SignInDto } from 'src/auth/sign-in.dto';
 import { MailerService } from '@nestjs-modules/mailer';
@@ -10,6 +10,7 @@ import { join } from 'path';
 import { checkIfFileOrDirectoryExists, createFile, getFile } from 'src/common/storage.helper';
 import { AsyncParser } from '@json2csv/node';
 import { string as defaultStringFormatter } from '@json2csv/formatters';
+import { transformApplicantsDataForBtsCSV, transformApplicantsDataForSokratesCSV } from 'src/common/csv.helper';
 
 @Injectable()
 export class ApplicantService {
@@ -115,14 +116,14 @@ export class ApplicantService {
 	}
 
 
-	exportApplicantDataToCSV(where: Prisma.ApplicantWhereInput=undefined): Promise<string> {
+	exportSokratesCSV(where: Prisma.ApplicantWhereInput=undefined): Promise<string> {
 		const filePath = `exports`;
-		const fileName = `applicants-${new Date().toISOString()}.csv`;
+		const fileName = `sokrates-${new Date().toISOString()}.csv`;
 
 		return this.getMany(where) // Some function that gets applicants data.
 			.then(async (applicants) => {
 				const [csvData, csvFields] =
-					this.transformApplicantsDataForCSV(applicants); // Some function that returns you csv data & fields.
+					transformApplicantsDataForSokratesCSV(applicants); // Some function that returns csv data & fields.
 
 				if (!csvData || !csvFields) {
 					return Promise.reject("Unable to transform applicants data for CSV.");
@@ -145,7 +146,43 @@ export class ApplicantService {
 			.catch((error) => Promise.reject(error));
 	}
 
-	getExportedApplicantsCSV(filename: string): Promise<string> {
+	exportBtsCSV(where: Prisma.ApplicantWhereInput=undefined): Observable<string> {
+		const filePath = `exports`;
+		const fileName = `bts-${new Date().toISOString()}.csv`;
+
+		return forkJoin({
+			applicants: this.getMany(where),
+			contactTypes: this.prisma.contactType.findMany()
+		}).pipe(
+			mergeMap(({ applicants, contactTypes }) => {
+				const [csvData, csvFields] =
+					transformApplicantsDataForBtsCSV(applicants, contactTypes); // Some function that returns csv data & fields.
+
+				if (!csvData || !csvFields) {
+					return Promise.reject("Unable to transform applicants data for CSV.");
+				}
+				const opts = { 
+					fields: csvFields,
+					formatters: {
+						string: this.stringOrDateFormatter()
+					}
+				}
+
+				const parser = new AsyncParser(opts)
+
+				return parser.parse(csvData).promise()
+			}),
+			mergeMap(csv => {
+				return createFile(filePath, fileName, csv);
+			}),
+			map(() => fileName),
+			catchError((error) => {
+				throw new ApiError(error)
+			})
+		)
+	}
+
+	getExportedCSV(filename: string): Promise<string> {
 		const filePath = `exports/${filename}`;
 
 		if (!checkIfFileOrDirectoryExists(filePath)) {
@@ -174,77 +211,6 @@ export class ApplicantService {
 				throw new ApiError(error)
 			})
 		)
-	}
-
-	private transformApplicantsDataForCSV(applicants: Applicant[]) {
-		const normApplicants = []
-		const headerApplicant = new Set<string>()
-		const headerContacts = new Set<string>()
-		const headerSchoolReports = new Set<string>()
-		const headerApplications = new Set<string>()
-
-		applicants.forEach(applicant => {
-			//let { details, contacts, schoolReport, id, schema, emailConfirmed, passwordHash, statusKey,active, dsgvo, registeredAt, createdAt, ...normData } = applicant
-			//delete normData['applications']
-
-			let normData = {
-				statusKey: applicant.statusKey,
-				email: applicant.email
-			}
-
-			this.addKeysToSet(headerApplicant, normData)
-
-			//Details
-			const flatDetails = this.flatten(applicant.details)
-			this.addKeysToSet(headerApplicant, flatDetails)
-
-			normData = {...normData, ...flatDetails}
-
-			//Contacts
-			applicant.contacts.forEach(contact => {
-				const pre = contact.contactTypeKey
-				const flatContact = this.flatten(contact, pre)
-				this.addKeysToSet(headerContacts, flatContact)
-
-				normData = {...normData, ...flatContact}
-			})
-
-			//SchoolReport
-			const flatSchoolRep = this.flatten(applicant.schoolReport)
-			this.addKeysToSet(headerSchoolReports, flatSchoolRep)
-
-			normData = {...normData, ...flatSchoolRep}
-
-			//Applications
-			applicant['applications'].forEach(application => {
-				const pre = `subjectarea-prio${application.priority}`
-
-				const rawApplication = {
-					title: application.schoolClass.title
-				}
-				const flatApplication = this.flatten(rawApplication, pre)
-				this.addKeysToSet(headerApplications, flatApplication)
-				
-				normData = {...normData, ...flatApplication}
-			})
-
-			normApplicants.push(normData)
-		})
-
-		const header = [...headerApplicant, ...headerContacts, ...headerSchoolReports, ...headerApplications]
-
-		return [normApplicants, header]
-	}
-
-	private flatten(obj, pre?) {
-		return obj ? Object.keys(obj).reduce((a, c) => (a[`${pre ? pre + '-' : ''}${c}`] = obj[c], a), {}) : {}
-	}
-
-	private addKeysToSet(set: Set<string>, obj: any): void {		
-		const keys = Object.keys(obj)
-		keys.forEach(k => {
-			set.add(k)
-		})
 	}
 
 	private getByEmail(email: string): Observable<Applicant> {

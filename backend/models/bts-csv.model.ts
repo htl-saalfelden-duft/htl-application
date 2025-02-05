@@ -1,0 +1,41 @@
+export interface BtsCsv {
+    Wahlnummer?: number
+    SokratesId?: string
+    StudentVorname: string
+    StudentVorname2?: string
+    StudentNachname: string
+    Geburtsdatum: Date
+    Geschlecht: string
+    aktuelleSchulkennzahl?: string
+    BtsAktuelleSkzId?: string
+    StudentGeburtsort?: string
+    Geburtsland?: string
+    Staatsbuergerschaft?: string
+    Religionsbekenntnis?: string
+    Alltagssprache?: string
+    Muttersprache?: string
+    Sozialversicherungsnummer?: string
+    StudentEmail?: string
+    StudentTelefon?: string
+    AdresseTyp: string // Mutter, Vater, Erziehungsberechtigter
+    AdresseVorname: string
+    AdresseNachname: string  
+    AdresseErziehungsberechtigt: boolean
+    AdresseEmail: string
+    AdresseTelefon: string
+    AdresseStrasse: string
+    AdressePlz: string
+    AdresseOrt: string
+    AdresseLand: string
+    zweiteAdresse: boolean
+    ZweiteAdresseTyp: string
+    ZweiteAdresseVorname: string
+    ZweiteAdresseNachname: string
+    ZweiteAdresseErziehungsberechtigt: boolean
+    ZweiteAdresseEmail: string
+    ZweiteAdresseTelefon: string
+    ZweiteAdresseStrasse: string
+    ZweiteAdressePlz: string
+    ZweiteAdresseOrt: string
+    ZweiteAdresseLand: string
+}

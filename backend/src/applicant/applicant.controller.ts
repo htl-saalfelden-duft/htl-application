@@ -30,17 +30,34 @@ export class ApplicantController {
     })
   }
 
-  @Get("/export-csv")
-  async export(@Response() res: ExpressResponse, @Query('statusKey') statusKey: string): Promise<ExpressResponse> {
-    return await this.applicantService.exportApplicantDataToCSV({statusKey})
+  @Get("/sokratesCsv")
+  async sokratesCsv(@Response() res: ExpressResponse, @Query('statusKey') statusKey: string): Promise<ExpressResponse> {
+    return await this.applicantService.exportSokratesCSV({statusKey})
     .then(
       async (fileName) =>
-        await this.applicantService.getExportedApplicantsCSV(fileName)
+        await this.applicantService.getExportedCSV(fileName)
         .then((csvData) => {
           res.set("Content-Type", "text/csv")
 
           return res.send(csvData);
         })
+    )
+  }
+
+  @Get("/btsCsv")
+  btsCsv(@Response() res: ExpressResponse, @Query('statusKey') statusKey: string): Observable<ExpressResponse> {
+
+    return this.applicantService.exportBtsCSV({statusKey}).pipe(
+      mergeMap(
+        (fileName) => this.applicantService.getExportedCSV(fileName)
+      ),
+      map(
+        (csvData) => {
+          res.set("Content-Type", "text/csv")
+
+          return res.send(csvData);
+        }
+      )
     )
   }
 

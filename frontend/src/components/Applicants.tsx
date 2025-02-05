@@ -17,7 +17,7 @@ import { isEmpty, pickBy } from "lodash"
 
 export const Applicants = () => {
     const apiService = useMemo(() => new ApiService(), [])
-    const { isAdmin } = useAuth()
+    const { isAdmin, isAdministration } = useAuth()
     const navigate = useNavigate()
 
     const [applicants, setApplicants] = useState<Applicant[]>()
@@ -89,19 +89,36 @@ export const Applicants = () => {
             })
     }
 
-    const download = () => {
+    const downloadSokratesCsv = () => {
         let params = getParamsFromFilter()
 
         if(isEmpty(params)) {
             params = { statusKey: "registered" }
         }
 
-        apiService.getPath<any>(Applicant, 'export-csv', undefined, {
+        apiService.getPath<any>(Applicant, 'sokratesCsv', undefined, {
             responseType: 'blob',
             params
         })
             .then(result => {
-                const filename = `applicants-${new Date().toISOString()}.csv`
+                const filename = `sokrates-${new Date().toISOString()}.csv`
+                fileDownload(result, filename)
+            })
+    }
+
+    const downloadBtsCsv = () => {
+        let params = getParamsFromFilter()
+
+        if(isEmpty(params) || !isAdmin) {
+            params = { statusKey: "registered" }
+        }
+
+        apiService.getPath<any>(Applicant, 'btsCsv', undefined, {
+            responseType: 'blob',
+            params
+        })
+            .then(result => {
+                const filename = `bts-${new Date().toISOString()}.csv`
                 fileDownload(result, filename)
             })
     }
@@ -132,14 +149,24 @@ export const Applicants = () => {
                 <div className="d-flex justify-content-between mt-5">
                     <h4>Bewerber<small>{applicants?.length && <span>({applicants?.length})</span>}</small></h4>
                     <div className="mb-2">
-                        {isAdmin && <Button
-                            variant="outline-secondary"
+                        {isAdmin && 
+                        <Button
+                            variant="outline-warning"
                             className="ms-2"
-                            onClick={() => download()}
-                            title="CSV download"
+                            onClick={() => downloadSokratesCsv()}
+                            title="Sokrates-CSV download"
                         >
                             <DatabaseDown />
                         </Button>}
+                        {isAdministration && 
+                        <Button
+                            variant="outline-primary"
+                            className="ms-2"
+                            onClick={() => downloadBtsCsv()}
+                            title="BTS-CSV download"
+                        >
+                            <DatabaseDown />
+                        </Button>}                        
                         <Button
                             variant="outline-secondary"
                             className="ms-2"

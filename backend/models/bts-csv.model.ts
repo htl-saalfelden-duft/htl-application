@@ -1,5 +1,7 @@
 export interface BtsCsv {
+    externeID: string
     Wahlnummer?: number
+    vorlaeufigeSFKZ: string
     SokratesId?: string
     StudentVorname: string
     StudentVorname2?: string
@@ -27,15 +29,15 @@ export interface BtsCsv {
     AdressePlz: string
     AdresseOrt: string
     AdresseLand: string
-    zweiteAdresse: boolean
-    ZweiteAdresseTyp: string
-    ZweiteAdresseVorname: string
-    ZweiteAdresseNachname: string
-    ZweiteAdresseErziehungsberechtigt: boolean
-    ZweiteAdresseEmail: string
-    ZweiteAdresseTelefon: string
-    ZweiteAdresseStrasse: string
-    ZweiteAdressePlz: string
-    ZweiteAdresseOrt: string
-    ZweiteAdresseLand: string
+    zweiteAdresse?: boolean
+    zweiteAdresseTyp?: string
+    zweiteAdresseVorname?: string
+    zweiteAdresseNachname?: string
+    zweiteAdresseErziehungsberechtigt?: boolean
+    zweiteAdresseEmail?: string
+    zweiteAdresseTelefon?: string
+    zweiteAdresseStrasse?: string
+    zweiteAdressePlz?: string
+    zweiteAdresseOrt?: string
+    zweiteAdresseLand?: string
 }

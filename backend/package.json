@@ -23,7 +23,8 @@
     "db:seed:prod": "./scripts/db-seed-prod.sh",
     "db:prisma:g": "./scripts/prisma-generate.sh",
     "nest:g": "./scripts/nest-generate.sh",
-    "prisma:g": "npx prisma generate"
+    "prisma:g": "npx prisma generate",
+    "prisma:push": "npx prisma db push"
   },
   "dependencies": {
     "@json2csv/node": "^7.0.6",

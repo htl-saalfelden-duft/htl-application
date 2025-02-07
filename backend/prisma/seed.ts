@@ -177,31 +177,37 @@ async function main() {
     const schoolClasses: Prisma.SchoolClassCreateWithoutApplicationsInput[] = [
         {
             title: "Höhere Abteilung für Bautechnik - Saalfelden",
+            sfkz: "8712",
             year: "24/25",
             maxPupils: 36
         },
         {
             title: "Höhere Abteilung für Elektrotechnik - Saalfelden",
+            sfkz: "8730",
             year: "24/25",
             maxPupils: 36
         },
         {
             title: "Höhere Abteilung für Informatik - St.Johann",
+            sfkz: "8738",
             year: "24/25",
             maxPupils: 36
         },
         {
             title: "Höhere Abteilung für Mechatronik - Saalfelden",
+            sfkz: "8754",
             year: "24/25",
             maxPupils: 36
         },
         {
             title: "Höhere Abteilung für Mechatronik - St.Johann",
+            sfkz: "8755",
             year: "24/25",
             maxPupils: 36
         },
         {
             title: "Fachschule für Informationstechnik mit Sportschwerpunkt - Saalfelden",
+            sfkz: "5834",
             year: "24/25",
             maxPupils: 36
         },

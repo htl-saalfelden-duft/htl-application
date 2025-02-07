@@ -163,8 +163,9 @@ export class ApplicantService {
 				}
 				const opts = { 
 					fields: csvFields,
+					delimiter: ';',
 					formatters: {
-						string: this.stringOrDateFormatter()
+						string: this.stringOrDateFormatterBts()
 					}
 				}
 
@@ -261,5 +262,11 @@ export class ApplicantService {
 		(item) =>
 			this.isIso8601(item)
 			? new Date(item).toLocaleDateString('de-DE')
+			: stringFormatter(item);
+
+	private stringOrDateFormatterBts = (stringFormatter = defaultStringFormatter()) =>
+		(item) =>
+			this.isIso8601(item)
+			? item.substring(0, item.indexOf('T'))
 			: stringFormatter(item);
 }

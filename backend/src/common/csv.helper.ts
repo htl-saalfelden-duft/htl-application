@@ -68,44 +68,51 @@ export const transformApplicantsDataForBtsCSV = (applicants: Applicant[], contac
         return contactType?.title
     }
 
+    const getPrioSfkz = (applicant: Applicant): string => {
+        const prioAppl = applicant['applications'].find(a => a.priority == 1)
+        return prioAppl.schoolClass.sfkz
+    } 
+
     applicants.forEach(applicant => {
 
         let normData: BtsCsv = {
+            externeID: applicant.id,
             Wahlnummer: 1,
+            vorlaeufigeSFKZ: getPrioSfkz(applicant),
             StudentVorname: applicant.details.firstname,
             StudentNachname: applicant.details.lastname,
             Geburtsdatum: applicant.details.birthdate,
             Geschlecht: applicant.details.sex,
-            aktuelleSchulkennzahl: applicant.details.previousSchoolNum,
+            //aktuelleSchulkennzahl: applicant.details.previousSchoolNum,
             StudentGeburtsort: applicant.details.placeOfBirth,
             Geburtsland: applicant.details.countryOfBirth,
             Staatsbuergerschaft: applicant.details.nationality,
-            Religionsbekenntnis: applicant.details.religion,
+            //Religionsbekenntnis: applicant.details.religion,
             Muttersprache: applicant.details.language,
-            Sozialversicherungsnummer: applicant.details.svnr,
+            //Sozialversicherungsnummer: applicant.details.svnr,
             StudentEmail: applicant.email,
-            StudentTelefon: applicant.contacts[0].phone,
+            //StudentTelefon: applicant.contacts[0].phone,
             AdresseTyp: getContactTypeTitle(applicant.contacts[1].contactTypeKey),
             AdresseVorname: applicant.contacts[1].firstname,
             AdresseNachname: applicant.contacts[1].lastname,
-            AdresseErziehungsberechtigt: applicant.contacts[1].legalGardian,
+            AdresseErziehungsberechtigt: applicant.contacts[1].legalGardian || false,
             AdresseEmail: applicant.contacts[1].email,
             AdresseTelefon: applicant.contacts[1].phone,
             AdresseStrasse: applicant.contacts[1].street,
             AdressePlz: applicant.contacts[1].zip,
             AdresseOrt: applicant.contacts[1].city,
             AdresseLand: applicant.contacts[1].country,
-            zweiteAdresse: applicant.contacts.length > 2,
-            ZweiteAdresseTyp: getContactTypeTitle(applicant.contacts[2]?.contactTypeKey),
-            ZweiteAdresseVorname: applicant.contacts[2]?.firstname,
-            ZweiteAdresseNachname: applicant.contacts[2]?.lastname,
-            ZweiteAdresseErziehungsberechtigt: applicant.contacts[2]?.legalGardian,
-            ZweiteAdresseEmail: applicant.contacts[2]?.email,
-            ZweiteAdresseTelefon: applicant.contacts[2]?.phone,
-            ZweiteAdresseStrasse: applicant.contacts[2]?.street,
-            ZweiteAdressePlz: applicant.contacts[2]?.zip,
-            ZweiteAdresseOrt: applicant.contacts[2]?.city,
-            ZweiteAdresseLand: applicant.contacts[2]?.country
+            // zweiteAdresse: applicant.contacts.length > 2,
+            // zweiteAdresseTyp: getContactTypeTitle(applicant.contacts[2]?.contactTypeKey),
+            // zweiteAdresseVorname: applicant.contacts[2]?.firstname,
+            // zweiteAdresseNachname: applicant.contacts[2]?.lastname,
+            // zweiteAdresseErziehungsberechtigt: applicant.contacts[2]?.legalGardian || false,
+            // zweiteAdresseEmail: applicant.contacts[2]?.email,
+            // zweiteAdresseTelefon: applicant.contacts[2]?.phone,
+            // zweiteAdresseStrasse: applicant.contacts[2]?.street,
+            // zweiteAdressePlz: applicant.contacts[2]?.zip,
+            // zweiteAdresseOrt: applicant.contacts[2]?.city,
+            // zweiteAdresseLand: applicant.contacts[2]?.country
         }
 
         addKeysToSet(headerSet, normData)

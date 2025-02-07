@@ -47,7 +47,7 @@ npm run db:seed
 ```
 
 ### Nest generate
-```
+```sh
 npx nest generate mo school-class
 ```
 

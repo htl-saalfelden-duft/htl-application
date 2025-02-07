@@ -136,6 +136,7 @@ model SchoolClass {
 	schema			Int			@default(1)
 
     title       	String
+	sfkz			String
     year        	String
     maxPupils   	Int
 	active			Boolean		@default(true)

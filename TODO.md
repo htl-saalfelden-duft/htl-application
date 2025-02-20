@@ -12,6 +12,7 @@
 * Irgendwo Abteilung zuweisen und dann Filtern nach der zugewiesenen Abteilung
 * Prozedur: Zuerst Punkte ausrechnen, Abteilung zuweisen, dann Aufnahmekriterien checken, ob Aufnahmeprüfung erforderlich ist.
 * Exportfunktion mit Noten nach Excel
+* BUG mit Geburtsdatum 23:00!!!!
 
 ## Backend
 * Fehlermeldungen in Deutsch
@@ -26,4 +27,3 @@
 
 # Besprechung Tom
 - Optionen überprüfen/erneuern (Religion usw)
-- Sekretärin bescheid wegen aktuelle Schulkennzahl

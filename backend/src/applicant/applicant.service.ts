@@ -265,8 +265,18 @@ export class ApplicantService {
 			: stringFormatter(item);
 
 	private stringOrDateFormatterBts = (stringFormatter = defaultStringFormatter()) =>
-		(item) =>
-			this.isIso8601(item)
-			? item.substring(0, item.indexOf('T'))
-			: stringFormatter(item);
+		(item) => {
+			let output = stringFormatter(item)
+
+			if(this.isIso8601(item)) {
+				const date = new Date(item)
+				const year = date.getFullYear()
+				const month = (date.getMonth() + 1).toString().padStart(2, "0")
+				const day = date.getDate().toString().padStart(2, "0")
+
+				output = `${year}-${month}-${day}`
+			}
+
+			return output
+		}
 }

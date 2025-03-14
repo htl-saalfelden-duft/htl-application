@@ -98,7 +98,7 @@ export const transformApplicantsDataForBtsCSV = (applicants: Applicant[], contac
             AdresseErziehungsberechtigt: applicant.contacts[1].legalGardian || false,
             AdresseEmail: applicant.contacts[1].email,
             AdresseTelefon: applicant.contacts[1].phone,
-            AdresseStrasse: applicant.contacts[1].street,
+            AdresseStrasse: `${applicant.contacts[1].street} ${applicant.contacts[1].streetNr}`,
             AdressePlz: applicant.contacts[1].zip,
             AdresseOrt: applicant.contacts[1].city,
             AdresseLand: applicant.contacts[1].country,

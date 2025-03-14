@@ -1,7 +1,7 @@
 import { Alert, Button, Form, ListGroup } from "react-bootstrap"
-import { Applicant } from "../models/applicant.model"
-import { useFormContext } from "react-hook-form"
-import { useState } from "react"
+import { Applicant, ApplicantStatus, ApplicantStatusKey } from "../models/applicant.model"
+import { Controller, useFormContext } from "react-hook-form"
+import { useMemo, useState } from "react"
 import "./HomeTab.scss"
 import { TabType, useTabs } from "../contexts/tabs.context"
 import { toast } from "react-toastify"
@@ -9,6 +9,8 @@ import Dsgvo from "./modal/Dsgvo"
 import { useNavigate } from "react-router-dom"
 import { ExclamationCircle, Plus, Trash } from "react-bootstrap-icons"
 import ContactNew, { IContactNewFormInput } from "./modal/ContactNew"
+import AsyncSelect from "react-select/async"
+import { ApiService } from "../services/api.service"
 
 interface Props {
     onSave: () => void
@@ -17,6 +19,8 @@ interface Props {
 
 const HomeTab = (props: Props) => {
     const {onSave, locked} = props
+
+    const apiService = useMemo(() => new ApiService(), [])
 
     const [validated, setValidated] = useState(false)
     const [showDsgvo, setShowDsgvo] = useState(false)
@@ -37,6 +41,7 @@ const HomeTab = (props: Props) => {
         getValues,
         reset,
         register,
+        control,
         formState: { errors, isValid }
     } = useFormContext<Applicant>()
 
@@ -64,6 +69,10 @@ const HomeTab = (props: Props) => {
         if (validated) {
             return hasError ? 'invalid' : 'valid'
         }
+    }
+
+    const getApplicantStatus = (inputValue: string) => {
+        return apiService.get<ApplicantStatus[]>(ApplicantStatus, undefined, { title: inputValue })
     }
 
     const handleAddContact = (formData: IContactNewFormInput) => {
@@ -208,6 +217,30 @@ const HomeTab = (props: Props) => {
 
             <Dsgvo show={showDsgvo} onClose={() => setShowDsgvo(false)}/>
             <ContactNew show={showContactNew} onSubmit={handleAddContact} onClose={() => setShowContactNew(false)}/>
+
+            {admin &&
+					<Form.Group>
+                    <Form.Label htmlFor="statusKey">
+                        Bewerber-Status
+                    </Form.Label>
+                    <Controller
+                        control={control}
+                        name="statusKey"
+                        render={({ field }) => (
+                            <AsyncSelect
+                                ref={field.ref}
+                                loadOptions={getApplicantStatus as any}
+                                defaultOptions
+                                value={{key: field.value}}
+                                onChange={obj => field.onChange(obj?.key)}
+                                getOptionLabel={option => option.key as ApplicantStatusKey}
+                                getOptionValue={option => option.key as ApplicantStatusKey}
+                                inputId="statusKey"
+                            />
+                        )}
+                    />
+                </Form.Group>
+            }
 
             { (!locked || admin) 
                 ? 

@@ -51,3 +51,8 @@ npm run db:seed
 npx nest generate mo school-class
 ```
 
+### Build frontend
+```sh
+npm run build
+```
+

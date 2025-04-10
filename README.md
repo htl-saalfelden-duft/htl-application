@@ -56,3 +56,8 @@ npx nest generate mo school-class
 npm run build
 ```
 
+### Copy from local machine to server(e.g. ssl certificte)
+```sh
+scp ~/Downloads/htlsaalfelden.at/* htl:/home/htl-application/frontend/ssl
+```
+

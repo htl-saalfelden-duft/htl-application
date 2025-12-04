@@ -25,5 +25,36 @@
   * Noten noch nicht eingegeben
 
 
-# Besprechung Tom
+## Besprechung Tom
 - Optionen überprüfen/erneuern (Religion usw)
+
+
+## TODO aus Gespräch am 27.11.2025
+(fertig bis 12.12)
+
+- Statusänderungen durch Sekretariat:
+      -> Schüler wird fälschlicherweise auf angemeldet gesetzt. Button zum Ändern des Status auf abgegeben.
+      -> Schüler meldet sich wieder ab. Button und neuer Status - abgemeldet.
+-> Schüleranmeldung 1. Runde, 2. Runde
+-> Anmerkungsfeld nur für uns
+
+- csv-export: Möglichkeit für manuelle Schülerauswahl.
+  (CSV export mit Filter)
+
+- Mehrzeilige Anmerkungen führen zu Fehlern im CSV-file
+
+
+- csv-exprt für sokrates: Verwendung der Länderkürzel statt der Ländernamen bei contact-father-country und contact-mother-country.
+Länderkürzel:	ISO-Code	https://www.oenb.at/Statistik/Klassifikationen/ISO-Codes/ISO-Code-Verzeichnis-fuer-Laender--und-Waehrungscodes.html
+
+- Anmeldebestätigung: PLZ und Adresse ergänzen.  
+ 
+---
+Anmerkungen allgemein
+Terminplan mit Checkliste erstellen
+
+Nach einspielen der Daten ins Sokrates, Klasseneinteilung durch AV HED, danach Info an BRO die Erstellung der Schülerzugänge.
+
+
+
+

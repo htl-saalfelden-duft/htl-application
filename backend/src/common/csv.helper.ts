@@ -70,7 +70,7 @@ export const transformApplicantsDataForBtsCSV = (applicants: Applicant[], contac
 
     const getPrioSfkz = (applicant: Applicant): string => {
         const prioAppl = applicant['applications'].find(a => a.priority == 1)
-        return prioAppl.schoolClass.sfkz
+        return prioAppl.schoolClass?.sfkz
     } 
 
     applicants.forEach(applicant => {

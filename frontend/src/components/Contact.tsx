@@ -81,7 +81,7 @@ const Contact = (props: Props) => {
             </Row>
 
             <Row>
-                <FormInput className="col-lg-3" attr="phone" title="Telefonnummer" required={require}/>
+                <FormInput className="col-lg-3" attr="phone" title="Telefonnummer" required={require} type="phone" placeholder="+4366000000" />
                 <FormInput className="col-lg-3" attr="email" title="Email" required={require} type="email" />                   
             </Row>                      
 

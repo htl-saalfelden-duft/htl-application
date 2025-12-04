@@ -2,7 +2,7 @@ import { Container, Nav, NavDropdown, Navbar } from "react-bootstrap"
 import { useAuth } from "../contexts/auth.context"
 import { useNavigate } from "react-router-dom"
 import { People, PersonCircle } from 'react-bootstrap-icons';
-import htlLogoWhite from '../assets/images/htl-logo-nav-2.svg'
+import htlLogoWhite from '../assets/images/htl-logo-nav.svg'
 
 const Navigationbar = () => {
     const { signOut, currentUser, isAdmin, isAdministration} = useAuth()

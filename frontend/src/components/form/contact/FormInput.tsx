@@ -11,11 +11,12 @@ interface Props {
     title: string
     required?: boolean
     className?: string
-    type?: 'text' | 'email'
+    placeholder?: string
+    type?: 'text' | 'email' | 'phone'
 }
 
 export const FormInput = (props: Props) => {
-    const { attr, title, required, className } = props
+    const { attr, title, required, className, placeholder } = props
     let { type } = props
     type ||= 'text'
 
@@ -26,6 +27,23 @@ export const FormInput = (props: Props) => {
         formState: { errors }
     } = useFormContext<Applicant>()
 
+    const getPattern = (type: string) => {
+        switch (type) {
+            case 'email':
+                return {
+                    value: /\S+@\S+\.\S+/,
+                    message: "Bitte gültige Email-Adresse eingeben",
+                }
+            case 'phone':
+                return {
+                    value: /\+\d+$/,
+                    message: "Bitte gültige Telefonnummer eingeben",
+                }    
+            default:
+                return undefined
+        }
+    }
+
     return (
         <Form.Group className={`mb-3 ${className}`}>
             <Form.Label htmlFor={`contacts.${index}.${attr}`}>
@@ -35,11 +53,9 @@ export const FormInput = (props: Props) => {
                 type={type}
                 {...register(`contacts.${index}.${attr}`, { 
                     required: (required ? `Bitte ${title} angeben` : undefined), 
-                    pattern: type === 'email' ? {
-                        value: /\S+@\S+\.\S+/,
-                        message: "Bitte gültige Email-Adresse eingeben",
-                    } : undefined
+                    pattern: getPattern(type)
                 })}
+                placeholder={placeholder}
                 id={`contacts.${index}.${attr}`}
                 isInvalid={hasError(errors, index, attr)}
             />

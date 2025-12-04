@@ -110,7 +110,7 @@ export const Applicants = () => {
         let params = getParamsFromFilter()
 
         if(isEmpty(params) || !isAdmin) {
-            params = { statusKey: "registered" }
+            params = { params, ...{ statusKey: "registered" }}
         }
 
         apiService.getPath<any>(Applicant, 'btsCsv', undefined, {

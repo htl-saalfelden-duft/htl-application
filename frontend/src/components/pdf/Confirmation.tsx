@@ -33,6 +33,8 @@ const styles = StyleSheet.create({
 export const Confirmation = (props: Props) => {
     const { applicant } = props
 
+    const adddress = applicant?.contacts?.find(c => c.contactTypeKey === 'contact-applicant')
+
     return (
         <Document title="Anmeldebestätigung">
             <Page size="A4" style={styles.page}>
@@ -43,7 +45,8 @@ export const Confirmation = (props: Props) => {
                     <Text style={styles.title1}>Anmeldung für das Schuljahr {applicant?.applications?.find(a => a.priority === 1)?.schoolClass?.year}</Text>
 
                     <Text style={{...styles.title2, marginTop: 40}}>{applicant?.details?.firstname} {applicant?.details?.moreFirstname && `${applicant?.details?.moreFirstname} `}{applicant?.details?.lastname}, geboren am {moment(applicant?.details?.birthdate).format('DD.MM.YYYY')}</Text>
-                    <Text style={{...styles.text, marginTop: 15, marginBottom: 15}}>meldet sich an der HTL Saalfelden für die Abteilung/en:</Text>
+                    <Text style={{...styles.title2, marginTop: 15}}>{adddress?.street} {adddress?.streetNr}, {adddress?.zip} {adddress?.city}</Text>
+                    <Text style={{...styles.text, marginTop: 15, marginBottom: 15}}>meldet sich für die Abteilung/en:</Text>
                     {applicant?.applications?.map(app => <Text key={app.priority} style={{...styles.title2, marginBottom: 5}}>{app.priority}. {app.schoolClass?.title}</Text>)}
                     <Text style={{...styles.text, marginTop: 15}}>an.</Text>
 

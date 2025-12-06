@@ -1,9 +1,6 @@
 # TODO
 
 ## Allgemein
-* Auf Bestätigung
-  * PLZ, Name, Tel, Email eines Erziehungsberechtigten
-  * PLZ und Adresse ergänzen.
 * Wo sind Noten vollständig eingegeben
   * Filtern: Noten noch nicht eingegeben
 * Neuer Status Aufgenommen nach Angemeldet

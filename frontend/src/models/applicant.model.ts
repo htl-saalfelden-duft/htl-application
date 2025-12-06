@@ -11,6 +11,7 @@ export class Applicant {
     emailConfirmed?: boolean
     password?: string
     statusKey?: ApplicantStatusKey
+    status?: ApplicantStatus
     dsgvo?: boolean
     registeredAt?: Date
     contacts?: Contact[]
@@ -25,4 +26,4 @@ export class ApplicantStatus {
     title!: string
 }
 
-export type ApplicantStatusKey = 'created' | 'applied' | 'registered' | 'completed'
+export type ApplicantStatusKey = 'created' | 'applied' | 'registered' | 'unregistered' | 'completed'

@@ -6,7 +6,7 @@ import ApplicantDetails from "./ApplicantDetails"
 import Contact from "./Contact"
 import SchoolReport from "./SchoolReport"
 import { FormProvider, useForm } from "react-hook-form"
-import { Applicant } from "../models/applicant.model"
+import { Applicant, ApplicantStatus, ApplicantStatusKey } from "../models/applicant.model"
 import { useEffect, useMemo, useState } from "react"
 import { ApiService } from "../services/api.service"
 import { ContactType, ContactTypes } from "../models/contact.model"
@@ -17,6 +17,7 @@ import { getDBApplicant, setApplicationStatus, setDefaultApplication } from "../
 import { useNavigate } from "react-router-dom"
 import SubmitConfirmation from "./modal/SubmitConf"
 import { useAuth } from "../contexts/auth.context"
+import { ApplicationStatusKey } from "../models/application.model"
 
 
 interface Props {
@@ -75,12 +76,21 @@ const ApplicationForm = (props: Props) => {
             .then(contactTypes => {
                 enableContactTabs(applicant, contactTypes)
                 setDefaultApplication(applicant)
-                reset(applicant)
 
                 if(applicant.statusKey === 'applied') {
                     setIsLocked(!admin)
                 }
+                return
             })
+            .then(() => {
+                return apiService.get<ApplicantStatus[]>(ApplicantStatus, undefined)
+            })
+            .then((applicantStatuses)=> {
+                const applicantStatus = applicantStatuses.find(as => as.key === applicant.statusKey)
+                applicant.status = applicantStatus
+
+                reset(applicant)
+            })        
         }
     }, [applicantID])
 
@@ -98,6 +108,7 @@ const ApplicationForm = (props: Props) => {
 
         setApplicationStatus(applicant, 'applied')
         applicant.statusKey = 'applied'
+        delete applicant.status
 
         const dbApplicant = getDBApplicant(applicant)
 
@@ -129,6 +140,9 @@ const ApplicationForm = (props: Props) => {
 
     const onSave = () => {
         const applicant = getValues()
+
+        applicant.statusKey = applicant.status?.key as ApplicantStatusKey
+        delete applicant.status
 
         // This is only if administration would edit after applicant is applied AND applications added
         if(applicant.statusKey === 'applied') {

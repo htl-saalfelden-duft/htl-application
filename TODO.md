@@ -4,8 +4,6 @@
 * Wo sind Noten vollständig eingegeben
   * Filtern: Noten noch nicht eingegeben
 * Neuer Status Aufgenommen nach Angemeldet
-* Manuelle Statusänderungen (vielleicht nur Admin)
-* Neuer Status Gelöscht (Admin)
 * Automatische Reihung (Punktezahl)
 * Überprüfungen: SVN (Schüler, ev. Eltern nicht Pflicht), Tel (Vorschlag und ev.Überprüfung mit Länderkürzel)
 * Irgendwo Abteilung zuweisen und dann Filtern nach der zugewiesenen Abteilung
@@ -24,9 +22,6 @@
 ## TODO aus Gespräch am 27.11.2025
 (fertig bis 12.12)
 
--> Statusänderungen durch Sekretariat:
-      -> Schüler wird fälschlicherweise auf angemeldet gesetzt. Button zum Ändern des Status auf abgegeben.
-      -> Schüler meldet sich wieder ab. Button und neuer Status - abgemeldet.
 
 -> Schüleranmeldung 1. Runde, 2. Runde (Durch Anmeldedatum gelöst? Ev. hervorheben?)
 

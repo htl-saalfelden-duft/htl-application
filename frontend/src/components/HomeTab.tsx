@@ -220,22 +220,22 @@ const HomeTab = (props: Props) => {
 
             {admin &&
 					<Form.Group>
-                    <Form.Label htmlFor="statusKey">
+                    <Form.Label htmlFor="status">
                         Bewerber-Status
                     </Form.Label>
                     <Controller
                         control={control}
-                        name="statusKey"
+                        name="status"
                         render={({ field }) => (
                             <AsyncSelect
                                 ref={field.ref}
                                 loadOptions={getApplicantStatus as any}
                                 defaultOptions
-                                value={{key: field.value}}
-                                onChange={obj => field.onChange(obj?.key)}
-                                getOptionLabel={option => option.key as ApplicantStatusKey}
-                                getOptionValue={option => option.key as ApplicantStatusKey}
-                                inputId="statusKey"
+                                value={field.value}
+                                onChange={obj => field.onChange(obj)}
+                                getOptionLabel={option => option.title as string}
+                                getOptionValue={option => option.title as string}
+                                inputId="status"
                             />
                         )}
                     />

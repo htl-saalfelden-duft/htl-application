@@ -23,7 +23,6 @@ import { AuthService } from 'src/auth/auth.service';
 import { TokenDto } from 'src/auth/token.dto';
 import { EmailConfirmationGuard } from 'src/email-confirmation/email-confirmation.guard';
 import { Response as ExpressResponse } from 'express';
-import { contains } from 'class-validator';
 
 @Controller('applicant')
 export class ApplicantController {
@@ -187,12 +186,13 @@ export class ApplicantController {
     return this.applicantService.delete({ id });
   }
 
-  private buildWhereClause(params, where) {
+  private buildWhereClause(params: any, where: Prisma.ApplicantWhereInput) {
     const {statusKey, schoolClass, search} = params
+
     if (statusKey) {
       where.statusKey = statusKey;
     } else {
-      where.NOT = { statusKey: 'completed' };
+      where.NOT = [{ statusKey: 'completed' }, { statusKey: 'unregistered' }];
     }
 
     if (schoolClass) {

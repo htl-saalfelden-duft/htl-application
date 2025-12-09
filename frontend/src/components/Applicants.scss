@@ -2,4 +2,15 @@
     tr.applied > td {
         background-color: rgb(242,242,242)
     }
+
+    td.email-col {
+        max-width: 10em;
+         overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    td.status-col {
+        white-space: nowrap;
+    }
 }

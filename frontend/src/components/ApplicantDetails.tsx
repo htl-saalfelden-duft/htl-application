@@ -48,7 +48,7 @@ const ApplicantDetails = () => {
 
                 <Row className="mb-3">
                     <FormDateInput attr="birthdate" title="Geburtsdatum" className="col-lg" required={true}/>
-                    <FormInput attr="svnr" title="SVN" className="col-lg" required={true} />
+                    <FormInput attr="svnr" title="SVN" className="col-lg" required={true} type="svn" placeholder="10-stellig"/>
                     <FormInput attr="svInstitution" title="Sozialversicherungs-Anstalt" className="col-lg" required={true} />                                                             
                 </Row>
                 <Row>

@@ -31,7 +31,7 @@ const Contact = (props: Props) => {
     } = useFormContext<Applicant>()
 
     const {
-        admin
+        administrationEdit
     } = useTabs()
 
     const getCountries = (inputValue: string) => {
@@ -91,7 +91,7 @@ const Contact = (props: Props) => {
 
             {parent ?
             <>
-                {admin &&
+                {administrationEdit &&
                 <>
                     <FormCheck className="col-lg" attr="pupilInBoardingSchool" title="Internat oder Extern"/>
                     <FormCheck className="col-lg" attr="liableToPay" title="Zahlungspflichtig"/>

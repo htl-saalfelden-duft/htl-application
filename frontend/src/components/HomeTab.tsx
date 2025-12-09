@@ -31,7 +31,7 @@ const HomeTab = (props: Props) => {
         addContactTab,
         removeContactTab,
         setCurrentTab,
-        admin,
+        administrationEdit,
         schoolReportEnabled,
         setSchoolReportEnabled,
     } = useTabs()
@@ -103,7 +103,7 @@ const HomeTab = (props: Props) => {
 
     return (
         <>
-            { !admin ?
+            { !administrationEdit ?
             <>
                 <h4 className="mt-4 mb-4">Sehr geehrte Erziehungsberechtigte, <br/>sehr geehrte BewerberInnen! </h4>
                 <p>Sie befinden sich im Bewerber-Portal der HTL Saalfelden. Bitte füllen Sie das Formular vollständig aus.</p>
@@ -169,7 +169,7 @@ const HomeTab = (props: Props) => {
                     </ListGroup.Item>
                 )}
 
-                {admin && <ListGroup.Item
+                {administrationEdit && <ListGroup.Item
                     className={`d-flex ${schoolReportEnabled &&  errorClass(!!errors.schoolReport)}`}
                     onClick={() => changeTab('schoolReport')}>
                     <Form.Check type="checkbox" id="activate-schoolreport" className="mt-2" onChange={() => handleEnabledSchoolReport()} checked={schoolReportEnabled} />
@@ -179,7 +179,7 @@ const HomeTab = (props: Props) => {
                 </ListGroup.Item>}
             </ListGroup>
 
-            {!admin && 
+            {!administrationEdit && 
             <Form.Group className={`mb-3`}>
                 <Form.Check
                     disabled={locked}
@@ -194,7 +194,7 @@ const HomeTab = (props: Props) => {
                 )}	                
             </Form.Group>}
 
-            {admin &&
+            {administrationEdit &&
             <>
                 <Form.Group className={`mb-3`}>
                     <Form.Check
@@ -218,37 +218,51 @@ const HomeTab = (props: Props) => {
             <Dsgvo show={showDsgvo} onClose={() => setShowDsgvo(false)}/>
             <ContactNew show={showContactNew} onSubmit={handleAddContact} onClose={() => setShowContactNew(false)}/>
 
-            {admin &&
+            {administrationEdit &&
 					<Form.Group>
-                    <Form.Label htmlFor="status">
-                        Bewerber-Status
-                    </Form.Label>
-                    <Controller
-                        control={control}
-                        name="status"
-                        render={({ field }) => (
-                            <AsyncSelect
-                                ref={field.ref}
-                                loadOptions={getApplicantStatus as any}
-                                defaultOptions
-                                value={field.value}
-                                onChange={obj => field.onChange(obj)}
-                                getOptionLabel={option => option.title as string}
-                                getOptionValue={option => option.title as string}
-                                inputId="status"
-                            />
-                        )}
-                    />
-                </Form.Group>
+                        <Form.Label htmlFor="status">
+                            Bewerber-Status
+                        </Form.Label>
+                        <Controller
+                            control={control}
+                            name="status"
+                            render={({ field }) => (
+                                <AsyncSelect
+                                    ref={field.ref}
+                                    loadOptions={getApplicantStatus as any}
+                                    defaultOptions
+                                    value={field.value}
+                                    onChange={obj => field.onChange(obj)}
+                                    getOptionLabel={option => `${option.pos} - ${option.title}` as string}
+                                    getOptionValue={option => option.title as string}
+                                    inputId="status"
+                                />
+                            )}
+                        />
+                    </Form.Group>
+            }
+            
+            {administrationEdit && 
+                    <Form.Group className="mt-3">
+                        <Form.Label htmlFor="annotation">
+                            Anmerkung
+                        </Form.Label>
+                        <Form.Control 
+                            as="textarea"
+                            rows={3}
+                            {...register("annotation")}
+                            id="annotation"
+                        />
+                    </Form.Group>                        
             }
 
-            { (!locked || admin) 
+            { (!locked || administrationEdit) 
                 ? 
                 <div className="d-flex mt-5">
                     <Button className="me-3" variant="success" type="submit" disabled={!isValid} title="Der Antrag lässt sich erst abschicken, wenn alle Daten vorhanden sind.">Antrag abschicken</Button>
                     <Button className="me-3" variant="outline-warning" onClick={validateForm}>Antrag prüfen</Button>
                     <Button className="me-3" variant="outline-secondary" onClick={onSave}>Daten Speichern</Button>
-                    {admin && <Button className="me-3" variant="outline-secondary" onClick={() => navigate('/applicants')}>Zurück</Button>}
+                    {administrationEdit && <Button className="me-3" variant="outline-secondary" onClick={() => navigate('/applicants')}>Zurück</Button>}
                 </div>
                 :
                 <Alert variant="success">Ihr Antrag wurde erfolgreich abgegeben!</Alert>

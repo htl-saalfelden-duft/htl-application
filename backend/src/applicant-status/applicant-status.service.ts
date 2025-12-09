@@ -8,7 +8,10 @@ export class ApplicantStatusService {
 
     getMany(): Promise<Partial<ApplicantStatus>[]> {
         return this.prisma.applicantStatus.findMany(
-            { select: { key: true, title: true } }
+            { 
+                select: { key: true, title: true, pos: true },
+                orderBy: {pos: 'asc'}
+            }
         ) 
     }
 }

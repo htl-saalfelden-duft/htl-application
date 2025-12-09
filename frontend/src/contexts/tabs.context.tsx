@@ -5,7 +5,7 @@ import { contactType2Title, contactType2tabType } from '../common/tab.utils'
 
 interface Props {
     children: any
-    admin: boolean
+    administrationEdit: boolean
 }
 
 interface ApplicationTab {
@@ -29,7 +29,7 @@ interface TabsValues {
     currentTab: string
     setCurrentTab: (type: TabType) => void
 
-    admin: boolean
+    administrationEdit: boolean
 }
 
 const TabsContext = React.createContext<TabsValues>(undefined as any )
@@ -72,7 +72,7 @@ const TabsProvider = (props: Props) => {
 
         currentTab,
         setCurrentTab,
-        admin: props.admin
+        administrationEdit: props.administrationEdit
     }
 
     return (

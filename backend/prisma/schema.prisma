@@ -36,6 +36,7 @@ model Applicant {
 	statusKey				String?		@default("created") //ApplicantStatus
 	active					Boolean		@default(true)
 	dsgvo					Boolean		@default(false)
+	annotation				String?
 
 	details					ApplicantDetails?
     contacts      			Contact[]
@@ -188,6 +189,7 @@ model ApplicationStatus {
 
 	key		String  @unique
     title 	String
+	pos		Int
 }
 
 model ApplicantStatus {
@@ -196,6 +198,7 @@ model ApplicantStatus {
 
 	key		String  @unique
     title 	String
+	pos		Int
 }
 
 model Sex {

@@ -192,7 +192,7 @@ export class ApplicantController {
     if (statusKey) {
       where.statusKey = statusKey;
     } else {
-      where.NOT = [{ statusKey: 'completed' }, { statusKey: 'unregistered' }];
+      where.NOT = { statusKey: 'completed' }
     }
 
     if (schoolClass) {

@@ -1,8 +1,8 @@
-import { FormEvent, useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { ApiService } from "../services/api.service"
 import { Applicant, ApplicantStatus } from "../models/applicant.model"
 import { Button, Card, CardBody, Form, Row, Table } from "react-bootstrap"
-import { DatabaseDown, FileEarmarkPdf, Funnel, FunnelFill, Pencil, PlusLg, Trash } from "react-bootstrap-icons"
+import { DatabaseDown, EnvelopeCheck, FileCheck, FileEarmarkPdf, Funnel, FunnelFill, Pencil, PlusLg, Trash } from "react-bootstrap-icons"
 import { useNavigate } from "react-router-dom"
 import ApplicantNew from "./modal/ApplicantNew"
 import "./Applicants.scss"
@@ -14,6 +14,7 @@ import fileDownload from "js-file-download"
 import DeleteConfirmation from "./modal/DeleteConfirmation"
 import ApplicantsFilter, { ApplicantsFilterFormInput } from "./modal/ApplicantsFilter"
 import { isEmpty, pickBy } from "lodash"
+import { schoolReportComplete } from "../models/schoolReport.model"
 
 export const Applicants = () => {
     const apiService = useMemo(() => new ApiService(), [])
@@ -143,11 +144,16 @@ export const Applicants = () => {
         return params
     }
 
+    const getApplicantStatusText = (applicant: Applicant) => {
+        const applicantStatus = applicantStatuses?.find(as => as.key === applicant.statusKey)
+        return applicantStatus ? `${applicantStatus.pos} - ${applicantStatus.title}` : ''
+    }
+
     return (
         <>
             <Row className='justify-content-md-center'>
                 <div className="d-flex justify-content-between mt-5">
-                    <h4>Bewerber<small>{applicants?.length && <span>({applicants?.length})</span>}</small></h4>
+                    <h4>Bewerber<small><span>({applicants?.length})</span></small>{!isEmpty(applicantsFilter) && <span className="badge text-bg-secondary ms-3">gefiltert</span>}</h4>
                     <div className="mb-2">
                         {isAdmin && 
                         <Button
@@ -197,7 +203,7 @@ export const Applicants = () => {
                                     <th>Status</th>
                                     <th>Anmeldedatum</th>
                                     <th>Antrags-Email</th>
-                                    <th>Email bestätigt</th>
+                                    <th></th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -208,10 +214,14 @@ export const Applicants = () => {
                                         <td>{applicant.details?.firstname}</td>
                                         <td>{applicant.details?.lastname}</td>
                                         <td>{(applicant.applications && applicant.applications[0]?.schoolClass?.title) || '-'}</td>
-                                        <td>{applicantStatuses?.find(as => as.key === applicant.statusKey)?.title || ''}</td>
+                                        <td className="status-col">{getApplicantStatusText(applicant)}</td>
                                         <td>{applicant.registeredAt && moment(applicant.registeredAt).format('DD.MM.YYYY')}</td>
-                                        <td>{applicant.email}</td>
-                                        <td><div className="form-check"><input type="checkbox" className="form-check-input" checked={applicant.emailConfirmed} disabled /></div></td>
+                                        <td className="email-col" title={applicant.email}>{applicant.email}</td>
+                                        <td>
+                                            <div className="d-flex" style={{ gap: '6px' }}>
+                                                {applicant.emailConfirmed && <EnvelopeCheck className="text-secondary" width={22} height={22} title="Email bestätigt"/>}{schoolReportComplete(applicant?.schoolReport) && <FileCheck className="text-success" width={22} height={22} title="Noten eingegeben"/>}
+                                            </div>
+                                        </td>
                                         <td>
                                             <div className="d-flex" style={{ gap: '6px' }}>
                                                 <Button variant="outline-primary" onClick={() => { openApplicant(applicant.id!) }}><Pencil /></Button>

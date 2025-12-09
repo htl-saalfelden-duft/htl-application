@@ -32,8 +32,9 @@ const ApplicationForm = (props: Props) => {
         setContactTabs,
         currentTab,
         setCurrentTab,
-        admin,
-        schoolReportEnabled
+        administrationEdit,
+        schoolReportEnabled,
+        setSchoolReportEnabled
     } = useTabs()
 
     const { isAdministration } = useAuth()
@@ -65,20 +66,29 @@ const ApplicationForm = (props: Props) => {
         })
     }
 
+    const enableSchoolReport = (applicant: Applicant) => {
+        if(applicant.schoolReport)
+            setSchoolReportEnabled(true)
+    }
+
     useEffect(() => {
         let applicant: Applicant
         if(applicantID) {
             apiService.get<Applicant>(Applicant, applicantID)
             .then(_applicant => {
                 applicant = _applicant
+
+                enableSchoolReport(applicant)
+
                 return apiService.get<ContactType[]>(ContactType, undefined)
             })
             .then(contactTypes => {
                 enableContactTabs(applicant, contactTypes)
+
                 setDefaultApplication(applicant)
 
                 if(applicant.statusKey === 'applied') {
-                    setIsLocked(!admin)
+                    setIsLocked(!administrationEdit)
                 }
                 return
             })
@@ -130,7 +140,7 @@ const ApplicationForm = (props: Props) => {
 
             setShowSubmitConfirmation(false)
 
-            if(admin) {
+            if(administrationEdit) {
                 navigate('/applicants')
             } else {
                 setIsLocked(true)
@@ -154,7 +164,7 @@ const ApplicationForm = (props: Props) => {
         apiService.save<Applicant>(Applicant, dbApplicant)
         .then(() => {
             toast("Daten wurden gespeichert!", {type: 'success'})
-            if(admin) {
+            if(administrationEdit) {
                 navigate('/applicants')
             }
         })
@@ -193,7 +203,7 @@ const ApplicationForm = (props: Props) => {
                         </Tab>
                     )}
 
-                    { admin && schoolReportEnabled &&
+                    { administrationEdit && schoolReportEnabled &&
                     <Tab eventKey="schoolReport" title="Schulnoten">
                         <SchoolReport />
                     </Tab> }       

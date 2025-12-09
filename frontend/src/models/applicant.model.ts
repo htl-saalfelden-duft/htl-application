@@ -18,12 +18,14 @@ export class Applicant {
     schoolReport?: SchoolReport
     details?: ApplicantDetails
     applications?: Application[]
+    annotation?: string
 }
 
 @Entity('applicantStatus')
 export class ApplicantStatus {
     key!: string
     title!: string
+    pos!: number
 }
 
-export type ApplicantStatusKey = 'created' | 'applied' | 'registered' | 'unregistered' | 'completed'
+export type ApplicantStatusKey = 'created' | 'applied' | 'registered' | 'unregistered' | "accepted" | 'completed'

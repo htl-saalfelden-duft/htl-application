@@ -20,19 +20,23 @@ async function main() {
     const applicationStatuses = [
         {
             key: 'created',
-            title: "angelegt"
+            title: "angelegt",
+            pos: 1
         },
         {
             key: 'applied',
-            title: "abgegeben"
+            title: "abgegeben",
+            pos: 2
         },
         {
             key: 'accepted',
-            title: "angenommen"
+            title: "angenommen",
+            pos: 3
         },
         {
             key: 'rejected',
-            title: "abgelehnt"
+            title: "abgelehnt",
+            pos: 2
         }
     ]
     for (let index = 0; index < applicationStatuses.length; index++) {
@@ -48,20 +52,34 @@ async function main() {
     const applicantStatuses = [
         {
             key: 'created',
-            title: "angelegt"
+            title: "angelegt",
+            pos: 1
         },
         {
             key: 'applied',
-            title: "abgegeben"
+            title: "abgegeben",
+            pos: 2
         },
         {
             key: 'registered',
-            title: "angemeldet"
+            title: "angemeldet",
+            pos: 3
         },        
         {
+            key: 'unregistered',
+            title: "abgemeldet",
+            pos: 4
+        },        
+        {
+            key: 'accepted',
+            title: "aufgenommen",
+            pos: 5
+        },
+        {
             key: 'completed',
-            title: "abgeschlossen"
-        }
+            title: "abgeschlossen",
+            pos: 6
+        }             
     ]
     for (let index = 0; index < applicantStatuses.length; index++) {
         const appStatus = applicantStatuses[index];

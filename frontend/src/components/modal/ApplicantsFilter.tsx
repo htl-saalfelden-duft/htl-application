@@ -5,6 +5,7 @@ import { ApiService } from '../../services/api.service';
 import AsyncSelect from 'react-select/async';
 import { ApplicantStatus } from '../../models/applicant.model';
 import { SchoolClass } from '../../models/schoolClass.model';
+import { isEmpty } from 'lodash';
 
 interface Props {
 	show: boolean
@@ -86,7 +87,8 @@ const ApplicantsFilter = (props: Props) => {
 									defaultOptions
 									value={field.value}
 									onChange={obj => field.onChange(obj)}
-									getOptionLabel={option => option.title}
+									getOptionLabel={option => !isEmpty(option) ? `${option.pos} - ${option.title}` : ''}
+									//getOptionLabel={option => option.title}
 									getOptionValue={option => option.title}
 									inputId="applicantStatus"
 								/>

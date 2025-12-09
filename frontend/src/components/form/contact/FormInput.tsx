@@ -50,7 +50,7 @@ export const FormInput = (props: Props) => {
                 {title}{required ? '*' : null}
             </Form.Label>
             <Form.Control
-                type={type}
+                type={type == 'phone' ? 'text' : type}
                 {...register(`contacts.${index}.${attr}`, { 
                     required: (required ? `Bitte ${title} angeben` : undefined), 
                     pattern: getPattern(type)

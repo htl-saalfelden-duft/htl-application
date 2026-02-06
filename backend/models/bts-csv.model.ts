@@ -26,6 +26,7 @@ export interface BtsCsv {
     AdresseEmail: string
     AdresseTelefon: string
     AdresseStrasse: string
+    AdresseHausnummer: string
     AdressePlz: string
     AdresseOrt: string
     AdresseLand: string
@@ -37,6 +38,7 @@ export interface BtsCsv {
     zweiteAdresseEmail?: string
     zweiteAdresseTelefon?: string
     zweiteAdresseStrasse?: string
+    zweiteAdresseHausnummer?: string
     zweiteAdressePlz?: string
     zweiteAdresseOrt?: string
     zweiteAdresseLand?: string

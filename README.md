@@ -61,3 +61,10 @@ npm run build
 scp ~/Downloads/htlsaalfelden.at/* htl:/home/htl-application/frontend/ssl
 ```
 
+### Building the containers in production
+
+```sh
+docker compose -f docker-compose-prod.yml build backend
+
+docker compose -f docker-compose-prod.yml build fromtend
+```

@@ -83,37 +83,45 @@ export const transformApplicantsDataForBtsCSV = (applicants: Applicant[], contac
             StudentNachname: applicant.details.lastname,
             Geburtsdatum: applicant.details.birthdate,
             Geschlecht: applicant.details.sex,
-            //aktuelleSchulkennzahl: applicant.details.previousSchoolNum,
             StudentGeburtsort: applicant.details.placeOfBirth,
             Geburtsland: applicant.details.countryOfBirth,
             Staatsbuergerschaft: applicant.details.nationality,
-            //Religionsbekenntnis: applicant.details.religion,
             Muttersprache: applicant.details.language,
-            //Sozialversicherungsnummer: applicant.details.svnr,
             StudentEmail: applicant.email,
-            //StudentTelefon: applicant.contacts[0].phone,
             AdresseTyp: getContactTypeTitle(applicant.contacts[1].contactTypeKey),
             AdresseVorname: applicant.contacts[1].firstname,
             AdresseNachname: applicant.contacts[1].lastname,
             AdresseErziehungsberechtigt: applicant.contacts[1].legalGardian || false,
             AdresseEmail: applicant.contacts[1].email,
             AdresseTelefon: applicant.contacts[1].phone,
-            AdresseStrasse: `${applicant.contacts[1].street} ${applicant.contacts[1].streetNr}`,
+            AdresseStrasse: applicant.contacts[1].street,
+            AdresseHausnummer: applicant.contacts[1].streetNr,
             AdressePlz: applicant.contacts[1].zip,
             AdresseOrt: applicant.contacts[1].city,
             AdresseLand: applicant.contacts[1].country,
-            // zweiteAdresse: applicant.contacts.length > 2,
-            // zweiteAdresseTyp: getContactTypeTitle(applicant.contacts[2]?.contactTypeKey),
-            // zweiteAdresseVorname: applicant.contacts[2]?.firstname,
-            // zweiteAdresseNachname: applicant.contacts[2]?.lastname,
-            // zweiteAdresseErziehungsberechtigt: applicant.contacts[2]?.legalGardian || false,
-            // zweiteAdresseEmail: applicant.contacts[2]?.email,
-            // zweiteAdresseTelefon: applicant.contacts[2]?.phone,
-            // zweiteAdresseStrasse: applicant.contacts[2]?.street,
-            // zweiteAdressePlz: applicant.contacts[2]?.zip,
-            // zweiteAdresseOrt: applicant.contacts[2]?.city,
-            // zweiteAdresseLand: applicant.contacts[2]?.country
         }
+
+        /**
+         * Ausgeblendete Felder weil nicht benötigt:
+            aktuelleSchulkennzahl: applicant.details.previousSchoolNum,
+            Religionsbekenntnis: applicant.details.religion,
+            Sozialversicherungsnummer: applicant.details.svnr,
+            StudentTelefon: applicant.contacts[0].phone,
+
+            zweiteAdresse: applicant.contacts.length > 2,
+            zweiteAdresseTyp: getContactTypeTitle(applicant.contacts[2]?.contactTypeKey),
+            zweiteAdresseVorname: applicant.contacts[2]?.firstname,
+            zweiteAdresseNachname: applicant.contacts[2]?.lastname,
+            zweiteAdresseErziehungsberechtigt: applicant.contacts[2]?.legalGardian || false,
+            zweiteAdresseEmail: applicant.contacts[2]?.email,
+            zweiteAdresseTelefon: applicant.contacts[2]?.phone,
+            zweiteAdresseStrasse: applicant.contacts[2]?.street,
+            zweiteAdresseHausnummer: applicant.contacts[2]?.streetNr,
+            zweiteAdressePlz: applicant.contacts[2]?.zip,
+            zweiteAdresseOrt: applicant.contacts[2]?.city,
+            zweiteAdresseLand: applicant.contacts[2]?.country
+         */
+
 
         addKeysToSet(headerSet, normData)
 

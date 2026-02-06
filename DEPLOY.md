@@ -24,6 +24,12 @@ mkdir repos/htl-application.git
 
 cd repos/htl-application.git
 git init --bare
+git symbolic-ref HEAD refs/heads/main
+
+git clone repos/htl-application
+cd htl-application
+git checkout master
+
 
 vim repos/htl-application.git/hooks/post-receive
 ```

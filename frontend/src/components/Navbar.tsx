@@ -1,7 +1,7 @@
 import { Container, Nav, NavDropdown, Navbar } from "react-bootstrap"
 import { useAuth } from "../contexts/auth.context"
 import { useNavigate } from "react-router-dom"
-import { Gear, People, PersonCircle } from 'react-bootstrap-icons';
+import { Gear, Mortarboard, People, PersonCircle } from 'react-bootstrap-icons';
 import htlLogoWhite from '../assets/images/htl-logo-nav.svg'
 
 const Navigationbar = () => {
@@ -49,6 +49,7 @@ const Navigationbar = () => {
                     {isAdmin && 
                         <NavDropdown title="Admin" className="ms-4">
                             <NavDropdown.Item href="/users"><People /><span className="ms-2">Show Users</span></NavDropdown.Item>
+                            <NavDropdown.Item href="/school-classes"><Mortarboard /><span className="ms-2">Fachrichtungen</span></NavDropdown.Item>
                             <NavDropdown.Item href="/settings"><Gear /><span className="ms-2">Einstellungen</span></NavDropdown.Item>
                         </NavDropdown>
                     }

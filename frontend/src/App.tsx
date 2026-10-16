@@ -14,6 +14,7 @@ import { Users } from "./components/Users";
 import { TrialDays } from "./components/TrialDays";
 import { TrialDaysAdmin } from "./components/TrialDaysAdmin";
 import { Settings } from "./components/Settings";
+import { SchoolClasses } from "./components/SchoolClasses";
 import SetPassword from "./components/SetPassword";
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
           <Route element={<ProtectedRoute userType="administration" admin={true} redirectPath="/signin-user"/>}>
               <Route path="users" element={<Users />} />
               <Route path="settings" element={<Settings />} />
+              <Route path="school-classes" element={<SchoolClasses />} />
           </Route>              
         </Routes>
       </Router>

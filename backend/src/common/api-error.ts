@@ -27,7 +27,8 @@ export const enum ApiErrorType {
     INVITATION_PENDING,
     INVITATION_ALREADY_USED,
     PASSWORD_NOT_SET,
-    CONCURRENT_UPDATE
+    CONCURRENT_UPDATE,
+    SCHOOL_CLASS_EXISTS
 }
 
 // Messages shown to applicants and staff (German)
@@ -96,6 +97,11 @@ const germanErrors: Partial<Record<ApiErrorType, IApiError>> = {
         httpStatus: HttpStatus.CONFLICT,
         title: 'Bitte erneut versuchen',
         message: 'Der Termin wurde gleichzeitig geändert. Bitte versuchen Sie es noch einmal.'
+    },
+    [ApiErrorType.SCHOOL_CLASS_EXISTS]: {
+        httpStatus: HttpStatus.UNPROCESSABLE_ENTITY,
+        title: 'Fachrichtung',
+        message: 'Diese Fachrichtung gibt es im gewählten Schuljahr bereits.'
     }
 }
 

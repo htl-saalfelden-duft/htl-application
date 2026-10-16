@@ -5,6 +5,7 @@ import { JwtModule } from '@nestjs/jwt'
 import { ConfigModule } from '@nestjs/config'
 import { APP_GUARD } from '@nestjs/core'
 import { JwtAuthGuard } from './jwt-auth.guard'
+import { UserTypeGuard } from './user-type.guard'
 import { jwtConstants } from '../config/jwt.config'
 import { PrismaModule } from '../prisma.module'
 import * as fs from 'fs';
@@ -28,7 +29,11 @@ import * as fs from 'fs';
         {
           provide: APP_GUARD,
           useClass: JwtAuthGuard,
-        }    
+        },
+        {
+          provide: APP_GUARD,
+          useClass: UserTypeGuard,
+        }
       ],
       exports: [AuthService]
 })

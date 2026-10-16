@@ -1,7 +1,9 @@
+import { AllowApplicant } from 'src/auth/access.decorator';
 import { Controller, Get } from '@nestjs/common';
 import { ApplicantStatusService } from './applicant-status.service';
 import { ApplicantStatus } from '@prisma/client';
 
+@AllowApplicant()
 @Controller('applicant-status')
 export class ApplicantStatusController {
     constructor(

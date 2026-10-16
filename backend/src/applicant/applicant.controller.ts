@@ -23,6 +23,9 @@ import { AuthService } from 'src/auth/auth.service';
 import { TokenDto } from 'src/auth/token.dto';
 import { EmailConfirmationGuard } from 'src/email-confirmation/email-confirmation.guard';
 import { Response as ExpressResponse } from 'express';
+import { AllowApplicant } from 'src/auth/access.decorator';
+import { JwtTokenPayload } from 'src/auth/jwt-token-payload.model';
+import { RequestWithUser } from 'src/auth/request-with-user.model';
 
 @Controller('applicant')
 export class ApplicantController {
@@ -33,6 +36,7 @@ export class ApplicantController {
   ) {}
 
   @Get('current')
+  @AllowApplicant()
   @UseGuards(EmailConfirmationGuard)
   current(@Request() req: any): Promise<Applicant> {
     // User comes from validate-function in jwt-strategy
@@ -78,7 +82,13 @@ export class ApplicantController {
   }
 
   @Get(':id')
-  async getOne(@Param('id') id: string): Promise<Applicant> {
+  @AllowApplicant()
+  async getOne(
+    @Param('id') id: string,
+    @Request() req: RequestWithUser,
+  ): Promise<Applicant> {
+    this.assertOwnApplicant(req.user, id);
+
     return this.applicantService.getOne({ id });
   }
 
@@ -107,9 +117,18 @@ export class ApplicantController {
   }
 
   @Patch(':id')
-  update(@Body() dto: Applicant): Promise<Applicant> {
-    const { id } = dto;
+  @AllowApplicant()
+  update(
+    @Param('id') id: string,
+    @Body() dto: Applicant,
+    @Request() req: RequestWithUser,
+  ): Promise<Applicant> {
     delete dto.id;
+
+    if (req.user.userType === 'applicant') {
+      this.assertOwnApplicant(req.user, id);
+      return this.applicantService.updateOwn(id, dto);
+    }
 
     return this.applicantService.update({
       where: { id },
@@ -135,9 +154,14 @@ export class ApplicantController {
   @Public()
   @Post('register')
   registerApplicant(
-    @Body() dto: Prisma.ApplicantCreateInput,
+    @Body() dto: { email: string; password: string },
   ): Observable<Applicant> {
-    return from(this.applicantService.create(dto)).pipe(
+    // Only accept credentials; status, emailConfirmed etc. must not be set by the client
+    const { email, password } = dto;
+
+    return from(
+      this.applicantService.create({ email, password } as Prisma.ApplicantCreateInput),
+    ).pipe(
       mergeMap((applicant) =>
         this.emailConfirmationService
           .sendVerificationLink(applicant.email)
@@ -184,6 +208,13 @@ export class ApplicantController {
   @Delete(':id')
   delete(@Param('id') id: string): Promise<Applicant> {
     return this.applicantService.delete({ id });
+  }
+
+  // Applicants may only access their own record
+  private assertOwnApplicant(user: JwtTokenPayload, id: string) {
+    if (user.userType === 'applicant' && user.id !== id) {
+      throw new ApiError(ApiErrorType.FORBIDDEN);
+    }
   }
 
   private buildWhereClause(params: any, where: Prisma.ApplicantWhereInput) {

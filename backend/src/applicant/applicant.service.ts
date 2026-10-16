@@ -12,6 +12,15 @@ import { AsyncParser } from '@json2csv/node';
 import { string as defaultStringFormatter } from '@json2csv/formatters';
 import { transformApplicantsDataForBtsCSV, transformApplicantsDataForSokratesCSV } from 'src/common/csv.helper';
 
+export interface ApplicantSelfUpdate {
+	details?: Prisma.ApplicantDetailsCreateInput
+	contacts?: Prisma.ContactCreateInput[]
+	schoolReport?: Prisma.SchoolReportCreateInput
+	dsgvo?: boolean
+	statusKey?: string
+	applications?: { priority: number, schoolClassID?: string }[]
+}
+
 @Injectable()
 export class ApplicantService {
 	constructor(
@@ -26,6 +35,9 @@ export class ApplicantService {
 			include: { applications: { include: { schoolClass: true } } }
 		})
 			.then(applicant => {
+				if (!applicant) {
+					throw new ApiError(ApiErrorType.USER_NOT_FOUND)
+				}
 				delete applicant.passwordHash
 				return applicant
 			})
@@ -38,6 +50,10 @@ export class ApplicantService {
 			where
 		}
 		)
+			.then(applicants => applicants.map(applicant => {
+				delete applicant.passwordHash
+				return applicant
+			}))
 			.catch(error => {
 				throw new ApiError(error)
 			})
@@ -70,7 +86,7 @@ export class ApplicantService {
 			.then(prevApplicant => {
 				//Has status from applicant changed from created to applied?
 				if (prevApplicant.statusKey === 'created' && data.statusKey === 'applied') {
-					return this.sendConfirmationMail(data.email)
+					return this.sendConfirmationMail(prevApplicant.email)
 				} else {
 					return
 				}
@@ -80,6 +96,39 @@ export class ApplicantService {
 			}))
 			.catch(error => {
 				throw new ApiError(error)
+			})
+	}
+
+	// Update by the applicant themself: only the form data may be changed, and only
+	// as long as the application has not been submitted (created -> applied).
+	updateOwn(id: string, dto: ApplicantSelfUpdate): Promise<Applicant> {
+		return this.prisma.applicant.findUnique({ where: { id } })
+			.then(prevApplicant => {
+				if (!prevApplicant) {
+					throw new ApiError(ApiErrorType.USER_NOT_FOUND)
+				}
+				if (!prevApplicant.emailConfirmed) {
+					throw new ApiError(ApiErrorType.EMAIL_NOT_CONFIRMED)
+				}
+				const statusKey = dto.statusKey ?? prevApplicant.statusKey
+				if (prevApplicant.statusKey !== 'created' || !['created', 'applied'].includes(statusKey)) {
+					throw new ApiError(ApiErrorType.FORBIDDEN)
+				}
+
+				const data: Prisma.ApplicantUpdateInput = {
+					details: dto.details,
+					contacts: dto.contacts,
+					schoolReport: dto.schoolReport,
+					dsgvo: dto.dsgvo,
+					statusKey
+				}
+				if (dto.applications) {
+					data.applications = dto.applications.map(({ priority, schoolClassID }) => ({
+						priority, schoolClassID, statusKey
+					})) as any
+				}
+
+				return this.update({ where: { id }, data })
 			})
 	}
 

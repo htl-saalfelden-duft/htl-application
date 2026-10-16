@@ -1,7 +1,9 @@
+import { AllowApplicant } from 'src/auth/access.decorator';
 import { Controller, Get, Query } from '@nestjs/common';
 import { SchoolReportGroup } from '@prisma/client';
 import { SchoolReportGroupService } from './school-report-group.service';
 
+@AllowApplicant()
 @Controller('school-report-group')
 export class SchoolReportGroupController {
     constructor(

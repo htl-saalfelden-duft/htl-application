@@ -1,7 +1,9 @@
+import { AllowApplicant } from 'src/auth/access.decorator';
 import { Controller, Get, Query } from '@nestjs/common';
 import { LanguageService } from './language.service';
 import { Language } from '@prisma/client';
 
+@AllowApplicant()
 @Controller('language')
 export class LanguageController {
     constructor(

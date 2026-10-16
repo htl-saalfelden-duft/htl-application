@@ -6,6 +6,7 @@ import { Observable, from, map } from 'rxjs';
 import { AuthService } from 'src/auth/auth.service';
 import { SignInDto } from 'src/auth/sign-in.dto';
 import { TokenDto } from 'src/auth/token.dto';
+import { AdminOnly } from 'src/auth/access.decorator';
 
 @Controller('user')
 export class UserController {
@@ -29,17 +30,19 @@ export class UserController {
   }
 
   @Get(':id')
+  @AdminOnly()
   show(@Param('id') id: string): Promise<Partial<User>> {
     return this.userService.getOne({ id })
   }
 
   @Get()
+  @AdminOnly()
   async getMany(): Promise<Partial<User>[]> {
     return this.userService.getMany()
   }
 
-  @Public()
   @Post('register')
+  @AdminOnly()
   register(@Body() dto: User): Observable<Partial<User>> {
     return from(this.userService.create(dto))
   }
@@ -51,6 +54,7 @@ export class UserController {
   // }
 
   @Patch(':id')
+  @AdminOnly()
   update(@Body() dto: User): Observable<Partial<User>> {
     const { id } = dto
     delete dto.id
@@ -62,6 +66,7 @@ export class UserController {
   }
 
   @Delete(':id')
+  @AdminOnly()
   delete(@Param('id') id: string): Observable<Partial<User>> {
     return from(this.userService.delete(id))
   }

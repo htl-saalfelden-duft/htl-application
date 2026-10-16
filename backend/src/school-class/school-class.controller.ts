@@ -1,7 +1,9 @@
+import { AllowApplicant } from 'src/auth/access.decorator';
 import { Controller, Get, Query } from '@nestjs/common';
 import { SchoolClassService } from './school-class.service';
 import { SchoolClass } from '@prisma/client';
 
+@AllowApplicant()
 @Controller('school-class')
 export class SchoolClassController {
     constructor(

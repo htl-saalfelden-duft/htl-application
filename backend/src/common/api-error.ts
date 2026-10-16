@@ -13,7 +13,8 @@ export const enum ApiErrorType {
     EMAIL_ALREADY_CONFIRMED,
     BAD_CONFIRMATION_TOKEN,
     CONFIRMATION_TOKEN_EXPIRED,
-    LOGIN_EXPIRED
+    LOGIN_EXPIRED,
+    FORBIDDEN
 }
 
 export interface IApiError {
@@ -134,7 +135,14 @@ export class ApiError extends HttpException {
                     title: 'Token expired',
                     message: 'Email confirmation token expired. Please request a new one!'
                 }
-                break             
+                break
+            case ApiErrorType.FORBIDDEN:
+                apiError = {
+                    httpStatus: HttpStatus.FORBIDDEN,
+                    title: 'Forbidden',
+                    message: 'You are not allowed to access this resource'
+                }
+                break
             default:
                 if(error instanceof Prisma.PrismaClientKnownRequestError) {
                     console.error(error.code, error.meta)

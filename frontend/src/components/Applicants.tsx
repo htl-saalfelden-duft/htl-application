@@ -138,7 +138,8 @@ export const Applicants = () => {
         let params: any = pickBy({ 
             statusKey: applicantsFilter?.applicantStatus?.key,
             schoolClass: applicantsFilter?.schoolClass?.title,
-            search: applicantsFilter?.search
+            search: applicantsFilter?.search,
+            onlyTrial: applicantsFilter?.onlyTrial
         })
 
         return params
@@ -214,7 +215,7 @@ export const Applicants = () => {
                                         <td>{applicant.details?.firstname}</td>
                                         <td>{applicant.details?.lastname}</td>
                                         <td>{(applicant.applications && applicant.applications[0]?.schoolClass?.title) || '-'}</td>
-                                        <td className="status-col">{getApplicantStatusText(applicant)}</td>
+                                        <td className="status-col">{getApplicantStatusText(applicant)}{applicant.anonymizedAt && <span className="badge text-bg-secondary ms-2">anonymisiert</span>}</td>
                                         <td>{applicant.registeredAt && moment(applicant.registeredAt).format('DD.MM.YYYY')}</td>
                                         <td className="email-col" title={applicant.email}>{applicant.email}</td>
                                         <td>
@@ -225,7 +226,7 @@ export const Applicants = () => {
                                         <td>
                                             <div className="d-flex" style={{ gap: '6px' }}>
                                                 <Button variant="outline-primary" onClick={() => { openApplicant(applicant.id!) }}><Pencil /></Button>
-                                                <Button variant="outline-danger" onClick={() => { setConfirmationPdfApplicant(applicant) }} disabled={applicant.statusKey === "created"}><FileEarmarkPdf /></Button>
+                                                <Button variant="outline-danger" onClick={() => { setConfirmationPdfApplicant(applicant) }} disabled={applicant.statusKey === "created" || !!applicant.anonymizedAt}><FileEarmarkPdf /></Button>
                                                 <Button variant="danger" onClick={() => { setDeleteConfirmationApplicantID(applicant.id) }} disabled={(applicant.statusKey === "registered" || applicant.statusKey === "completed") && !isAdmin}><Trash /></Button>
                                             </div>
                                         </td>

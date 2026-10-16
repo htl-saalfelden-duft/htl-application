@@ -29,6 +29,10 @@ const Dsgvo = (props: Props) => {
                 <h4>Als personenbezogene Daten werden verarbeitet:</h4>
                 <p>Vor- und Zuname der/des Studierenden, Wohnadresse, Geburtsdatum, IP-Adressen und Kontaktdaten des Internetproviders, Versicherungsnummer, Religionsbekenntnis, Muttersprache, Staatsbürgerschaft, Telefonnummern.</p>
 
+                {/* Platzhalter – finaler Wortlaut wird mit Schulleitung/Datenschutz abgestimmt (SPEC 10) */}
+                <h4>Schnuppertage</h4>
+                <p>Für die Anmeldung zu Schnuppertagen werden Vor- und Zuname der Schülerin/des Schülers, die derzeit besuchte Schule und Klasse, eine Telefonnummer eines Erziehungsberechtigten, die E-Mail-Adresse sowie freiwillige Bemerkungen verarbeitet. Diese Daten dienen ausschließlich der Organisation und Durchführung der Schnuppertage und werden spätestens mit dem Abschluss der jeweiligen Bewerbungsphase gelöscht.</p>
+
                 <h4>Verwendungszwecke für die personenbezogene Datenverarbeitung sind:</h4>
                 <p>WebUntis inkl. Fotos (elektronisches Tagebuch), Klassenlisten, Schulbuchlisten, AUVA Meldungen, Netz- und E-Mail-Account, elektronische Zutrittssysteme, Schulgeldverwaltung (edu.PAY), Schulfotografie, Bezirksverwaltungsbehörden, Magistrat, Polizei.</p>
 

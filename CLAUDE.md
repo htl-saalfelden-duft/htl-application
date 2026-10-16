@@ -47,9 +47,12 @@ Production: `docker compose -f docker-compose-prod.yml up -V --build` (frontend 
 ### Backend
 - All routes are prefixed with `/api` (`main.ts`). One Nest module per resource under `src/<resource>/` (controller + service), each service using `PrismaService` directly.
 - **Auth is global**: `JwtAuthGuard` is registered as `APP_GUARD` in `auth.module.ts`, so every endpoint requires a Bearer token unless decorated with `@Public()`. Tokens are RS256, keys read from `RSA_PRIVATE_KEY_FILE` / `RSA_PUBLIC_KEY_FILE`.
+- **Access is administration-only by default**: a second `APP_GUARD` (`auth/user-type.guard.ts`) rejects applicant tokens unless the endpoint/controller has `@AllowApplicant()`, and `@AdminOnly()` requires `userRoleKey = 'admin'` (`auth/access.decorator.ts`). Endpoints open to applicants must check ownership themselves (e.g. `assertOwnApplicant` in `applicant.controller.ts`); applicants update their data via `ApplicantService.updateOwn` (whitelisted fields, only while `applicationOpen` and status `created`).
 - There are two separate principal types sharing the same JWT mechanism: `Applicant` and `User` (administration staff). The payload is `{ id, userType }` where `userType` is `'applicant' | 'administration'`. `User.userRoleKey` distinguishes admins from regular staff.
 - `EmailConfirmationGuard` additionally blocks applicants whose email isn't confirmed. Confirmation mails and the application confirmation are sent via `@nestjs-modules/mailer` with Handlebars templates in `src/templates/`.
-- Errors go through `ApiError` / `ApiErrorType` in `src/common/api-error.ts`, which maps error types (and Prisma errors) to HTTP status + message.
+- Errors go through `ApiError` / `ApiErrorType` in `src/common/api-error.ts`, which maps error types (and Prisma errors) to HTTP status + message. Wrapping an existing `HttpException` keeps it unchanged; newer error types have German messages (shown to users via toasts).
+- Trial days ("Schnuppertage", spec: `docs/SPEC-schnuppertage.md`): `src/trial-day/` holds trial days and registrations (waiting list, automatic promotion, cancel/rebook, registration by staff with invitation mail). Bookings run in `TrialDayRegistrationService.withTrialDayLock`, which writes `TrialDay.updatedAt` inside the transaction so concurrent bookings conflict (P2034) and are retried. `src/setting/` stores `applicationOpen` (admin toggle; locks the application form for applicants), `src/application-phase/` closes the phase (deletes `created` accounts and trial data, anonymizes the rest).
+- Mail templates run in Handlebars strict mode: every key a template uses must be present in the context (use `null`, not `undefined`).
 - CSV exports (`/api/applicant/sokratesCsv`, `/api/applicant/btsCsv`) are written to disk with `common/csv.helper.ts` / `storage.helper.ts` and then streamed back; the BTS column layout is in `backend/models/bts-csv.model.ts`.
 
 ### Data model (`backend/prisma/schema.prisma`)
@@ -58,7 +61,7 @@ Production: `docker compose -f docker-compose-prod.yml up -V --build` (frontend 
 - Every model has a `schema Int @default(1)` version field.
 
 ### Frontend
-- Routing in `App.tsx`: applicant area (`/home`) vs. administration area (`/applicants`, `/applicant`, admin-only `/users`), guarded by `ProtectedRoute` using `userType`/`isAdmin` from `contexts/auth.context.tsx`.
+- Routing in `App.tsx`: applicant area (`/home`, `/trial-days`) vs. administration area (`/applicants`, `/applicant`, `/trial-days-admin`, admin-only `/users`, `/settings`); `/set-password` is public (invitation link), guarded by `ProtectedRoute` using `userType`/`isAdmin` from `contexts/auth.context.tsx`.
 - Generic REST access via `services/api.service.ts`: model classes in `src/models/` are tagged with `@Entity('name')` and `Entity.getRoute()` converts the name to the kebab-case API route. Axios interceptors (`services/configs/`) attach the token and convert date strings to `Date`.
 - The applicant form is tab-based (`contexts/tabs.context.tsx`, `contexts/contact.context.tsx`); form field components live in `components/form/{details,contact,schoolReport}/`. The confirmation PDF is generated client-side with `@react-pdf/renderer` (`components/pdf/`).
 - `frontend/build/` is committed.

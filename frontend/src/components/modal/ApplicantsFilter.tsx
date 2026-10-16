@@ -18,6 +18,7 @@ export interface ApplicantsFilterFormInput {
 	applicantStatus?: ApplicantStatus
 	schoolClass?: SchoolClass
 	search: string
+	onlyTrial?: boolean
 }
 
 const ApplicantsFilter = (props: Props) => {
@@ -45,7 +46,8 @@ const ApplicantsFilter = (props: Props) => {
 		reset({
 			applicantStatus: {},
 			schoolClass: {}, 
-			search: ''
+			search: '',
+			onlyTrial: false
 		})
 		onFilter({} as ApplicantsFilterFormInput)
 	}
@@ -116,6 +118,12 @@ const ApplicantsFilter = (props: Props) => {
 							)}
 						/>
 					</Form.Group>
+					<Form.Check
+						className="mt-3"
+						type="switch"
+						id="onlyTrial"
+						label="nur Schnupperer (Konten ohne Bewerbung, nur mit Schnupper-Anmeldung)"
+						{...register("onlyTrial")} />
 				</Modal.Body>
 				<Modal.Footer>
 					<Button variant="outline-secondary" onClick={handleClear}>

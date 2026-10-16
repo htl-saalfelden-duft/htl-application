@@ -1,11 +1,11 @@
 import { Container, Nav, NavDropdown, Navbar } from "react-bootstrap"
 import { useAuth } from "../contexts/auth.context"
 import { useNavigate } from "react-router-dom"
-import { People, PersonCircle } from 'react-bootstrap-icons';
+import { Gear, People, PersonCircle } from 'react-bootstrap-icons';
 import htlLogoWhite from '../assets/images/htl-logo-nav.svg'
 
 const Navigationbar = () => {
-    const { signOut, currentUser, isAdmin, isAdministration} = useAuth()
+    const { signOut, currentUser, isAdmin, isAdministration, userType } = useAuth()
     const navigate = useNavigate()
 
     const triggerSignOut = () => {
@@ -30,14 +30,26 @@ const Navigationbar = () => {
                     </NavDropdown>
                 </div>
                 <div className="d-flex flex-grow-1 ms-4 text-white">
-                    {isAdministration &&
+                    {isAdministration && <>
                         <Nav.Item>
                             <Nav.Link href="/applicants" className="text-white">Bewerber</Nav.Link>
                         </Nav.Item>
-                    }
+                        <Nav.Item className="ms-4">
+                            <Nav.Link href="/trial-days-admin" className="text-white">Schnuppertage</Nav.Link>
+                        </Nav.Item>
+                    </>}
+                    {userType === 'applicant' && <>
+                        <Nav.Item>
+                            <Nav.Link href="/trial-days" className="text-white">Schnuppern</Nav.Link>
+                        </Nav.Item>
+                        <Nav.Item className="ms-4">
+                            <Nav.Link href="/home" className="text-white">Bewerbung</Nav.Link>
+                        </Nav.Item>
+                    </>}
                     {isAdmin && 
                         <NavDropdown title="Admin" className="ms-4">
                             <NavDropdown.Item href="/users"><People /><span className="ms-2">Show Users</span></NavDropdown.Item>
+                            <NavDropdown.Item href="/settings"><Gear /><span className="ms-2">Einstellungen</span></NavDropdown.Item>
                         </NavDropdown>
                     }
                 </div>

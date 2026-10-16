@@ -3,6 +3,7 @@ import { ApplicantDetails } from "./applicant-details.model"
 import { Application } from "./application.model"
 import { Contact } from "./contact.model"
 import { SchoolReport } from "./schoolReport.model"
+import { TrialDayRegistration } from "./trialDay.model"
 
 @Entity('applicant')
 export class Applicant {
@@ -19,6 +20,8 @@ export class Applicant {
     details?: ApplicantDetails
     applications?: Application[]
     annotation?: string
+    trialDayRegistrations?: TrialDayRegistration[]
+    anonymizedAt?: Date
 }
 
 @Entity('applicantStatus')

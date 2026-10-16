@@ -17,6 +17,9 @@ import { SchoolClassModule } from './school-class/school-class.module';
 import { SchoolReportGroupModule } from './school-report-group/school-report-group.module';
 import { TitleModule } from './title/title.module';
 import { ApplicantStatusModule } from './applicant-status/applicant-status.module';
+import { SettingModule } from './setting/setting.module';
+import { TrialDayModule } from './trial-day/trial-day.module';
+import { TrialDayRegistrationStatusModule } from './trial-day-registration-status/trial-day-registration-status.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -35,6 +38,9 @@ import { ApplicantStatusModule } from './applicant-status/applicant-status.modul
     TitleModule,
     SchoolClassModule,
     SchoolReportGroupModule,
+    SettingModule,
+    TrialDayModule,
+    TrialDayRegistrationStatusModule,
   ],
   controllers: [AppController],
   providers: [],

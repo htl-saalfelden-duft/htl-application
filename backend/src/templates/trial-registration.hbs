@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anmeldung zum Schnuppertag</title>
+</head>
+
+<body>
+    <h2>Sehr geehrte Erziehungsberechtigte, <br/> sehr geehrte Schnupperinnen und Schnupperer!</h2>
+
+    {{#if rebookedFrom}}
+    <p>Ihre Anmeldung zum Schnuppertag am {{rebookedFrom}} wurde storniert und auf folgenden Termin umgebucht:</p>
+    {{else}}
+    <p>Vielen Dank für Ihr Interesse an der HTL Saalfelden! Wir haben folgende Anmeldung zum Schnuppertag für <strong>{{firstname}} {{lastname}}</strong> erhalten:</p>
+    {{/if}}
+    <p>
+        <strong>{{schoolClass}}</strong><br/>
+        {{date}}, {{timeFrom}} – {{timeTo}} Uhr
+    </p>
+
+    {{#if waitingPosition}}
+    <p><strong>Der Termin ist leider bereits ausgebucht. Sie stehen auf Platz {{waitingPosition}} der Warteliste.</strong> Sobald ein Platz frei wird, rücken Sie automatisch nach und erhalten eine E-Mail.</p>
+    {{else}}
+    <p><strong>Sie sind fix angemeldet.</strong></p>
+    {{/if}}
+
+    {{#if description}}
+    <p style="white-space: pre-line">{{description}}</p>
+    {{/if}}
+
+    <p>Sie können die Anmeldung bis {{deadline}} selbst stornieren oder auf einen anderen Termin umbuchen: <a href="{{trialDaysUrl}}">{{trialDaysUrl}}</a><br/>
+    Danach wenden Sie sich bitte direkt an das Sekretariat.</p>
+
+    <p>
+        HTL Saalfelden<br/>
+        Sekretariat<br/>
+        Almerstraße 33<br/>
+        5760 Saalfelden
+    </p>
+
+    <p>phone: +43 6582 72568</p>
+    <p>mailto: <a href="mailto:info@htl-saalfelden.at">info@htl-saalfelden.at</a></p>
+    <p><a href="http://www.htl-saalfelden.at">www.htl-saalfelden.at</a></p>
+
+    <img src="cid:ee41a8ed-bbb8-4612-b7f5-064e89621d9f" alt="Mint-Gütesiegel" width="300">
+</body>
+
+</html>

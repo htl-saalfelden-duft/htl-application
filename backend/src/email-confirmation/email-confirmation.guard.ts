@@ -23,7 +23,8 @@ export class EmailConfirmationGuard implements CanActivate {
       context.getClass(),
     ])
 
-    if(user) {
+    // Only applicants have to confirm their email
+    if(user?.userType === 'applicant') {
       return this.prisma.applicant.findUnique({ where: { id: user.id } })
       .then(user => {
         if(!user) {

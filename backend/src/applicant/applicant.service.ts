@@ -11,6 +11,7 @@ import { checkIfFileOrDirectoryExists, createFile, getFile } from 'src/common/st
 import { AsyncParser } from '@json2csv/node';
 import { string as defaultStringFormatter } from '@json2csv/formatters';
 import { transformApplicantsDataForBtsCSV, transformApplicantsDataForSokratesCSV } from 'src/common/csv.helper';
+import { SettingService } from 'src/setting/setting.service';
 
 export interface ApplicantSelfUpdate {
 	details?: Prisma.ApplicantDetailsCreateInput
@@ -25,14 +26,21 @@ export interface ApplicantSelfUpdate {
 export class ApplicantService {
 	constructor(
 		private prisma: PrismaService,
-		private readonly emailService: MailerService
+		private readonly emailService: MailerService,
+		private readonly settingService: SettingService
 	) { }
 
 	getOne(where: Prisma.ApplicantWhereUniqueInput): Promise<Applicant> {
 		return this.prisma.applicant.findUnique({
 			//select,
 			where,
-			include: { applications: { include: { schoolClass: true } } }
+			include: {
+				applications: { include: { schoolClass: true } },
+				trialDayRegistrations: {
+					include: { trialDay: { include: { schoolClass: true } } },
+					orderBy: { createdAt: 'asc' }
+				}
+			}
 		})
 			.then(applicant => {
 				if (!applicant) {
@@ -74,6 +82,9 @@ export class ApplicantService {
 	update(params: { data: Prisma.ApplicantUpdateInput, where: Prisma.ApplicantWhereUniqueInput }): Promise<Applicant> {
 		let { data, where } = params;
 
+		// Read-only relation that the form sends back unchanged
+		delete (data as any).trialDayRegistrations
+
 		if (data.applications) {
 			const applications = {
 				deleteMany: {},
@@ -103,9 +114,12 @@ export class ApplicantService {
 	// as long as the application has not been submitted (created -> applied).
 	updateOwn(id: string, dto: ApplicantSelfUpdate): Promise<Applicant> {
 		return this.prisma.applicant.findUnique({ where: { id } })
-			.then(prevApplicant => {
+			.then(async prevApplicant => {
 				if (!prevApplicant) {
 					throw new ApiError(ApiErrorType.USER_NOT_FOUND)
+				}
+				if (!await this.settingService.isApplicationOpen()) {
+					throw new ApiError(ApiErrorType.APPLICATION_CLOSED)
 				}
 				if (!prevApplicant.emailConfirmed) {
 					throw new ApiError(ApiErrorType.EMAIL_NOT_CONFIRMED)
@@ -132,6 +146,40 @@ export class ApplicantService {
 			})
 	}
 
+	// Account created by the administration without password (SPEC 4.8)
+	async setInitialPassword(email: string, password: string, dsgvo: boolean): Promise<void> {
+		const applicant = await this.prisma.applicant.findUnique({ where: { email } })
+		if (!applicant) {
+			throw new ApiError(ApiErrorType.USER_NOT_FOUND)
+		}
+		if (applicant.passwordHash) {
+			throw new ApiError(ApiErrorType.INVITATION_ALREADY_USED)
+		}
+		if (!applicant.dsgvo && !dsgvo) {
+			throw new ApiError(ApiErrorType.DSGVO_REQUIRED)
+		}
+		if (typeof password !== 'string' || !password) {
+			throw new ApiError(ApiErrorType.INVALID_INPUT)
+		}
+
+		await this.prisma.applicant.update({
+			where: { id: applicant.id },
+			data: { passwordHash: hashPassword(password), emailConfirmed: true, dsgvo: true }
+		})
+	}
+
+	async findById(id: string): Promise<Applicant> {
+		const applicant = await this.prisma.applicant.findUnique({ where: { id } })
+		if (!applicant) {
+			throw new ApiError(ApiErrorType.USER_NOT_FOUND)
+		}
+		return applicant
+	}
+
+	findByEmail(email: string): Promise<Applicant | null> {
+		return this.prisma.applicant.findUnique({ where: { email } })
+	}
+
 	delete(where: Prisma.ApplicantWhereUniqueInput): Promise<Applicant> {
 		return this.prisma.applicant.delete({ where })
 			.catch(error => {
@@ -146,9 +194,11 @@ export class ApplicantService {
 					if (!applicant.active) {
 						throw new ApiError(ApiErrorType.USER_NOT_ACTIVE)
 					}
+					if (!applicant.passwordHash) {
+						throw new ApiError(ApiErrorType.PASSWORD_NOT_SET)
+					}
 
-					const passHash = crypto.createHmac('sha512', process.env.HMAC_SECRET).update(signInDto.password).digest('hex')
-					if (applicant.passwordHash === passHash) {
+					if (applicant.passwordHash === hashPassword(signInDto.password)) {
 						delete applicant.passwordHash
 						return applicant.id
 					} else {
@@ -291,8 +341,7 @@ export class ApplicantService {
 	}
 
 	private setPassword(applicant: Prisma.ApplicantCreateInput, password: string) {
-		const passHash = crypto.createHmac('sha512', process.env.HMAC_SECRET).update(password).digest('hex')
-		applicant.passwordHash = passHash
+		applicant.passwordHash = hashPassword(password)
 		delete (applicant as any).password
 		delete (applicant as any).passwordConfirmation
 
@@ -329,3 +378,6 @@ export class ApplicantService {
 			return output
 		}
 }
+
+const hashPassword = (password: string) =>
+	crypto.createHmac('sha512', process.env.HMAC_SECRET).update(password).digest('hex')

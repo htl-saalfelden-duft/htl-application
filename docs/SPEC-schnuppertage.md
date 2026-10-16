@@ -61,6 +61,7 @@ model TrialDay {
     registrations         TrialDayRegistration[]
 
     createdAt             DateTime      @default(now())
+    updatedAt             DateTime      @updatedAt   // wird in jeder Buchungs-Transaktion geschrieben (Sperre, siehe 4.1)
 }
 ```
 
@@ -138,7 +139,7 @@ Im Seed: `{ key: "applicationOpen", value: false }` per `upsert` mit leerem `upd
 - Buchbar ist ein Termin nur, wenn `active = true`, `now < registrationDeadline` und `startAt` in der Zukunft liegt.
 - Pro Bewerber:in und `schoolClassID` ist höchstens **eine aktive Anmeldung** erlaubt. Prüfung im Service, da MongoDB/Prisma keinen partiellen Unique-Index abbildet.
 - Ist `count(registered) < maxParticipants`, wird die Anmeldung `registered`, sonst `waiting`.
-- Kapazitätsprüfung und Anlage laufen in einem `prisma.$transaction`, damit gleichzeitige Anmeldungen das Kontingent nicht überschreiten.
+- Kapazitätsprüfung und Anlage laufen in einem `prisma.$transaction`, das zuerst `TrialDay.updatedAt` schreibt. MongoDB erkennt Konflikte nur bei Schreibzugriffen auf dasselbe Dokument; so kollidieren gleichzeitige Buchungen desselben Termins (Prisma `P2034`) und werden wiederholt.
 - Die eingegebenen Namens- und Schulangaben werden in `Applicant.details` geschrieben bzw. aktualisiert.
 - Danach wird eine Anmeldebestätigung per E-Mail versendet (Variante „angemeldet“ bzw. „Warteliste, Position X“).
 
@@ -273,7 +274,7 @@ Alle Routen liegen unter `/api` und brauchen einen JWT, sofern nicht anders ange
 | GET | `/application-phase/close/preview` | Zähler für die Vorschau (4.10) |
 | POST | `/application-phase/close` | Body `{ confirmation: 'ABSCHLIESSEN' }` (4.10) |
 
-Neue Nest-Module: `trial-day`, `trial-day-registration`, `trial-day-registration-status` (Lookup-GET wie bei den anderen), `setting` und `application-phase`.
+Neue Nest-Module: `trial-day` (Termine und Anmeldungen, da sie Buchungslogik und Sperre teilen), `trial-day-registration-status` (Lookup-GET wie bei den anderen), `setting` und `application-phase`.
 
 ## 6. E-Mails (`backend/src/templates/`)
 

@@ -167,6 +167,7 @@ model TrialDay {
 	registrations			TrialDayRegistration[]
 
 	createdAt				DateTime	@default(now())
+	updatedAt				DateTime	@updatedAt	// written in every booking transaction to serialize concurrent bookings
 }
 
 model TrialDayRegistration {

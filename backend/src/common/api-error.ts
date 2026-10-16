@@ -14,7 +14,89 @@ export const enum ApiErrorType {
     BAD_CONFIRMATION_TOKEN,
     CONFIRMATION_TOKEN_EXPIRED,
     LOGIN_EXPIRED,
-    FORBIDDEN
+    FORBIDDEN,
+    NOT_FOUND,
+    INVALID_INPUT,
+    APPLICATION_CLOSED,
+    DSGVO_REQUIRED,
+    TRIAL_DAY_NOT_BOOKABLE,
+    TRIAL_DAY_ALREADY_REGISTERED,
+    TRIAL_DAY_DEADLINE_PASSED,
+    TRIAL_DAY_MAX_BELOW_REGISTERED,
+    TRIAL_DAY_HAS_REGISTRATIONS,
+    INVITATION_PENDING,
+    INVITATION_ALREADY_USED,
+    PASSWORD_NOT_SET,
+    CONCURRENT_UPDATE
+}
+
+// Messages shown to applicants and staff (German)
+const germanErrors: Partial<Record<ApiErrorType, IApiError>> = {
+    [ApiErrorType.NOT_FOUND]: {
+        httpStatus: HttpStatus.NOT_FOUND,
+        title: 'Nicht gefunden',
+        message: 'Der Eintrag wurde nicht gefunden.'
+    },
+    [ApiErrorType.INVALID_INPUT]: {
+        httpStatus: HttpStatus.UNPROCESSABLE_ENTITY,
+        title: 'Ungültige Eingabe',
+        message: 'Bitte füllen Sie alle Pflichtfelder korrekt aus.'
+    },
+    [ApiErrorType.APPLICATION_CLOSED]: {
+        httpStatus: HttpStatus.FORBIDDEN,
+        title: 'Bewerbung gesperrt',
+        message: 'Die Bewerbung ist derzeit nicht freigeschaltet.'
+    },
+    [ApiErrorType.DSGVO_REQUIRED]: {
+        httpStatus: HttpStatus.UNPROCESSABLE_ENTITY,
+        title: 'Datenschutz',
+        message: 'Bitte stimmen Sie der Datenschutzerklärung zu.'
+    },
+    [ApiErrorType.TRIAL_DAY_NOT_BOOKABLE]: {
+        httpStatus: HttpStatus.UNPROCESSABLE_ENTITY,
+        title: 'Schnuppertag',
+        message: 'Für diesen Termin ist keine Anmeldung möglich.'
+    },
+    [ApiErrorType.TRIAL_DAY_ALREADY_REGISTERED]: {
+        httpStatus: HttpStatus.UNPROCESSABLE_ENTITY,
+        title: 'Schnuppertag',
+        message: 'Für diese Fachrichtung besteht bereits eine Anmeldung.'
+    },
+    [ApiErrorType.TRIAL_DAY_DEADLINE_PASSED]: {
+        httpStatus: HttpStatus.UNPROCESSABLE_ENTITY,
+        title: 'Schnuppertag',
+        message: 'Der Anmeldeschluss ist vorbei. Bitte wenden Sie sich direkt an die Schule.'
+    },
+    [ApiErrorType.TRIAL_DAY_MAX_BELOW_REGISTERED]: {
+        httpStatus: HttpStatus.UNPROCESSABLE_ENTITY,
+        title: 'Schnuppertag',
+        message: 'Die maximale Teilnehmerzahl darf nicht unter die Anzahl der Angemeldeten gesenkt werden.'
+    },
+    [ApiErrorType.TRIAL_DAY_HAS_REGISTRATIONS]: {
+        httpStatus: HttpStatus.UNPROCESSABLE_ENTITY,
+        title: 'Schnuppertag',
+        message: 'Termine mit Anmeldungen können nicht gelöscht werden. Bitte deaktivieren Sie den Termin.'
+    },
+    [ApiErrorType.INVITATION_PENDING]: {
+        httpStatus: HttpStatus.UNPROCESSABLE_ENTITY,
+        title: 'Konto bereits angelegt',
+        message: 'Für diese E-Mail wurde bereits ein Konto angelegt. Wir haben Ihnen den Link zum Festlegen des Passworts erneut gesendet.'
+    },
+    [ApiErrorType.INVITATION_ALREADY_USED]: {
+        httpStatus: HttpStatus.UNPROCESSABLE_ENTITY,
+        title: 'Einladung',
+        message: 'Für dieses Konto wurde bereits ein Passwort festgelegt. Bitte melden Sie sich an.'
+    },
+    [ApiErrorType.PASSWORD_NOT_SET]: {
+        httpStatus: HttpStatus.FORBIDDEN,
+        title: 'Passwort fehlt',
+        message: 'Bitte legen Sie zuerst über den Link in der Einladungsmail ein Passwort fest.'
+    },
+    [ApiErrorType.CONCURRENT_UPDATE]: {
+        httpStatus: HttpStatus.CONFLICT,
+        title: 'Bitte erneut versuchen',
+        message: 'Der Termin wurde gleichzeitig geändert. Bitte versuchen Sie es noch einmal.'
+    }
 }
 
 export interface IApiError {
@@ -32,10 +114,16 @@ export class ApiError extends HttpException {
     constructor(error: ApiErrorType | any) {
         console.error(error)
 
+        // Already mapped (rethrown by a catch block): keep its status and message
+        if (error instanceof HttpException) {
+            super(error.getResponse(), error.getStatus())
+            return
+        }
+
         const apiError: IApiError = ApiError.getError(error)
 
         let response:string;
-        
+
         if (apiError.httpStatus == HttpStatus.BAD_REQUEST) {
             response = HttpException.createBody(error)
         } else {
@@ -50,6 +138,10 @@ export class ApiError extends HttpException {
     private static getError(error: ApiErrorType | any): IApiError {
 
         let apiError: IApiError
+
+        if (typeof error === 'number' && germanErrors[error]) {
+            return germanErrors[error]
+        }
 
         switch (error) {
             case ApiErrorType.USER_NOT_FOUND:

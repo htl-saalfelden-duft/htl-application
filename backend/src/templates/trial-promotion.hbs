@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platz beim Schnuppertag frei geworden</title>
+</head>
+
+<body>
+    <h2>Sehr geehrte Erziehungsberechtigte, <br/> sehr geehrte Schnupperinnen und Schnupperer!</h2>
+
+    <p>Gute Nachricht: Beim folgenden Schnuppertag ist ein Platz frei geworden. <strong>{{firstname}} {{lastname}}</strong> ist von der Warteliste nachgerückt und jetzt fix angemeldet.</p>
+    <p>
+        <strong>{{schoolClass}}</strong><br/>
+        {{date}}, {{timeFrom}} – {{timeTo}} Uhr
+    </p>
+
+    {{#if description}}
+    <p style="white-space: pre-line">{{description}}</p>
+    {{/if}}
+
+    <p>Falls Sie den Termin nicht wahrnehmen können, stornieren Sie ihn bitte hier, damit andere nachrücken können: <a href="{{trialDaysUrl}}">{{trialDaysUrl}}</a></p>
+
+    <p>
+        HTL Saalfelden<br/>
+        Sekretariat<br/>
+        Almerstraße 33<br/>
+        5760 Saalfelden
+    </p>
+
+    <p>phone: +43 6582 72568</p>
+    <p>mailto: <a href="mailto:info@htl-saalfelden.at">info@htl-saalfelden.at</a></p>
+    <p><a href="http://www.htl-saalfelden.at">www.htl-saalfelden.at</a></p>
+
+    <img src="cid:ee41a8ed-bbb8-4612-b7f5-064e89621d9f" alt="Mint-Gütesiegel" width="300">
+</body>
+
+</html>

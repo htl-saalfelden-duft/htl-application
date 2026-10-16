@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stornierung des Schnuppertags</title>
+</head>
+
+<body>
+    <h2>Sehr geehrte Erziehungsberechtigte, <br/> sehr geehrte Schnupperinnen und Schnupperer!</h2>
+
+    {{#if byAdministration}}
+    <p>Die Anmeldung von <strong>{{firstname}} {{lastname}}</strong> zu folgendem Schnuppertag wurde von der Schule storniert:</p>
+    {{else}}
+    <p>Sie haben die Anmeldung von <strong>{{firstname}} {{lastname}}</strong> zu folgendem Schnuppertag storniert:</p>
+    {{/if}}
+    <p>
+        <strong>{{schoolClass}}</strong><br/>
+        {{date}}, {{timeFrom}} – {{timeTo}} Uhr
+    </p>
+
+    <p>Einen anderen Termin können Sie jederzeit hier buchen: <a href="{{trialDaysUrl}}">{{trialDaysUrl}}</a></p>
+
+    <p>
+        HTL Saalfelden<br/>
+        Sekretariat<br/>
+        Almerstraße 33<br/>
+        5760 Saalfelden
+    </p>
+
+    <p>phone: +43 6582 72568</p>
+    <p>mailto: <a href="mailto:info@htl-saalfelden.at">info@htl-saalfelden.at</a></p>
+    <p><a href="http://www.htl-saalfelden.at">www.htl-saalfelden.at</a></p>
+
+    <img src="cid:ee41a8ed-bbb8-4612-b7f5-064e89621d9f" alt="Mint-Gütesiegel" width="300">
+</body>
+
+</html>

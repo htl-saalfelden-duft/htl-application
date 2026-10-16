@@ -97,11 +97,12 @@ export class ApplicantController {
     @Query('statusKey') statusKey: string,
     @Query('schoolClass') schoolClass: string,
     @Query('search') search: string,
+    @Query('onlyTrial') onlyTrial: string,
   ): Observable<Applicant[]> {
     //let where: any = all == 'true' ? {} : { NOT: {statusKey: 'completed'} }
     let where: Prisma.ApplicantWhereInput = {};
 
-    this.buildWhereClause({ statusKey, schoolClass, search }, where);
+    this.buildWhereClause({ statusKey, schoolClass, search, onlyTrial: onlyTrial === 'true' }, where);
 
     return from(this.applicantService.getMany(where)).pipe(
       mergeMap((applicants) => applicants),
@@ -159,8 +160,15 @@ export class ApplicantController {
     // Only accept credentials; status, emailConfirmed etc. must not be set by the client
     const { email, password } = dto;
 
-    return from(
-      this.applicantService.create({ email, password } as Prisma.ApplicantCreateInput),
+    return from(this.applicantService.findByEmail(email)).pipe(
+      mergeMap(async (existing) => {
+        // Account created by the administration: resend the invitation instead (SPEC 4.8)
+        if (existing && !existing.passwordHash) {
+          await this.emailConfirmationService.sendInvitationLink(email);
+          throw new ApiError(ApiErrorType.INVITATION_PENDING);
+        }
+        return this.applicantService.create({ email, password } as Prisma.ApplicantCreateInput);
+      }),
     ).pipe(
       mergeMap((applicant) =>
         this.emailConfirmationService
@@ -205,6 +213,26 @@ export class ApplicantController {
     );
   }
 
+  @Public()
+  @Post('set-password')
+  async setPassword(
+    @Body() dto: { token: string; password: string; dsgvo: boolean },
+  ): Promise<{ success: boolean }> {
+    const email = await this.emailConfirmationService.decodeInvitationToken(dto.token);
+    await this.applicantService.setInitialPassword(email, dto.password, dto.dsgvo === true);
+    return { success: true };
+  }
+
+  @Post(':id/resend-invitation')
+  async resendInvitation(@Param('id') id: string): Promise<{ success: boolean }> {
+    const applicant = await this.applicantService.findById(id);
+    if (applicant.passwordHash) {
+      throw new ApiError(ApiErrorType.INVITATION_ALREADY_USED);
+    }
+    await this.emailConfirmationService.sendInvitationLink(applicant.email);
+    return { success: true };
+  }
+
   @Delete(':id')
   delete(@Param('id') id: string): Promise<Applicant> {
     return this.applicantService.delete({ id });
@@ -218,13 +246,28 @@ export class ApplicantController {
   }
 
   private buildWhereClause(params: any, where: Prisma.ApplicantWhereInput) {
-    const {statusKey, schoolClass, search} = params
+    const {statusKey, schoolClass, search, onlyTrial} = params
+
+    // Accounts that only registered for trial days (SPEC 4.7)
+    const onlyTrialDays: Prisma.ApplicantWhereInput = {
+      statusKey: 'created',
+      applications: { none: {} },
+      trialDayRegistrations: { some: {} },
+    };
+    const not: Prisma.ApplicantWhereInput[] = [];
+
+    if (onlyTrial) {
+      where.AND = [onlyTrialDays];
+    } else {
+      not.push(onlyTrialDays);
+    }
 
     if (statusKey) {
       where.statusKey = statusKey;
     } else {
-      where.NOT = { statusKey: 'completed' }
+      not.push({ statusKey: 'completed' });
     }
+    where.NOT = not;
 
     if (schoolClass) {
       where.applications = { some: { schoolClass: { title: schoolClass } } };

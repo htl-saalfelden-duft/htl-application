@@ -43,7 +43,10 @@ model Applicant {
     applications  			Application[]
     schoolReport  			SchoolReport?
 
+	trialDayRegistrations	TrialDayRegistration[]
+
 	registeredAt			DateTime?
+	anonymizedAt			DateTime?	// set by "Bewerbungsphase abschließen"
 	createdAt				DateTime	@default(now())
 }
 
@@ -142,8 +145,50 @@ model SchoolClass {
     maxPupils   	Int
 	active			Boolean		@default(true)
     applications	Application[]
+	trialDays		TrialDay[]
 
 	@@unique([title, year])
+}
+
+model TrialDay {
+    id						String		@id @default(auto()) @map("_id") @db.ObjectId
+	schema					Int			@default(1)
+
+    schoolClass				SchoolClass	@relation(fields: [schoolClassID], references: [id])
+    schoolClassID			String		@db.ObjectId
+
+	startAt					DateTime
+	endAt					DateTime
+	maxParticipants			Int
+	registrationDeadline	DateTime	// Anmelde- und Storno-Schluss
+	description				String?
+	active					Boolean		@default(false)
+
+	registrations			TrialDayRegistration[]
+
+	createdAt				DateTime	@default(now())
+}
+
+model TrialDayRegistration {
+    id				String		@id @default(auto()) @map("_id") @db.ObjectId
+	schema			Int			@default(1)
+
+    trialDay		TrialDay	@relation(fields: [trialDayID], references: [id], onDelete: Cascade)
+    trialDayID		String		@db.ObjectId
+
+    applicant		Applicant	@relation(fields: [applicantID], references: [id], onDelete: Cascade)
+    applicantID		String		@db.ObjectId
+
+	statusKey		String		@default("registered") //TrialDayRegistrationStatus
+
+	currentClass	String?
+	guardianPhone	String
+	annotation		String?
+
+	createdBy		String		@default("applicant") // 'applicant' | 'administration'
+	createdAt		DateTime	@default(now()) // order of the waiting list
+	cancelledAt		DateTime?
+	cancelledBy		String?		// 'applicant' | 'administration'
 }
 
 model UserRole {
@@ -190,6 +235,23 @@ model ApplicationStatus {
 	key		String  @unique
     title 	String
 	pos		Int
+}
+
+model TrialDayRegistrationStatus {
+    id    	String 	@id @default(auto()) @map("_id") @db.ObjectId
+	schema	Int		@default(1)
+
+	key		String  @unique
+    title 	String
+	pos		Int
+}
+
+model Setting {
+    id    	String 	@id @default(auto()) @map("_id") @db.ObjectId
+	schema	Int		@default(1)
+
+	key		String	@unique
+	value	Json
 }
 
 model ApplicantStatus {

@@ -255,6 +255,28 @@ async function main() {
         })
     }
 
+    const trialDayRegistrationStatuses = [
+        { key: 'registered', title: "angemeldet", pos: 1 },
+        { key: 'waiting', title: "Warteliste", pos: 2 },
+        { key: 'cancelled', title: "storniert", pos: 3 }
+    ]
+    for (let index = 0; index < trialDayRegistrationStatuses.length; index++) {
+        const status = trialDayRegistrationStatuses[index];
+
+        await prisma.trialDayRegistrationStatus.upsert({
+            where: { key: status.key },
+            update: {},
+            create: status
+        })
+    }
+
+    // Do not overwrite an existing value (admins toggle it in the UI)
+    await prisma.setting.upsert({
+        where: { key: 'applicationOpen' },
+        update: {},
+        create: { key: 'applicationOpen', value: false }
+    })
+
     const titles = ["Herr", "Frau"]
     for (let index = 0; index < titles.length; index++) {
         const title = titles[index];

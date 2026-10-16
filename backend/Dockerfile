@@ -16,7 +16,7 @@ COPY --chown=node:node prisma ./prisma/
 # Install app dependencies using the `npm ci` command or `npm install`
 RUN npm i
 
-RUN npm install -g @nestjs/cli
+RUN npm install -g @nestjs/cli@10
 
 # Bundle app source
 COPY --chown=node:node . .

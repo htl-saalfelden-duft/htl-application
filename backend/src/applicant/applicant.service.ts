@@ -12,6 +12,7 @@ import { AsyncParser } from '@json2csv/node';
 import { string as defaultStringFormatter } from '@json2csv/formatters';
 import { transformApplicantsDataForBtsCSV, transformApplicantsDataForSokratesCSV } from 'src/common/csv.helper';
 import { SettingService } from 'src/setting/setting.service';
+import { withSchoolClasses } from 'src/trial-day/trial-day.utils';
 
 export interface ApplicantSelfUpdate {
 	details?: Prisma.ApplicantDetailsCreateInput
@@ -37,17 +38,22 @@ export class ApplicantService {
 			include: {
 				applications: { include: { schoolClass: true } },
 				trialDayRegistrations: {
-					include: { trialDay: { include: { schoolClass: true } } },
+					include: { trialDay: true },
 					orderBy: { createdAt: 'asc' }
 				}
 			}
 		})
-			.then(applicant => {
+			.then(async applicant => {
 				if (!applicant) {
 					throw new ApiError(ApiErrorType.USER_NOT_FOUND)
 				}
 				delete applicant.passwordHash
-				return applicant
+
+				const trialDays = await withSchoolClasses(this.prisma, applicant.trialDayRegistrations.map(registration => registration.trialDay))
+				return {
+					...applicant,
+					trialDayRegistrations: applicant.trialDayRegistrations.map((registration, index) => ({ ...registration, trialDay: trialDays[index] }))
+				}
 			})
 	}
 

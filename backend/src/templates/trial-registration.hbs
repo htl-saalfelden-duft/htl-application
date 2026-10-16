@@ -20,6 +20,11 @@
         {{date}}, {{timeFrom}} – {{timeTo}} Uhr
     </p>
 
+    {{#if extraQuestion}}
+    <p>{{extraQuestion}}: <strong>{{extraAnswer}}</strong></p>
+    {{/if}}
+    <p>Zustimmung zu Fotoaufnahmen: <strong>{{photoConsent}}</strong></p>
+
     {{#if waitingPosition}}
     <p><strong>Der Termin ist leider bereits ausgebucht. Sie stehen auf Platz {{waitingPosition}} der Warteliste.</strong> Sobald ein Platz frei wird, rücken Sie automatisch nach und erhalten eine E-Mail.</p>
     {{else}}

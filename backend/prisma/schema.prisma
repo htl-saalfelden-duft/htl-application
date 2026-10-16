@@ -145,7 +145,6 @@ model SchoolClass {
     maxPupils   	Int
 	active			Boolean		@default(true)
     applications	Application[]
-	trialDays		TrialDay[]
 
 	@@unique([title, year])
 }
@@ -154,8 +153,9 @@ model TrialDay {
     id						String		@id @default(auto()) @map("_id") @db.ObjectId
 	schema					Int			@default(1)
 
-    schoolClass				SchoolClass	@relation(fields: [schoolClassID], references: [id])
-    schoolClassID			String		@db.ObjectId
+	schoolClassIDs			String[]	@db.ObjectId	// one or more departments (joint trial day); no relation, see SPEC 3.1
+	title					String?		// optional display name, e.g. "Mechatronik / Elektrotechnik"
+	extraQuestion			String?		// optional yes/no question, e.g. "Ich fahre mit dem Schnupperbus"
 
 	startAt					DateTime
 	endAt					DateTime
@@ -183,7 +183,19 @@ model TrialDayRegistration {
 	statusKey		String		@default("registered") //TrialDayRegistrationStatus
 
 	currentClass	String?
-	guardianPhone	String
+	street			String?
+	streetNr		String?
+	zip				String?
+	city			String?
+
+	guardianContactTypeKey	String?	// 'mother' | 'father' | 'others' (ContactType)
+	guardianFirstname		String?
+	guardianLastname		String?
+	guardianPhone			String
+	guardianEmail			String?
+
+	photoConsent	Boolean?
+	extraAnswer		Boolean?	// answer to TrialDay.extraQuestion
 	annotation		String?
 
 	createdBy		String		@default("applicant") // 'applicant' | 'administration'

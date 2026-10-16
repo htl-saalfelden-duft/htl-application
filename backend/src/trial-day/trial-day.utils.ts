@@ -1,4 +1,6 @@
+import { Prisma } from '@prisma/client';
 import { ApiError, ApiErrorType } from 'src/common/api-error';
+import { PrismaService } from 'src/prisma.service';
 
 export const ACTIVE_STATUS_KEYS = ['registered', 'waiting'];
 
@@ -33,4 +35,35 @@ export const optionalText = (value: unknown): string | null => {
 		throw new ApiError(ApiErrorType.INVALID_INPUT)
 	}
 	return value.trim() || null
+}
+
+
+// Trial days reference one or more departments by id (SPEC 3.1). Loads them and
+// adds the display name: the optional title or the department titles joined.
+export const withSchoolClasses = async <T extends { schoolClassIDs: string[], title?: string | null }>(prisma: PrismaService | Prisma.TransactionClient, trialDays: T[]) => {
+	const ids = [...new Set(trialDays.flatMap(trialDay => trialDay.schoolClassIDs))]
+	const schoolClasses = ids.length
+		? await prisma.schoolClass.findMany({ where: { id: { in: ids } }, select: { id: true, title: true, year: true } })
+		: []
+
+	return trialDays.map(trialDay => {
+		const own = trialDay.schoolClassIDs
+			.map(id => schoolClasses.find(schoolClass => schoolClass.id === id))
+			.filter(schoolClass => !!schoolClass)
+		return {
+			...trialDay,
+			schoolClasses: own,
+			displayName: trialDay.title || own.map(schoolClass => schoolClass.title).join(' / ')
+		}
+	})
+}
+
+export const optionalBoolean = (value: unknown): boolean | null => {
+	if (value === undefined || value === null) {
+		return null
+	}
+	if (typeof value !== 'boolean') {
+		throw new ApiError(ApiErrorType.INVALID_INPUT)
+	}
+	return value
 }

@@ -5,13 +5,26 @@ import { ApiError, ApiErrorType } from 'src/common/api-error';
 import { JwtTokenPayload } from 'src/auth/jwt-token-payload.model';
 import { EmailConfirmationService } from 'src/email-confirmation/email-confirmation.service';
 import { TrialDayMailService } from './trial-day-mail.service';
-import { ACTIVE_STATUS_KEYS, optionalText, requireText, waitingPosition } from './trial-day.utils';
+import { ACTIVE_STATUS_KEYS, optionalBoolean, optionalText, requireText, waitingPosition, withSchoolClasses } from './trial-day.utils';
 
 type Tx = Prisma.TransactionClient;
 
+const GUARDIAN_CONTACT_TYPES = ['mother', 'father', 'others'];
+
+// Required for every registration (SPEC 4.1), except class, extra answer and annotation
 interface RegistrationData {
 	currentClass?: string
+	street: string
+	streetNr: string
+	zip: string
+	city: string
+	guardianContactTypeKey: string
+	guardianFirstname: string
+	guardianLastname: string
 	guardianPhone: string
+	guardianEmail: string
+	photoConsent: boolean
+	extraAnswer?: boolean
 	annotation?: string
 }
 
@@ -78,21 +91,24 @@ export class TrialDayRegistrationService {
 			include: {
 				trialDay: {
 					include: {
-						schoolClass: true,
 						registrations: { where: { statusKey: 'waiting' }, select: { id: true, createdAt: true, statusKey: true } }
 					}
 				}
 			},
 			orderBy: { trialDay: { startAt: 'asc' } }
 		})
+		const trialDays = await withSchoolClasses(this.prisma, registrations.map(registration => registration.trialDay))
 		const now = new Date()
 
-		return registrations.map(({ trialDay: { registrations: waiting, ...trialDay }, ...registration }) => ({
-			...registration,
-			trialDay,
-			waitingPosition: waitingPosition(registration, waiting),
-			changeable: ACTIVE_STATUS_KEYS.includes(registration.statusKey) && now < trialDay.registrationDeadline
-		}))
+		return registrations.map(({ trialDay: _, ...registration }, index) => {
+			const { registrations: waiting, ...trialDay } = trialDays[index]
+			return {
+				...registration,
+				trialDay,
+				waitingPosition: waitingPosition(registration, waiting),
+				changeable: ACTIVE_STATUS_KEYS.includes(registration.statusKey) && now < trialDay.registrationDeadline
+			}
+		})
 	}
 
 	async getForTrialDay(trialDayID: string) {
@@ -127,8 +143,9 @@ export class TrialDayRegistrationService {
 				throw new ApiError(ApiErrorType.TRIAL_DAY_DEADLINE_PASSED)
 			}
 
-			await this.updatePerson(tx, applicantID, dto, true)
-			return this.create(tx, trialDay, applicantID, dto, 'applicant', false)
+			const data = registrationData(dto, trialDay)
+			await this.updatePerson(tx, applicantID, dto, data, true)
+			return this.create(tx, trialDay, applicantID, data, 'applicant', false)
 		})
 
 		await this.mailService.sendRegistration(registration.id)
@@ -138,15 +155,16 @@ export class TrialDayRegistrationService {
 	// Registration by the administration, e.g. after a phone call (SPEC 4.5). Ignores the
 	// deadline; creates an account without password and sends an invitation if needed.
 	async registerByAdministration(trialDayID: string, dto: AdministrationRegistrationDto) {
-		requireText(dto.guardianPhone)
 		if (!dto.applicantID) {
-			requireText(dto.email, dto.firstname, dto.lastname)
+			requireText(dto.email, dto.firstname, dto.lastname, dto.school)
 		}
 
 		const trialDay = await this.prisma.trialDay.findUnique({ where: { id: trialDayID } })
 		if (!trialDay) {
 			throw new ApiError(ApiErrorType.NOT_FOUND)
 		}
+		// Validate before an account gets created
+		const data = registrationData(dto, trialDay)
 
 		let applicantID = dto.applicantID
 		let invite = false
@@ -167,8 +185,8 @@ export class TrialDayRegistrationService {
 		}
 
 		const registration = await this.withTrialDayLock([trialDayID], async tx => {
-			await this.updatePerson(tx, applicantID, dto, false)
-			return this.create(tx, trialDay, applicantID, dto, 'administration', dto.overbook === true)
+			await this.updatePerson(tx, applicantID, dto, data, false)
+			return this.create(tx, trialDay, applicantID, data, 'administration', dto.overbook === true)
 		})
 
 		if (invite) {
@@ -218,7 +236,8 @@ export class TrialDayRegistrationService {
 
 		const { created, promoted } = await this.withTrialDayLock([registration.trialDayID, trialDayID], async tx => {
 			const target = await tx.trialDay.findUnique({ where: { id: trialDayID } })
-			if (!target.active || target.startAt <= now || target.schoolClassID !== registration.trialDay.schoolClassID) {
+			const sharesDepartment = target.schoolClassIDs.some(id => registration.trialDay.schoolClassIDs.includes(id))
+			if (!target.active || target.startAt <= now || !sharesDepartment) {
 				throw new ApiError(ApiErrorType.TRIAL_DAY_NOT_BOOKABLE)
 			}
 			if (now >= target.registrationDeadline) {
@@ -233,10 +252,10 @@ export class TrialDayRegistrationService {
 				where: { id: registrationID },
 				data: { statusKey: 'cancelled', cancelledAt: now, cancelledBy: 'applicant' }
 			})
+			// The answer only carries over if the new trial day asks the same question
 			const created = await this.create(tx, target, current.applicantID, {
-				currentClass: current.currentClass,
-				guardianPhone: current.guardianPhone,
-				annotation: current.annotation
+				...pickRegistrationData(current),
+				extraAnswer: target.extraQuestion && target.extraQuestion === registration.trialDay.extraQuestion ? current.extraAnswer : null
 			}, current.createdBy, false)
 			const promoted = current.statusKey === 'registered' ? await this.promoteWaitingList(tx, registration.trialDayID) : []
 			return { created, promoted }
@@ -285,7 +304,8 @@ export class TrialDayRegistrationService {
 			where: {
 				applicantID,
 				statusKey: { in: ACTIVE_STATUS_KEYS },
-				trialDay: { schoolClassID: trialDay.schoolClassID }
+				// Joint trial days: any shared department counts (SPEC 4.11)
+				trialDay: { schoolClassIDs: { hasSome: trialDay.schoolClassIDs } }
 			}
 		})
 		if (existing) {
@@ -299,16 +319,16 @@ export class TrialDayRegistrationService {
 				trialDayID: trialDay.id,
 				applicantID,
 				statusKey: overbook || registeredCount < trialDay.maxParticipants ? 'registered' : 'waiting',
-				currentClass: optionalText(data.currentClass),
-				guardianPhone: data.guardianPhone.trim(),
-				annotation: optionalText(data.annotation),
+				...data,
 				createdBy
 			}
 		})
 	}
 
-	// Name and school are stored in the applicant details so they prefill the application form
-	private async updatePerson(tx: Tx, applicantID: string, person: PersonData, confirmDsgvo: boolean) {
+	// Name and school are stored in the applicant details so they prefill the application form.
+	// Accounts without contacts additionally get the applicant's and the guardian's contact
+	// (SPEC 3.2); existing contacts are never overwritten.
+	private async updatePerson(tx: Tx, applicantID: string, person: PersonData, registration: RegistrationData, confirmDsgvo: boolean) {
 		const details: Prisma.ApplicantDetailsUpdateInput = {}
 		if (person.firstname?.trim()) details.firstname = person.firstname.trim()
 		if (person.lastname?.trim()) details.lastname = person.lastname.trim()
@@ -320,6 +340,29 @@ export class TrialDayRegistrationService {
 		}
 		if (confirmDsgvo) {
 			data.dsgvo = true
+		}
+
+		const applicant = await tx.applicant.findUnique({ where: { id: applicantID }, select: { contacts: true, details: true } })
+		if (!applicant.contacts.length) {
+			const address = { street: registration.street, streetNr: registration.streetNr, zip: registration.zip, city: registration.city }
+			data.contacts = {
+				set: [
+					{
+						contactTypeKey: 'applicant',
+						firstname: person.firstname?.trim() || applicant.details?.firstname,
+						lastname: person.lastname?.trim() || applicant.details?.lastname,
+						...address
+					},
+					{
+						contactTypeKey: registration.guardianContactTypeKey,
+						firstname: registration.guardianFirstname,
+						lastname: registration.guardianLastname,
+						phone: registration.guardianPhone,
+						email: registration.guardianEmail,
+						legalGardian: true
+					}
+				]
+			}
 		}
 		if (Object.keys(data).length) {
 			await tx.applicant.update({ where: { id: applicantID }, data })
@@ -346,3 +389,46 @@ export class TrialDayRegistrationService {
 		}
 	}
 }
+
+// Validates and normalizes the registration fields of a request
+const registrationData = (dto: Partial<RegistrationData>, trialDay: TrialDay): RegistrationData => {
+	requireText(dto.street, dto.streetNr, dto.zip, dto.city, dto.guardianFirstname, dto.guardianLastname, dto.guardianPhone, dto.guardianEmail)
+	if (!GUARDIAN_CONTACT_TYPES.includes(dto.guardianContactTypeKey) || typeof dto.photoConsent !== 'boolean') {
+		throw new ApiError(ApiErrorType.INVALID_INPUT)
+	}
+	const extraAnswer = optionalBoolean(dto.extraAnswer)
+	if (trialDay.extraQuestion && extraAnswer === null) {
+		throw new ApiError(ApiErrorType.INVALID_INPUT)
+	}
+
+	return {
+		currentClass: optionalText(dto.currentClass),
+		street: dto.street.trim(),
+		streetNr: dto.streetNr.trim(),
+		zip: dto.zip.trim(),
+		city: dto.city.trim(),
+		guardianContactTypeKey: dto.guardianContactTypeKey,
+		guardianFirstname: dto.guardianFirstname.trim(),
+		guardianLastname: dto.guardianLastname.trim(),
+		guardianPhone: dto.guardianPhone.trim(),
+		guardianEmail: dto.guardianEmail.trim(),
+		photoConsent: dto.photoConsent,
+		extraAnswer: trialDay.extraQuestion ? extraAnswer : null,
+		annotation: optionalText(dto.annotation)
+	}
+}
+
+const pickRegistrationData = (registration: TrialDayRegistration): RegistrationData => ({
+	currentClass: registration.currentClass,
+	street: registration.street,
+	streetNr: registration.streetNr,
+	zip: registration.zip,
+	city: registration.city,
+	guardianContactTypeKey: registration.guardianContactTypeKey,
+	guardianFirstname: registration.guardianFirstname,
+	guardianLastname: registration.guardianLastname,
+	guardianPhone: registration.guardianPhone,
+	guardianEmail: registration.guardianEmail,
+	photoConsent: registration.photoConsent,
+	annotation: registration.annotation
+})

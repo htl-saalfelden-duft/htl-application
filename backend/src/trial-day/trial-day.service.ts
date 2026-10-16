@@ -4,10 +4,10 @@ import { PrismaService } from 'src/prisma.service';
 import { ApiError, ApiErrorType } from 'src/common/api-error';
 import { TrialDayRegistrationService } from './trial-day-registration.service';
 import { TrialDayMailService } from './trial-day-mail.service';
-import { optionalText } from './trial-day.utils';
+import { optionalText, withSchoolClasses } from './trial-day.utils';
 
 export type TrialDayDto = Partial<Pick<TrialDay,
-	'schoolClassID' | 'startAt' | 'endAt' | 'maxParticipants' | 'registrationDeadline' | 'description' | 'active'>>;
+	'schoolClassIDs' | 'title' | 'extraQuestion' | 'startAt' | 'endAt' | 'maxParticipants' | 'registrationDeadline' | 'description' | 'active'>>;
 
 @Injectable()
 export class TrialDayService {
@@ -29,15 +29,16 @@ export class TrialDayService {
 		} else if (!params.past) {
 			where.endAt = { gte: now }
 		}
+		// Joint trial days show up for each of their departments
 		if (params.schoolClassID) {
-			where.schoolClassID = params.schoolClassID
+			where.schoolClassIDs = { has: params.schoolClassID }
 		}
 
-		const trialDays = await this.prisma.trialDay.findMany({
+		const trialDays = await withSchoolClasses(this.prisma, await this.prisma.trialDay.findMany({
 			where,
-			include: { schoolClass: true, registrations: { select: { statusKey: true } } },
+			include: { registrations: { select: { statusKey: true } } },
 			orderBy: { startAt: 'asc' }
-		})
+		}))
 
 		return trialDays.map(({ registrations, ...trialDay }) => ({
 			...trialDay,
@@ -51,8 +52,10 @@ export class TrialDayService {
 		const trialDays = await this.getMany({ forApplicant: true })
 		return trialDays.map(trialDay => ({
 			id: trialDay.id,
-			schoolClassID: trialDay.schoolClassID,
-			schoolClass: { id: trialDay.schoolClass.id, title: trialDay.schoolClass.title },
+			schoolClassIDs: trialDay.schoolClassIDs,
+			schoolClasses: trialDay.schoolClasses.map(({ id, title }) => ({ id, title })),
+			displayName: trialDay.displayName,
+			extraQuestion: trialDay.extraQuestion,
 			startAt: trialDay.startAt,
 			endAt: trialDay.endAt,
 			registrationDeadline: trialDay.registrationDeadline,
@@ -80,7 +83,8 @@ export class TrialDayService {
 			const registrations = await tx.trialDayRegistration.findMany({ where: { trialDayID: id }, select: { statusKey: true } })
 			const registeredCount = registrations.filter(r => r.statusKey === 'registered').length
 
-			if (data.schoolClassID !== previous.schoolClassID && registrations.length) {
+			// Changing departments would bypass the one-registration-per-department rule
+			if (!sameIDs(data.schoolClassIDs, previous.schoolClassIDs) && registrations.length) {
 				throw new ApiError(ApiErrorType.INVALID_INPUT)
 			}
 			// An overbooked trial day may keep its maximum, but it must not be lowered further
@@ -112,7 +116,9 @@ export class TrialDayService {
 	// Merges dto into previous (on update) and checks the result
 	private async validate(dto: TrialDayDto, previous?: TrialDay) {
 		const data = {
-			schoolClassID: dto.schoolClassID ?? previous?.schoolClassID,
+			schoolClassIDs: dto.schoolClassIDs ?? previous?.schoolClassIDs,
+			title: dto.title !== undefined ? optionalText(dto.title) : previous?.title ?? null,
+			extraQuestion: dto.extraQuestion !== undefined ? optionalText(dto.extraQuestion) : previous?.extraQuestion ?? null,
 			startAt: toDate(dto.startAt ?? previous?.startAt),
 			endAt: toDate(dto.endAt ?? previous?.endAt),
 			registrationDeadline: toDate(dto.registrationDeadline ?? previous?.registrationDeadline),
@@ -128,18 +134,25 @@ export class TrialDayService {
 			throw new ApiError(ApiErrorType.INVALID_INPUT)
 		}
 
-		if (data.schoolClassID !== previous?.schoolClassID) {
-			const schoolClass = typeof data.schoolClassID === 'string' && /^[0-9a-f]{24}$/.test(data.schoolClassID)
-				? await this.prisma.schoolClass.findUnique({ where: { id: data.schoolClassID } })
-				: null
-			if (!schoolClass?.active) {
+		// New departments must exist and be active
+		if (!sameIDs(data.schoolClassIDs, previous?.schoolClassIDs)) {
+			const ids = Array.isArray(data.schoolClassIDs) ? [...new Set(data.schoolClassIDs)] : []
+			if (!ids.length || !ids.every(id => typeof id === 'string' && /^[0-9a-f]{24}$/.test(id))) {
 				throw new ApiError(ApiErrorType.INVALID_INPUT)
 			}
+			const activeCount = await this.prisma.schoolClass.count({ where: { id: { in: ids }, active: true } })
+			if (activeCount !== ids.length) {
+				throw new ApiError(ApiErrorType.INVALID_INPUT)
+			}
+			data.schoolClassIDs = ids
 		}
 
 		return data
 	}
 }
+
+const sameIDs = (a: string[] = [], b: string[] = []) =>
+	a.length === b.length && a.every(id => b.includes(id))
 
 const toDate = (value: Date | string | undefined): Date => {
 	const date = value ? new Date(value) : undefined

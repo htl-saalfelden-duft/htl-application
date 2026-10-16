@@ -48,8 +48,9 @@ model TrialDay {
     id                    String        @id @default(auto()) @map("_id") @db.ObjectId
     schema                Int           @default(1)
 
-    schoolClass           SchoolClass   @relation(fields: [schoolClassID], references: [id])
-    schoolClassID         String        @db.ObjectId
+    schoolClassIDs        String[]      @db.ObjectId   // eine oder mehrere Fachrichtungen (gemeinsamer Termin, 4.11)
+    title                 String?       // optionaler Anzeigename, z.B. "Mechatronik / Elektrotechnik"
+    extraQuestion         String?       // optionale Ja/Nein-Zusatzfrage, z.B. "Ich fahre mit dem Schnupperbus"
 
     startAt               DateTime      // Datum + Uhrzeit von
     endAt                 DateTime      // Datum + Uhrzeit bis (gleicher Tag)
@@ -65,7 +66,7 @@ model TrialDay {
 }
 ```
 
-`SchoolClass` bekommt die Rückrelation `trialDays TrialDay[]`.
+Die Fachrichtungen sind eine Liste von IDs ohne Prisma-Relation. Eine m:n-Relation würde in MongoDB auch an `SchoolClass` eine ID-Liste pflegen, die beim Löschen von Terminen nicht mit aufgeräumt wird. Die Fachrichtungen werden beim Lesen dazugeladen.
 
 ### 3.2 `TrialDayRegistration` (Schnupper-Anmeldung)
 
@@ -83,7 +84,19 @@ model TrialDayRegistration {
     statusKey       String      @default("registered") // TrialDayRegistrationStatus
 
     currentClass    String?     // z.B. "4b"
-    guardianPhone   String
+    street          String      // Adresse der Schülerin / des Schülers
+    streetNr        String
+    zip             String
+    city            String
+
+    guardianContactTypeKey String  // 'mother' | 'father' | 'others' (ContactType)
+    guardianFirstname      String
+    guardianLastname       String
+    guardianPhone          String
+    guardianEmail          String
+
+    photoConsent    Boolean     // Pflichtauswahl Ja/Nein ohne Vorbelegung (4.9)
+    extraAnswer     Boolean?    // Antwort auf TrialDay.extraQuestion
     annotation      String?     // Bemerkung
 
     createdBy       String      @default("applicant")   // 'applicant' | 'administration'
@@ -96,6 +109,8 @@ model TrialDayRegistration {
 `Applicant` bekommt die Rückrelation `trialDayRegistrations TrialDayRegistration[]`.
 
 **Name und Schule** werden nicht in der Anmeldung gespeichert, sondern in `Applicant.details` (`firstname`, `lastname`, `previousSchoolTxt`), damit sie später im Bewerbungsformular vorbefüllt sind.
+
+**Adresse und Erziehungsberechtigte:r** werden an der Anmeldung gespeichert, damit die Teilnehmerliste stabil bleibt. Hat das Konto noch **keine** Kontakte, werden daraus zusätzlich die Kontakte `applicant` (Name und Adresse) und der gewählte Typ (Name, Telefon, E-Mail) angelegt. Das spätere Bewerbungsformular ist dann vorbefüllt. Bestehende Kontakte werden nie überschrieben.
 
 ### 3.3 Erweiterung `Applicant`
 
@@ -137,7 +152,8 @@ Im Seed: `{ key: "applicationOpen", value: false }` per `upsert` mit leerem `upd
 - Voraussetzung: eingeloggte:r Bewerber:in mit bestätigter E-Mail (`EmailConfirmationGuard`).
 - Ist `Applicant.dsgvo = false`, muss im Anmeldeformular die DSGVO-Einwilligung angehakt werden. Danach wird `dsgvo = true` gesetzt (siehe 4.9).
 - Buchbar ist ein Termin nur, wenn `active = true`, `now < registrationDeadline` und `startAt` in der Zukunft liegt.
-- Pro Bewerber:in und `schoolClassID` ist höchstens **eine aktive Anmeldung** erlaubt. Prüfung im Service, da MongoDB/Prisma keinen partiellen Unique-Index abbildet.
+- Pro Bewerber:in ist höchstens **eine aktive Anmeldung pro Fachrichtung** erlaubt: Eine aktive Anmeldung blockiert alle Termine, die **mindestens eine** Fachrichtung mit ihr gemeinsam haben (4.11). Die Prüfung erfolgt im Service, da MongoDB/Prisma keinen partiellen Unique-Index abbildet.
+- Pflichtangaben: Vor- und Nachname, Adresse (Straße, Nr., PLZ, Ort), derzeitige Schule, Erziehungsberechtigte:r (Art, Vor- und Nachname, Telefon, E-Mail), Fotozustimmung Ja/Nein und, falls der Termin eine Zusatzfrage hat, deren Antwort. Optional sind Klasse und Bemerkung. Für Anmeldungen durch die Verwaltung gilt dasselbe.
 - Ist `count(registered) < maxParticipants`, wird die Anmeldung `registered`, sonst `waiting`.
 - Kapazitätsprüfung und Anlage laufen in einem `prisma.$transaction`, das zuerst `TrialDay.updatedAt` schreibt. MongoDB erkennt Konflikte nur bei Schreibzugriffen auf dasselbe Dokument; so kollidieren gleichzeitige Buchungen desselben Termins (Prisma `P2034`) und werden wiederholt.
 - Die eingegebenen Namens- und Schulangaben werden in `Applicant.details` geschrieben bzw. aktualisiert.
@@ -150,7 +166,7 @@ Im Seed: `{ key: "applicationOpen", value: false }` per `upsert` mit leerem `upd
 - War die Anmeldung `registered`, folgt das Nachrücken (4.4).
 
 ### 4.3 Umbuchung durch Bewerber:in
-- Wechsel auf einen anderen Termin **derselben Fachrichtung**.
+- Wechsel auf einen anderen Termin, der mindestens eine Fachrichtung mit dem bisherigen gemeinsam hat. Die Angaben werden übernommen; hat der neue Termin eine andere Zusatzfrage, ist die Antwort zunächst leer (in der Teilnehmerliste „–“).
 - Bis zum Anmeldeschluss des alten **und** des neuen Termins.
 - Ablauf in einer Transaktion: alte Anmeldung stornieren, neue nach Regel 4.1 anlegen (ggf. auf der Warteliste), dann Nachrücken für den alten Termin.
 - Es wird eine E-Mail versendet: eine Anmeldebestätigung für den neuen Termin mit dem Hinweis auf die Stornierung des alten.
@@ -198,6 +214,11 @@ Im Seed: `{ key: "applicationOpen", value: false }` per `upsert` mit leerem `upd
 - Im Schnupper-Anmeldeformular erscheint die Checkbox nur, solange `Applicant.dsgvo = false` ist. Das betrifft auch Konten, die die Verwaltung angelegt hat: Die Einwilligung wird beim Setzen des Passworts eingeholt.
 - Das Feld „Bemerkung“ trägt den Hinweistext „Wichtige Hinweise für den Schnuppertag“. Gesundheitsdaten werden nicht gezielt abgefragt.
 
+### 4.10a Fotozustimmung
+- Pflichtauswahl „Ja, ich stimme Fotoaufnahmen zu“ / „Nein, ich stimme nicht zu“, **ohne Vorbelegung**. Man muss wählen, beide Antworten sind gültig.
+- Eine Checkbox „Ich stimme nicht zu“ wäre keine gültige Einwilligung (Art. 4 Nr. 11, ErwG 32 DSGVO: Schweigen ist keine Einwilligung). Eine Pflicht-Zustimmung verstieße gegen das Kopplungsverbot (Art. 7 Abs. 4).
+- In der Teilnehmerliste ist „keine Fotos“ deutlich markiert.
+
 ### 4.10 Bewerbungsphase abschließen (Admin)
 Eine Aktion auf `/settings`, nur für Admins, **nicht rückgängig zu machen**.
 
@@ -230,6 +251,12 @@ Mit dem Platzhalter ist kein Login mehr möglich, und die ursprüngliche E-Mail 
 - Anonymisierte Bewerbungen werden in `/applicants` mit dem Hinweis „anonymisiert“ angezeigt.
 - Das Bestätigungs-PDF ist für sie deaktiviert.
 - Sie sind von den Sokrates- und BTS-Exporten ausgeschlossen.
+
+### 4.11 Gemeinsame Termine und Zusatzfrage (Wünsche des Sekretariats, Okt. 2026)
+- Ein Termin kann **mehreren Fachrichtungen** zugeordnet sein, mit **einem** Kontingent und **einer** Teilnehmerliste. Beispiele: Mechatronik und Elektrotechnik am selben Standort finden immer gemeinsam statt; im Jänner gibt es einen gemeinsamen Mechatronik-Termin für HTL Pongau und HTL Saalfelden.
+- Angezeigt wird `title`, sonst die Titel der Fachrichtungen mit „ / “ verbunden. Gruppiert wird auf der Terminseite nach diesem Namen.
+- Der Filter nach Fachrichtung in der Verwaltung zeigt alle Termine, die diese Fachrichtung enthalten.
+- Optionale **Zusatzfrage** (Ja/Nein) pro Termin, z.B. für den Schnupperbus beim Jänner-Termin. Der zugehörige Infotext (Treffpunkt, Abfahrtszeiten) kommt in die Beschreibung. Die Antwort ist Pflicht und erscheint in Teilnehmerliste (mit Summe) und Bestätigungsmail. Kein Platzlimit für den Bus.
 
 ## 5. API
 

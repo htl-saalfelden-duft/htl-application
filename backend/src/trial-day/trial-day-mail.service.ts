@@ -3,7 +3,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { join } from 'path';
 import { PrismaService } from 'src/prisma.service';
 import { EmailConfirmationService } from 'src/email-confirmation/email-confirmation.service';
-import { waitingPosition } from './trial-day.utils';
+import { waitingPosition, withSchoolClasses } from './trial-day.utils';
 
 const TIME_ZONE = 'Europe/Vienna';
 
@@ -49,13 +49,14 @@ export class TrialDayMailService {
 		const registration = await this.prisma.trialDayRegistration.findUnique({
 			where: { id: registrationID },
 			include: {
-				trialDay: { include: { schoolClass: true, registrations: { where: { statusKey: 'waiting' } } } },
+				trialDay: { include: { registrations: { where: { statusKey: 'waiting' } } } },
 				applicant: { select: { email: true, details: true } }
 			}
 		})
 		if (!registration) return
 
-		const { trialDay, applicant } = registration
+		const { applicant } = registration
+		const [trialDay] = await withSchoolClasses(this.prisma, [registration.trialDay])
 
 		return {
 			to: applicant.email,
@@ -65,7 +66,10 @@ export class TrialDayMailService {
 			values: {
 				firstname: applicant.details?.firstname ?? '',
 				lastname: applicant.details?.lastname ?? '',
-				schoolClass: trialDay.schoolClass.title,
+				schoolClass: trialDay.displayName,
+				extraQuestion: trialDay.extraQuestion ?? null,
+				extraAnswer: registration.extraAnswer === null ? '–' : registration.extraAnswer ? 'Ja' : 'Nein',
+				photoConsent: registration.photoConsent ? 'Ja' : 'Nein',
 				date: formatDate(trialDay.startAt),
 				timeFrom: formatTime(trialDay.startAt),
 				timeTo: formatTime(trialDay.endAt),

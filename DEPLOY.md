@@ -95,6 +95,23 @@ run in production
 scp file htl:/home/htl-application
 ```
 
+## Release: build the frontend locally
+The production machine does not have enough storage to build the frontend, so `frontend/Dockerfile` only copies the committed `frontend/build/` folder into nginx. Before every deployment that contains frontend changes, build on the development machine and commit the result:
+```sh
+cd frontend
+npm run build            # uses .env.production -> REACT_APP_API_URL=https://anmeldung.htlsaalfelden.at/api
+cd ..
+git add -A frontend/build   # -A also stages the deleted old bundles
+git commit -m "New frontend build"
+```
+Check that `frontend/build/static/js/main.*.js` contains `anmeldung.htlsaalfelden.at/api` and not `localhost`.
+
+After deploying a release that adds lookup data or settings (e.g. trial days: `TrialDayRegistrationStatus`, `Setting applicationOpen`), run the seed in the backend container:
+```sh
+cd backend && npm run db:seed:prod
+```
+The seed only creates missing entries. A new `applicationOpen` setting starts as `false` (application form locked for applicants); unlock it as admin under Admin → Einstellungen.
+
 ## Rebuild Images
 ```sh
 docker compose -f docker-compose-prod.yml build backend

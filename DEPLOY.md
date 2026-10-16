@@ -106,6 +106,13 @@ git commit -m "New frontend build"
 ```
 Check that `frontend/build/static/js/main.*.js` contains `anmeldung.htlsaalfelden.at/api` and not `localhost`.
 
+After deploying a release that changes `backend/prisma/schema.prisma` (new collections, unique indexes), push the schema. The production image contains no `schema.prisma`, so run it on the server host in the checked-out `backend/` folder. Mongo is published on `localhost:27017` there (use the credentials from `backend/.env`). Pin the Prisma version to the one in `backend/package.json`; an unpinned `npx prisma` downloads the latest major version:
+```sh
+cd /home/htl-application/backend
+DATABASE_URL="mongodb://<MONGODB_USER>:<MONGODB_PASSWORD>@localhost:27017/htlApplication?authSource=admin&replicaSet=rs0&directConnection=true" \
+  npx prisma@6.2.1 db push --skip-generate
+```
+
 After deploying a release that adds lookup data or settings (e.g. trial days: `TrialDayRegistrationStatus`, `Setting applicationOpen`), run the seed in the backend container:
 ```sh
 cd backend && npm run db:seed:prod

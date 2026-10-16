@@ -11,7 +11,7 @@ import SignInUser from "./components/SignInUser";
 import { Applicants } from "./components/Applicants";
 import Applicant from "./components/Applicant";
 import { Users } from "./components/Users";
-import { TrialDays } from "./components/TrialDays";
+import { TrialDaysRoute } from "./components/PublicTrialDays";
 import { TrialDaysAdmin } from "./components/TrialDaysAdmin";
 import { Settings } from "./components/Settings";
 import { SchoolClasses } from "./components/SchoolClasses";
@@ -29,9 +29,9 @@ function App() {
           <Route path="signup-applicant" element={<SignupApplicant />} />
           <Route path="confirm-email" element={<ConfirmEmail />} />
           <Route path="set-password" element={<SetPassword />} />
+          <Route path="trial-days" element={<TrialDaysRoute />} />
           <Route element={<ProtectedRoute userType="applicant" redirectPath="/signin-applicant" />}>
               <Route path="home" element={<Applicant />} />
-              <Route path="trial-days" element={<TrialDays />} />
           </Route>
           <Route element={<ProtectedRoute userType="administration" redirectPath="/signin-user"/>}>
               <Route path="applicants" element={<Applicants />} />

@@ -250,6 +250,7 @@ Alle Routen liegen unter `/api` und brauchen einen JWT, sofern nicht anders ange
 | Methode | Route | Beschreibung |
 |---|---|---|
 | GET | `/setting/applicationOpen` | `{ value: boolean }` – für die Weiterleitung nach dem Login |
+| GET | `/trial-day/public` | Aktive, zukünftige Termine für die öffentliche Seite: Fachrichtung, Zeiten, Beschreibung, Anmeldeschluss, Plätze; keine personenbezogenen oder internen Felder |
 | POST | `/applicant/set-password` | Body: `token, password, dsgvo` (4.8) |
 | POST | `/applicant/register` | Erweitert: Existiert ein Konto ohne Passwort, wird die Einladung erneut versendet und ein eigener `ApiErrorType` zurückgegeben (4.8) |
 
@@ -293,7 +294,7 @@ Empfänger ist die Konto-E-Mail (`Applicant.email`). Der Versand erfolgt wie bis
 
 | Route | Schutz | Komponente |
 |---|---|---|
-| `/trial-days` | `applicant` | `TrialDays` – Schnupper-Anmeldung |
+| `/trial-days` | öffentlich | Angemeldete Bewerber:innen: `TrialDays` (Schnupper-Anmeldung). Alle anderen: öffentliche Terminliste mit „Einloggen“ / „Zugang beantragen“; „Anmelden“ führt zum Login und danach zurück (`?redirect=/trial-days`). Mit `?embed=1` kompakte Ansicht ohne Kopfbereich zum Einbetten per `<iframe>` auf der HTL-Webseite; Links öffnen dann in einem neuen Tab. |
 | `/set-password` | öffentlich | `SetPassword` – Passwort festlegen + DSGVO-Einwilligung (Einladung) |
 | `/trial-days-admin` | `administration` | `TrialDaysAdmin` – Terminverwaltung und Teilnehmerlisten |
 | `/settings` | `administration`, `admin` | `Settings` – Schalter „Bewerbung freigeschaltet“ und „Bewerbungsphase abschließen“ |

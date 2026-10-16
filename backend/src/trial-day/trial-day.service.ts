@@ -47,6 +47,23 @@ export class TrialDayService {
 		}))
 	}
 
+	async getPublic() {
+		const trialDays = await this.getMany({ forApplicant: true })
+		return trialDays.map(trialDay => ({
+			id: trialDay.id,
+			schoolClassID: trialDay.schoolClassID,
+			schoolClass: { id: trialDay.schoolClass.id, title: trialDay.schoolClass.title },
+			startAt: trialDay.startAt,
+			endAt: trialDay.endAt,
+			registrationDeadline: trialDay.registrationDeadline,
+			description: trialDay.description,
+			maxParticipants: trialDay.maxParticipants,
+			registeredCount: trialDay.registeredCount,
+			waitingCount: trialDay.waitingCount,
+			bookable: trialDay.bookable
+		}))
+	}
+
 	async create(dto: TrialDayDto): Promise<TrialDay> {
 		const data = await this.validate(dto)
 		return this.prisma.trialDay.create({ data: data as Prisma.TrialDayUncheckedCreateInput })

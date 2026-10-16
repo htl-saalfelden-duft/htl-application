@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { ReactNode, useEffect, useMemo, useState } from "react"
 import { Alert, Badge, Button, Card, CardBody, Row, Table } from "react-bootstrap"
 import { toast } from "react-toastify"
 import { ApiService } from "../services/api.service"
@@ -20,6 +20,63 @@ export const RegistrationStatus = ({ registration }: { registration: TrialDayReg
             {trialDayRegistrationStatusTitles[registration.statusKey]}
             {registration.waitingPosition ? ` (Platz ${registration.waitingPosition})` : ''}
         </Badge>
+    )
+}
+
+interface TrialDayListProps {
+    trialDays: TrialDay[]
+    renderAction: (trialDay: TrialDay) => ReactNode
+}
+
+// Trial days grouped by department; also used on the public page
+export const TrialDayList = ({ trialDays, renderAction }: TrialDayListProps) => {
+    const trialDaysBySchoolClass = trialDays.reduce((groups, trialDay) => {
+        const title = trialDay.schoolClass?.title ?? ''
+        groups[title] = [...(groups[title] ?? []), trialDay]
+        return groups
+    }, {} as Record<string, TrialDay[]>)
+
+    if (trialDays.length === 0) {
+        return <Alert variant="info">Derzeit sind keine Schnuppertermine verfügbar.</Alert>
+    }
+
+    return (
+        <>
+            {Object.entries(trialDaysBySchoolClass).map(([title, days]) => (
+                <Card className="mb-4" key={title}>
+                    <CardBody>
+                        <h5>{title}</h5>
+                        <Table responsive className="mb-0">
+                            <tbody>
+                                {days.map(trialDay => {
+                                    const free = trialDay.maxParticipants - (trialDay.registeredCount ?? 0)
+                                    return (
+                                        <tr key={trialDay.id}>
+                                            <td style={{ width: '30%' }}>
+                                                <strong>{formatTrialDayDate(trialDay)}</strong><br />
+                                                {formatTrialDayTime(trialDay)}
+                                            </td>
+                                            <td>
+                                                {trialDay.description && <div style={{ whiteSpace: 'pre-line' }}>{trialDay.description}</div>}
+                                                <small className="text-muted">Anmeldeschluss: {formatDateTime(trialDay.registrationDeadline)}</small>
+                                            </td>
+                                            <td style={{ width: '20%' }}>
+                                                {free > 0
+                                                    ? <span className="text-success">{free} {free === 1 ? 'Platz' : 'Plätze'} frei</span>
+                                                    : <span className="text-warning">ausgebucht – Warteliste</span>}
+                                            </td>
+                                            <td className="text-end" style={{ width: '15%' }}>
+                                                {renderAction(trialDay)}
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
+                            </tbody>
+                        </Table>
+                    </CardBody>
+                </Card>
+            ))}
+        </>
     )
 }
 
@@ -63,12 +120,6 @@ export const TrialDays = () => {
 
     // Only one active registration per department (SPEC 4.1)
     const registeredSchoolClassIDs = new Set(registrations.filter(isActive).map(r => r.trialDay?.schoolClassID))
-
-    const trialDaysBySchoolClass = trialDays.reduce((groups, trialDay) => {
-        const title = trialDay.schoolClass?.title ?? ''
-        groups[title] = [...(groups[title] ?? []), trialDay]
-        return groups
-    }, {} as Record<string, TrialDay[]>)
 
     return (
         <>
@@ -116,48 +167,13 @@ export const TrialDays = () => {
                     </Card>
                 }
 
-                {trialDays.length === 0 &&
-                    <Alert variant="info">Derzeit sind keine Schnuppertermine verfügbar.</Alert>
-                }
-
-                {Object.entries(trialDaysBySchoolClass).map(([title, days]) => (
-                    <Card className="mb-4" key={title}>
-                        <CardBody>
-                            <h5>{title}</h5>
-                            <Table responsive className="mb-0">
-                                <tbody>
-                                    {days.map(trialDay => {
-                                        const free = trialDay.maxParticipants - (trialDay.registeredCount ?? 0)
-                                        return (
-                                            <tr key={trialDay.id}>
-                                                <td style={{ width: '30%' }}>
-                                                    <strong>{formatTrialDayDate(trialDay)}</strong><br />
-                                                    {formatTrialDayTime(trialDay)}
-                                                </td>
-                                                <td>
-                                                    {trialDay.description && <div style={{ whiteSpace: 'pre-line' }}>{trialDay.description}</div>}
-                                                    <small className="text-muted">Anmeldeschluss: {formatDateTime(trialDay.registrationDeadline)}</small>
-                                                </td>
-                                                <td style={{ width: '20%' }}>
-                                                    {free > 0
-                                                        ? <span className="text-success">{free} {free === 1 ? 'Platz' : 'Plätze'} frei</span>
-                                                        : <span className="text-warning">ausgebucht – Warteliste</span>}
-                                                </td>
-                                                <td className="text-end" style={{ width: '15%' }}>
-                                                    {registeredSchoolClassIDs.has(trialDay.schoolClassID)
-                                                        ? <small className="text-muted">bereits angemeldet</small>
-                                                        : trialDay.bookable
-                                                            ? <Button size="sm" variant="outline-primary" onClick={() => setRegisterTrialDay(trialDay)}>Anmelden</Button>
-                                                            : <small className="text-muted">Anmeldeschluss vorbei</small>}
-                                                </td>
-                                            </tr>
-                                        )
-                                    })}
-                                </tbody>
-                            </Table>
-                        </CardBody>
-                    </Card>
-                ))}
+                <TrialDayList trialDays={trialDays} renderAction={trialDay =>
+                    registeredSchoolClassIDs.has(trialDay.schoolClassID)
+                        ? <small className="text-muted">bereits angemeldet</small>
+                        : trialDay.bookable
+                            ? <Button size="sm" variant="outline-primary" onClick={() => setRegisterTrialDay(trialDay)}>Anmelden</Button>
+                            : <small className="text-muted">Anmeldeschluss vorbei</small>
+                } />
             </Row>
             <TrialDayRegister
                 trialDay={registerTrialDay}

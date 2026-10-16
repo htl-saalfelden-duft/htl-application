@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { AllowApplicant } from 'src/auth/access.decorator';
+import { Public } from 'src/auth/public.decorator';
 import { RequestWithUser } from 'src/auth/request-with-user.model';
 import { EmailConfirmationGuard } from 'src/email-confirmation/email-confirmation.guard';
 import { TrialDayDto, TrialDayService } from './trial-day.service';
@@ -25,6 +26,13 @@ export class TrialDayController {
 			schoolClassID,
 			past: past === 'true'
 		})
+	}
+
+	// For the public page and embedding on the school website: no personal data
+	@Public()
+	@Get('public')
+	getPublic() {
+		return this.trialDayService.getPublic()
 	}
 
 	@Post()

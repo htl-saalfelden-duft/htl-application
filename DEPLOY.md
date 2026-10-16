@@ -93,6 +93,11 @@ run in production
 ## Upload files to provider
 ```sh
 scp file htl:/home/htl-application
+
+e.g.
+scp /home/dduft/Downloads/htlsaalfelden.at/private.key  htl:/home/htl-application/frontend/ssl
+scp /home/dduft/Downloads/htlsaalfelden.at/public.crt  htl:/home/htl-application/frontend/ssl
+
 ```
 
 ## Release: build the frontend locally

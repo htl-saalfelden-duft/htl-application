@@ -6,12 +6,16 @@ import { toast } from "react-toastify"
 import { ApiService } from "../services/api.service"
 import { Applicant } from "../models/applicant.model"
 import { SchoolClass } from "../models/schoolClass.model"
-import { formatDateTime, formatTrialDayDate, formatTrialDayTime, TrialDay, TrialDayRegistration } from "../models/trialDay.model"
+import { formatDateTime, formatTrialDayDate, formatTrialDayTime, guardianContactTypeTitles, TrialDay, TrialDayRegistration } from "../models/trialDay.model"
 import TrialDayEdit from "./modal/TrialDayEdit"
 import TrialDayParticipantNew from "./modal/TrialDayParticipantNew"
 import DeleteConfirmation from "./modal/DeleteConfirmation"
 import Confirmation from "./modal/Confirmation"
-import { RegistrationStatus } from "./TrialDays"
+import { PhotoConsent, RegistrationStatus } from "./TrialDays"
+
+// Answers to the extra question among active registrations, e.g. seats needed on the bus
+const countYes = (registrations: TrialDayRegistration[]) =>
+    registrations.filter(r => r.statusKey !== 'cancelled' && r.extraAnswer === true).length
 
 export const TrialDaysAdmin = () => {
     const apiService = useMemo(() => new ApiService(), [])
@@ -141,7 +145,7 @@ export const TrialDaysAdmin = () => {
                                                     {openTrialDayID === trialDay.id ? <ChevronDown /> : <ChevronRight />}
                                                 </Button>
                                             </td>
-                                            <td>{trialDay.schoolClass?.title}</td>
+                                            <td>{trialDay.displayName}</td>
                                             <td>{formatTrialDayDate(trialDay)}</td>
                                             <td>{formatTrialDayTime(trialDay)}</td>
                                             <td>{formatDateTime(trialDay.registrationDeadline)}</td>
@@ -160,23 +164,26 @@ export const TrialDaysAdmin = () => {
                                         </tr>
                                         {openTrialDayID === trialDay.id &&
                                             <tr>
-                                                <td></td>
-                                                <td colSpan={8}>
+                                                {/* maxWidth 0: the wide participant list scrolls on its own instead of widening the whole table */}
+                                                <td colSpan={9} style={{ maxWidth: 0 }}>
                                                     <div className="d-flex justify-content-between">
                                                         <h6>Teilnehmerliste</h6>
                                                         <Form.Check type="switch" id="showCancelled" label="stornierte anzeigen" checked={showCancelled} onChange={e => setShowCancelled(e.target.checked)} />
                                                     </div>
                                                     {visibleRegistrations.length === 0
                                                         ? <p className="text-muted">Keine Anmeldungen.</p>
-                                                        : <Table size="sm" className="mb-0">
+                                                        : <Table size="sm" responsive className="mb-0">
                                                             <thead>
                                                                 <tr>
                                                                     <th>Name</th>
-                                                                    <th>Schule</th>
-                                                                    <th>Klasse</th>
-                                                                    <th>Telefon</th>
+                                                                    <th>Adresse</th>
+                                                                    <th>Schule / Klasse</th>
+                                                                    <th>Erziehungsberechtigte:r</th>
+                                                                    <th>Fotos</th>
+                                                                    {trialDay.extraQuestion &&
+                                                                        <th title={trialDay.extraQuestion}>{trialDay.extraQuestion} ({countYes(visibleRegistrations)} Ja)</th>}
                                                                     <th>Bemerkung</th>
-                                                                    <th>E-Mail</th>
+                                                                    <th>Konto</th>
                                                                     <th>Status</th>
                                                                     <th></th>
                                                                 </tr>
@@ -189,9 +196,17 @@ export const TrialDaysAdmin = () => {
                                                                                 {registration.applicant?.details?.firstname} {registration.applicant?.details?.lastname}
                                                                             </Button>
                                                                         </td>
-                                                                        <td>{registration.applicant?.details?.previousSchoolTxt}</td>
-                                                                        <td>{registration.currentClass}</td>
-                                                                        <td>{registration.guardianPhone}</td>
+                                                                        <td>{registration.street} {registration.streetNr}<br />{registration.zip} {registration.city}</td>
+                                                                        <td>{registration.applicant?.details?.previousSchoolTxt}{registration.currentClass && `, ${registration.currentClass}`}</td>
+                                                                        <td>
+                                                                            {registration.guardianFirstname} {registration.guardianLastname}
+                                                                            {registration.guardianContactTypeKey && <small className="text-muted"> ({guardianContactTypeTitles[registration.guardianContactTypeKey]})</small>}
+                                                                            <br />{registration.guardianPhone}
+                                                                            <br />{registration.guardianEmail}
+                                                                        </td>
+                                                                        <td><PhotoConsent registration={registration} /></td>
+                                                                        {trialDay.extraQuestion &&
+                                                                            <td>{registration.extraAnswer === true ? 'Ja' : registration.extraAnswer === false ? 'Nein' : '–'}</td>}
                                                                         <td style={{ whiteSpace: 'pre-line' }}>{registration.annotation}</td>
                                                                         <td>
                                                                             {registration.applicant?.email}

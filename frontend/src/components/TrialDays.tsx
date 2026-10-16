@@ -4,7 +4,7 @@ import { toast } from "react-toastify"
 import { ApiService } from "../services/api.service"
 import { Applicant } from "../models/applicant.model"
 import {
-    formatDateTime, formatTrialDayDate, formatTrialDayTime,
+    formatDateTime, formatTrialDayDate, formatTrialDayTime, sharesDepartment,
     TrialDay, TrialDayRegistration, trialDayRegistrationStatusTitles
 } from "../models/trialDay.model"
 import TrialDayRegister from "./modal/TrialDayRegister"
@@ -31,7 +31,7 @@ interface TrialDayListProps {
 // Trial days grouped by department; also used on the public page
 export const TrialDayList = ({ trialDays, renderAction }: TrialDayListProps) => {
     const trialDaysBySchoolClass = trialDays.reduce((groups, trialDay) => {
-        const title = trialDay.schoolClass?.title ?? ''
+        const title = trialDay.displayName ?? ''
         groups[title] = [...(groups[title] ?? []), trialDay]
         return groups
     }, {} as Record<string, TrialDay[]>)
@@ -80,6 +80,14 @@ export const TrialDayList = ({ trialDays, renderAction }: TrialDayListProps) => 
     )
 }
 
+// Prominent for the teachers: who must not be photographed (SPEC 4.10a)
+export const PhotoConsent = ({ registration }: { registration: TrialDayRegistration }) =>
+    registration.photoConsent === undefined || registration.photoConsent === null
+        ? <span className="text-muted">–</span>
+        : registration.photoConsent
+            ? <Badge bg="light" text="dark">Fotos ok</Badge>
+            : <Badge bg="danger">keine Fotos</Badge>
+
 export const TrialDays = () => {
     const apiService = useMemo(() => new ApiService(), [])
 
@@ -118,8 +126,9 @@ export const TrialDays = () => {
         load()
     }
 
-    // Only one active registration per department (SPEC 4.1)
-    const registeredSchoolClassIDs = new Set(registrations.filter(isActive).map(r => r.trialDay?.schoolClassID))
+    // Only one active registration per department; joint trial days count for all of theirs (SPEC 4.11)
+    const alreadyRegistered = (trialDay: TrialDay) =>
+        registrations.some(registration => isActive(registration) && sharesDepartment(registration.trialDay, trialDay))
 
     return (
         <>
@@ -144,7 +153,7 @@ export const TrialDays = () => {
                                 <tbody>
                                     {registrations.map(registration => (
                                         <tr key={registration.id} className={isActive(registration) ? '' : 'text-muted'}>
-                                            <td>{registration.trialDay?.schoolClass?.title}</td>
+                                            <td>{registration.trialDay?.displayName}</td>
                                             <td>{formatTrialDayDate(registration.trialDay!)}</td>
                                             <td>{formatTrialDayTime(registration.trialDay!)}</td>
                                             <td><RegistrationStatus registration={registration} /></td>
@@ -168,7 +177,7 @@ export const TrialDays = () => {
                 }
 
                 <TrialDayList trialDays={trialDays} renderAction={trialDay =>
-                    registeredSchoolClassIDs.has(trialDay.schoolClassID)
+                    alreadyRegistered(trialDay)
                         ? <small className="text-muted">bereits angemeldet</small>
                         : trialDay.bookable
                             ? <Button size="sm" variant="outline-primary" onClick={() => setRegisterTrialDay(trialDay)}>Anmelden</Button>
@@ -188,7 +197,7 @@ export const TrialDays = () => {
             <Confirmation
                 show={!!cancelRegistration}
                 title="Anmeldung stornieren"
-                text={`Wollen Sie die Anmeldung zum Schnuppertag ${cancelRegistration?.trialDay?.schoolClass?.title ?? ''} am ${cancelRegistration ? formatTrialDayDate(cancelRegistration.trialDay!) : ''} wirklich stornieren?`}
+                text={`Wollen Sie die Anmeldung zum Schnuppertag ${cancelRegistration?.trialDay?.displayName ?? ''} am ${cancelRegistration ? formatTrialDayDate(cancelRegistration.trialDay!) : ''} wirklich stornieren?`}
                 confirmLabel="Stornieren"
                 onSubmit={cancel}
                 onClose={() => setCancelRegistration(undefined)} />

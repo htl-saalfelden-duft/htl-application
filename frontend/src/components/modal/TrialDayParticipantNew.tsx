@@ -6,6 +6,7 @@ import { uniqBy } from 'lodash';
 import { ApiService } from '../../services/api.service';
 import { Applicant } from '../../models/applicant.model';
 import { formatTrialDayDate, formatTrialDayTime, TrialDay, TrialDayRegistration } from '../../models/trialDay.model';
+import TrialDayRegistrationFields, { emptyRegistrationFields, toRegistrationFields, TrialDayRegistrationFieldsInput } from '../form/trialDay/TrialDayRegistrationFields';
 
 interface Props {
 	trialDay?: TrialDay
@@ -13,14 +14,12 @@ interface Props {
 	onRegistered: () => void
 }
 
-interface ParticipantFormInput {
+interface ParticipantFormInput extends TrialDayRegistrationFieldsInput {
 	email: string
 	firstname: string
 	lastname: string
 	school: string
 	currentClass: string
-	guardianPhone: string
-	annotation: string
 	overbook: boolean
 }
 
@@ -48,7 +47,7 @@ const TrialDayParticipantNew = (props: Props) => {
 		setSearch('')
 		setResults([])
 		setSelected(undefined)
-		reset({ email: '', firstname: '', lastname: '', school: '', currentClass: '', guardianPhone: '', annotation: '', overbook: false })
+		reset({ ...emptyRegistrationFields(), email: '', firstname: '', lastname: '', school: '', currentClass: '', overbook: false })
 	}
 
 	// Pure trial day accounts are hidden from the default list, so search both
@@ -59,8 +58,8 @@ const TrialDayParticipantNew = (props: Props) => {
 		]).then(([applicants, trialOnly]) => setResults(uniqBy([...applicants, ...trialOnly], 'id')))
 	}
 
-	const onFormSubmit = handleSubmit((data) => {
-		const { email, firstname, lastname, ...rest } = data
+	const onFormSubmit = handleSubmit(({ email, firstname, lastname, school, currentClass, overbook, ...fields }) => {
+		const rest = { ...toRegistrationFields(fields), school, currentClass, overbook }
 		const body = mode === 'existing'
 			? { applicantID: selected?.id, ...rest }
 			: { email, firstname, lastname, ...rest }
@@ -81,7 +80,7 @@ const TrialDayParticipantNew = (props: Props) => {
 			</Modal.Header>
 			<Form onSubmit={onFormSubmit} autoComplete='off'>
 				<Modal.Body>
-					{trialDay && <p><strong>{trialDay.schoolClass?.title}</strong> – {formatTrialDayDate(trialDay)}, {formatTrialDayTime(trialDay)}</p>}
+					{trialDay && <p><strong>{trialDay.displayName}</strong> – {formatTrialDayDate(trialDay)}, {formatTrialDayTime(trialDay)}</p>}
 
 					<ButtonGroup className="mb-3">
 						<ToggleButton id="mode-existing" type="radio" variant="outline-secondary" value="existing" checked={mode === 'existing'} onChange={() => setMode('existing')}>Bestehendes Konto</ToggleButton>
@@ -124,22 +123,15 @@ const TrialDayParticipantNew = (props: Props) => {
 
 					<div className="row">
 						<Form.Group className="mb-3 col-md-8">
-							<Form.Label htmlFor="school">Aktuelle Schule</Form.Label>
-							<Form.Control {...register("school")} id="school" />
+							<Form.Label htmlFor="school">Aktuelle Schule{mode === 'new' && ' *'}</Form.Label>
+							<Form.Control {...register("school", { required: mode === 'new' && "Bitte Schule eingeben" })} id="school" isInvalid={!!errors.school} />
 						</Form.Group>
 						<Form.Group className="mb-3 col-md-4">
 							<Form.Label htmlFor="currentClass">Klasse</Form.Label>
 							<Form.Control {...register("currentClass")} id="currentClass" />
 						</Form.Group>
 					</div>
-					<Form.Group className="mb-3">
-						<Form.Label htmlFor="guardianPhone">Telefon Erziehungsberechtigte:r *</Form.Label>
-						<Form.Control type="tel" {...register("guardianPhone", { required: "Bitte Telefonnummer eingeben" })} id="guardianPhone" isInvalid={!!errors.guardianPhone} />
-					</Form.Group>
-					<Form.Group className="mb-3">
-						<Form.Label htmlFor="annotation">Bemerkung</Form.Label>
-						<Form.Control as="textarea" rows={2} {...register("annotation")} id="annotation" />
-					</Form.Group>
+					<TrialDayRegistrationFields register={register} errors={errors} extraQuestion={trialDay?.extraQuestion} />
 					{full && <>
 						<Alert variant="warning" className="mb-2">Der Termin ist voll. Ohne Überbuchen kommt die Person auf die Warteliste.</Alert>
 						<Form.Check type="checkbox" id="overbook" label="Überbuchen (trotzdem fix anmelden)" {...register("overbook")} />

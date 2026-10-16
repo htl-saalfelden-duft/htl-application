@@ -15,7 +15,9 @@ interface Props {
 }
 
 interface TrialDayEditFormInput {
-	schoolClassID: string
+	schoolClassIDs: string[]
+	title: string
+	extraQuestion: string
 	date: string
 	timeFrom: string
 	timeTo: string
@@ -44,7 +46,9 @@ const TrialDayEdit = (props: Props) => {
 
 		if (trialDay) {
 			reset({
-				schoolClassID: trialDay.schoolClassID,
+				schoolClassIDs: trialDay.schoolClassIDs,
+				title: trialDay.title ?? '',
+				extraQuestion: trialDay.extraQuestion ?? '',
 				date: moment(trialDay.startAt).format('YYYY-MM-DD'),
 				timeFrom: moment(trialDay.startAt).format('HH:mm'),
 				timeTo: moment(trialDay.endAt).format('HH:mm'),
@@ -54,14 +58,16 @@ const TrialDayEdit = (props: Props) => {
 				active: trialDay.active
 			})
 		} else {
-			reset({ schoolClassID: '', date: '', timeFrom: '08:00', timeTo: '12:30', maxParticipants: 10, registrationDeadline: '', description: '', active: false })
+			reset({ schoolClassIDs: [], title: '', extraQuestion: '', date: '', timeFrom: '08:00', timeTo: '12:30', maxParticipants: 10, registrationDeadline: '', description: '', active: false })
 		}
 	}
 
 	const onFormSubmit = handleSubmit((data) => {
 		const value: TrialDay = {
 			id: trialDay?.id,
-			schoolClassID: data.schoolClassID,
+			schoolClassIDs: toArray(data.schoolClassIDs),
+			title: data.title,
+			extraQuestion: data.extraQuestion,
 			startAt: moment(`${data.date}T${data.timeFrom}`).toDate(),
 			endAt: moment(`${data.date}T${data.timeTo}`).toDate(),
 			maxParticipants: Number(data.maxParticipants),
@@ -87,12 +93,22 @@ const TrialDayEdit = (props: Props) => {
 			<Form onSubmit={onFormSubmit} autoComplete='off'>
 				<Modal.Body>
 					<Form.Group className="mb-3">
-						<Form.Label htmlFor="schoolClassID">Fachrichtung</Form.Label>
-						<Form.Select {...register("schoolClassID", { required: "Bitte Fachrichtung wählen" })} id="schoolClassID" isInvalid={!!errors.schoolClassID}>
-							<option value="">Bitte wählen</option>
-							{schoolClasses.map(sc => <option key={sc.id} value={sc.id}>{sc.title} ({sc.year})</option>)}
-						</Form.Select>
-						{errors.schoolClassID && <Form.Text className="text-danger">{errors.schoolClassID.message}</Form.Text>}
+						<Form.Label>Fachrichtung(en)</Form.Label>
+						<Form.Text muted className="d-block mb-1">Bei einem gemeinsamen Schnuppertag (z.B. Mechatronik / Elektrotechnik) alle beteiligten Fachrichtungen auswählen: ein Kontingent, eine Teilnehmerliste.</Form.Text>
+						{schoolClasses.map(sc => (
+							<Form.Check
+								key={sc.id}
+								type="checkbox"
+								id={`schoolClass-${sc.id}`}
+								value={sc.id}
+								label={`${sc.title} (${sc.year})`}
+								{...register("schoolClassIDs", { validate: value => toArray(value).length > 0 || "Bitte mindestens eine Fachrichtung wählen" })} />
+						))}
+						{errors.schoolClassIDs && <Form.Text className="text-danger">{errors.schoolClassIDs.message}</Form.Text>}
+					</Form.Group>
+					<Form.Group className="mb-3">
+						<Form.Label htmlFor="title">Anzeigename (optional)</Form.Label>
+						<Form.Control {...register("title")} id="title" placeholder="z.B. Mechatronik / Elektrotechnik – Saalfelden (sonst die Namen der Fachrichtungen)" />
 					</Form.Group>
 					<div className="row">
 						<Form.Group className="mb-3 col-md-4">
@@ -132,6 +148,11 @@ const TrialDayEdit = (props: Props) => {
 						<Form.Label htmlFor="description">Beschreibung / Hinweise</Form.Label>
 						<Form.Control as="textarea" rows={3} {...register("description")} id="description" placeholder="z.B. Ablauf, Treffpunkt, Mitzubringen (erscheint auch in der Bestätigungsmail)" />
 					</Form.Group>
+					<Form.Group className="mb-3">
+						<Form.Label htmlFor="extraQuestion">Zusatzfrage Ja/Nein (optional)</Form.Label>
+						<Form.Control {...register("extraQuestion")} id="extraQuestion" placeholder="z.B. Ich fahre mit dem Schnupperbus" />
+						<Form.Text muted>Die Antwort ist bei der Anmeldung Pflicht. Infos dazu (z.B. Treffpunkt, Abfahrtszeiten) in die Beschreibung schreiben.</Form.Text>
+					</Form.Group>
 					<Form.Check type="switch" id="active" label="Für Bewerber:innen sichtbar und buchbar" {...register("active")} />
 				</Modal.Body>
 				<Modal.Footer>
@@ -146,5 +167,9 @@ const TrialDayEdit = (props: Props) => {
 		</Modal>
 	)
 }
+
+// react-hook-form returns a single value instead of an array if there is only one checkbox
+const toArray = (value: string[] | string | false | undefined): string[] =>
+	Array.isArray(value) ? value : value ? [value] : []
 
 export default TrialDayEdit;

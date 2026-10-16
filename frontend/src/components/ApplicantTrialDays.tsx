@@ -4,7 +4,7 @@ import moment from "moment"
 import { ApiService } from "../services/api.service"
 import { Applicant } from "../models/applicant.model"
 import { formatTrialDayDate, formatTrialDayTime } from "../models/trialDay.model"
-import { RegistrationStatus } from "./TrialDays"
+import { PhotoConsent, RegistrationStatus } from "./TrialDays"
 
 interface Props {
     applicantID: string
@@ -36,17 +36,19 @@ const ApplicantTrialDays = ({ applicantID }: Props) => {
                                     <th>Fachrichtung</th>
                                     <th>Datum</th>
                                     <th>Status</th>
-                                    <th>Telefon</th>
+                                    <th>Erziehungsberechtigte:r</th>
+                                    <th>Fotos</th>
                                     <th>Bemerkung</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {applicant.trialDayRegistrations.map(registration => (
                                     <tr key={registration.id}>
-                                        <td>{registration.trialDay?.schoolClass?.title}</td>
+                                        <td>{registration.trialDay?.displayName}</td>
                                         <td>{formatTrialDayDate(registration.trialDay!)}, {formatTrialDayTime(registration.trialDay!)}</td>
                                         <td><RegistrationStatus registration={registration} /></td>
-                                        <td>{registration.guardianPhone}</td>
+                                        <td>{registration.guardianFirstname} {registration.guardianLastname}, {registration.guardianPhone}</td>
+                                        <td><PhotoConsent registration={registration} /></td>
                                         <td style={{ whiteSpace: 'pre-line' }}>{registration.annotation}</td>
                                     </tr>
                                 ))}

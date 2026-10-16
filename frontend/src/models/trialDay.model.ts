@@ -5,15 +5,18 @@ import { SchoolClass } from "./schoolClass.model"
 @Entity('trialDay')
 export class TrialDay {
     id?: string
-    schoolClassID!: string
-    schoolClass?: SchoolClass
+    schoolClassIDs!: string[]
+    schoolClasses?: SchoolClass[]
+    title?: string
+    extraQuestion?: string
     startAt!: Date
     endAt!: Date
     maxParticipants!: number
     registrationDeadline!: Date
     description?: string
     active!: boolean
-    // computed by the backend
+    // computed by the backend: title or the department titles joined
+    displayName?: string
     registeredCount?: number
     waitingCount?: number
     bookable?: boolean
@@ -28,7 +31,17 @@ export class TrialDayRegistration {
     applicant?: { id: string, email: string, details?: ApplicantDetails, invitationPending: boolean }
     statusKey!: TrialDayRegistrationStatusKey
     currentClass?: string
+    street?: string
+    streetNr?: string
+    zip?: string
+    city?: string
+    guardianContactTypeKey?: GuardianContactTypeKey
+    guardianFirstname?: string
+    guardianLastname?: string
     guardianPhone!: string
+    guardianEmail?: string
+    photoConsent?: boolean
+    extraAnswer?: boolean | null
     annotation?: string
     createdBy!: 'applicant' | 'administration'
     createdAt!: Date
@@ -38,6 +51,18 @@ export class TrialDayRegistration {
     waitingPosition?: number | null
     changeable?: boolean
 }
+
+export type GuardianContactTypeKey = 'mother' | 'father' | 'others'
+
+export const guardianContactTypeTitles: Record<GuardianContactTypeKey, string> = {
+    mother: 'Mutter',
+    father: 'Vater',
+    others: 'Andere:r Erziehungsberechtigte:r'
+}
+
+// Joint trial days block every other trial day that shares a department (SPEC 4.11)
+export const sharesDepartment = (a?: TrialDay, b?: TrialDay) =>
+    !!a && !!b && a.schoolClassIDs.some(id => b.schoolClassIDs.includes(id))
 
 export type TrialDayRegistrationStatusKey = 'registered' | 'waiting' | 'cancelled'
 

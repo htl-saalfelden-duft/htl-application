@@ -2,7 +2,7 @@ import { Button, Form, Modal } from 'react-bootstrap';
 import { useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import { ApiService } from '../../services/api.service';
-import { formatTrialDayDate, formatTrialDayTime, TrialDay, TrialDayRegistration } from '../../models/trialDay.model';
+import { formatTrialDayDate, formatTrialDayTime, sharesDepartment, TrialDay, TrialDayRegistration } from '../../models/trialDay.model';
 
 interface Props {
 	registration?: TrialDayRegistration
@@ -17,9 +17,9 @@ const TrialDayRebook = (props: Props) => {
 	const apiService = useMemo(() => new ApiService(), [])
 	const [trialDayID, setTrialDayID] = useState('')
 
-	// Only other bookable dates of the same department
+	// Only other bookable dates sharing a department
 	const options = trialDays.filter(td =>
-		td.bookable && td.id !== registration?.trialDayID && td.schoolClassID === registration?.trialDay?.schoolClassID)
+		td.bookable && td.id !== registration?.trialDayID && sharesDepartment(td, registration?.trialDay))
 
 	const rebook = () => {
 		apiService.post<TrialDayRegistration>(TrialDayRegistration, `${registration!.id}/rebook`, { trialDayID })
@@ -47,7 +47,7 @@ const TrialDayRebook = (props: Props) => {
 							<option value="">Bitte wählen</option>
 							{options.map(td => (
 								<option key={td.id} value={td.id}>
-									{formatTrialDayDate(td)}, {formatTrialDayTime(td)}
+									{td.displayName}: {formatTrialDayDate(td)}, {formatTrialDayTime(td)}
 									{(td.registeredCount ?? 0) >= td.maxParticipants ? ' (ausgebucht – Warteliste)' : ''}
 								</option>
 							))}

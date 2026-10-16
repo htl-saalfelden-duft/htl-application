@@ -6,6 +6,7 @@ import { ApiService } from '../../services/api.service';
 import { Applicant } from '../../models/applicant.model';
 import { formatDateTime, formatTrialDayDate, formatTrialDayTime, TrialDay, TrialDayRegistration } from '../../models/trialDay.model';
 import Dsgvo from './Dsgvo';
+import TrialDayRegistrationFields, { emptyRegistrationFields, toRegistrationFields, TrialDayRegistrationFieldsInput } from '../form/trialDay/TrialDayRegistrationFields';
 
 interface Props {
 	trialDay?: TrialDay
@@ -14,13 +15,11 @@ interface Props {
 	onRegistered: () => void
 }
 
-interface TrialDayRegisterFormInput {
+interface TrialDayRegisterFormInput extends TrialDayRegistrationFieldsInput {
 	firstname: string
 	lastname: string
 	school: string
 	currentClass: string
-	guardianPhone: string
-	annotation: string
 	dsgvo: boolean
 }
 
@@ -41,18 +40,19 @@ const TrialDayRegister = (props: Props) => {
 
 	const handleShow = () => {
 		reset({
+			// The account email is usually the guardian's
+			...emptyRegistrationFields(applicant?.email),
 			firstname: applicant?.details?.firstname ?? '',
 			lastname: applicant?.details?.lastname ?? '',
 			school: applicant?.details?.previousSchoolTxt ?? '',
 			currentClass: '',
-			guardianPhone: '',
-			annotation: '',
 			dsgvo: false
 		})
 	}
 
-	const onFormSubmit = handleSubmit((data) => {
-		return apiService.post<TrialDayRegistration>(TrialDayRegistration, '', { ...data, trialDayID: trialDay!.id })
+	const onFormSubmit = handleSubmit(({ firstname, lastname, school, currentClass, dsgvo, ...fields }) => {
+		const body = { ...toRegistrationFields(fields), firstname, lastname, school, currentClass, dsgvo, trialDayID: trialDay!.id }
+		return apiService.post<TrialDayRegistration>(TrialDayRegistration, '', body)
 			.then((registration) => {
 				if (registration.statusKey === 'waiting') {
 					toast("Der Termin ist ausgebucht. Sie stehen auf der Warteliste und erhalten eine E-Mail, sobald ein Platz frei wird.", { type: 'info', autoClose: 1E4 })
@@ -74,7 +74,7 @@ const TrialDayRegister = (props: Props) => {
 				<Modal.Body>
 					{trialDay && <>
 						<p>
-							<strong>{trialDay.schoolClass?.title}</strong><br />
+							<strong>{trialDay.displayName}</strong><br />
 							{formatTrialDayDate(trialDay)}, {formatTrialDayTime(trialDay)}
 						</p>
 						{full && <Alert variant="warning">Dieser Termin ist bereits ausgebucht. Ihre Anmeldung kommt auf die Warteliste.</Alert>}
@@ -102,15 +102,7 @@ const TrialDayRegister = (props: Props) => {
 							<Form.Control {...register("currentClass")} id="currentClass" placeholder="z.B. 4b" />
 						</Form.Group>
 					</div>
-					<Form.Group className="mb-3">
-						<Form.Label htmlFor="guardianPhone">Telefonnummer eines Erziehungsberechtigten *</Form.Label>
-						<Form.Control type="tel" {...register("guardianPhone", { required: "Bitte Telefonnummer eingeben" })} id="guardianPhone" isInvalid={!!errors.guardianPhone} />
-						{errors.guardianPhone && <Form.Text className="text-danger">{errors.guardianPhone.message}</Form.Text>}
-					</Form.Group>
-					<Form.Group className="mb-3">
-						<Form.Label htmlFor="annotation">Bemerkung</Form.Label>
-						<Form.Control as="textarea" rows={2} {...register("annotation")} id="annotation" placeholder="Wichtige Hinweise für den Schnuppertag" />
-					</Form.Group>
+					<TrialDayRegistrationFields register={register} errors={errors} extraQuestion={trialDay?.extraQuestion} />
 					{!applicant?.dsgvo &&
 						<Form.Group className="mb-3">
 							<Form.Check

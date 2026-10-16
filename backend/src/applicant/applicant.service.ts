@@ -219,7 +219,7 @@ export class ApplicantService {
 		const filePath = `exports`;
 		const fileName = `sokrates-${new Date().toISOString()}.csv`;
 
-		return this.getMany(where) // Some function that gets applicants data.
+		return this.getMany(notAnonymized(where)) // Some function that gets applicants data.
 			.then(async (applicants) => {
 				const [csvData, csvFields] =
 					transformApplicantsDataForSokratesCSV(applicants); // Some function that returns csv data & fields.
@@ -250,7 +250,7 @@ export class ApplicantService {
 		const fileName = `bts-${new Date().toISOString()}.csv`;
 
 		return forkJoin({
-			applicants: this.getMany(where),
+			applicants: this.getMany(notAnonymized(where)),
 			contactTypes: this.prisma.contactType.findMany()
 		}).pipe(
 			mergeMap(({ applicants, contactTypes }) => {
@@ -381,3 +381,7 @@ export class ApplicantService {
 
 const hashPassword = (password: string) =>
 	crypto.createHmac('sha512', process.env.HMAC_SECRET).update(password).digest('hex')
+
+// Anonymized applications (SPEC 4.10) are never exported
+const notAnonymized = (where: Prisma.ApplicantWhereInput = {}): Prisma.ApplicantWhereInput =>
+	({ AND: [where, { anonymizedAt: { isSet: false } }] })

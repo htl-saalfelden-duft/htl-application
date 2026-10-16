@@ -18,6 +18,7 @@ import { SchoolReportGroupModule } from './school-report-group/school-report-gro
 import { TitleModule } from './title/title.module';
 import { ApplicantStatusModule } from './applicant-status/applicant-status.module';
 import { SettingModule } from './setting/setting.module';
+import { ApplicationPhaseModule } from './application-phase/application-phase.module';
 import { TrialDayModule } from './trial-day/trial-day.module';
 import { TrialDayRegistrationStatusModule } from './trial-day-registration-status/trial-day-registration-status.module';
 @Module({
@@ -41,6 +42,7 @@ import { TrialDayRegistrationStatusModule } from './trial-day-registration-statu
     SettingModule,
     TrialDayModule,
     TrialDayRegistrationStatusModule,
+    ApplicationPhaseModule,
   ],
   controllers: [AppController],
   providers: [],

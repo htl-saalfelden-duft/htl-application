@@ -1,5 +1,5 @@
 import { Fragment, ReactNode, useEffect, useMemo, useState } from "react"
-import { Alert, Badge, Button, Card, CardBody, Row, Table } from "react-bootstrap"
+import { Alert, Badge, Button, Card, CardBody, Col, Row, Table } from "react-bootstrap"
 import { toast } from "react-toastify"
 import { ApiService } from "../services/api.service"
 import { Applicant } from "../models/applicant.model"
@@ -52,33 +52,30 @@ export const TrialDayList = ({ trialDays, renderAction }: TrialDayListProps) => 
                         <Card className="mb-4" key={title}>
                             <CardBody>
                                 <h5>{title}</h5>
-                                <Table responsive className="mb-0">
-                                    <tbody>
-                                        {days.map(trialDay => {
-                                            const free = trialDay.maxParticipants - (trialDay.registeredCount ?? 0)
-                                            return (
-                                                <tr key={trialDay.id}>
-                                                    <td style={{ width: '30%' }}>
-                                                        <strong>{formatTrialDayDate(trialDay)}</strong><br />
-                                                        {formatTrialDayTime(trialDay)}
-                                                    </td>
-                                                    <td>
-                                                        {trialDay.description && <div style={{ whiteSpace: 'pre-line' }}>{trialDay.description}</div>}
-                                                        <small className="text-muted">Anmeldeschluss: {formatDateTime(trialDay.registrationDeadline)}</small>
-                                                    </td>
-                                                    <td style={{ width: '20%' }}>
-                                                        {free > 0
-                                                            ? <span className="text-success">{free} {free === 1 ? 'Platz' : 'Plätze'} frei</span>
-                                                            : <span className="text-warning">ausgebucht – Warteliste</span>}
-                                                    </td>
-                                                    <td className="text-end" style={{ width: '15%' }}>
-                                                        {renderAction(trialDay)}
-                                                    </td>
-                                                </tr>
-                                            )
-                                        })}
-                                    </tbody>
-                                </Table>
+                                {/* Grid instead of a table: on phones the cells stack, so the action stays visible */}
+                                {days.map((trialDay, index) => {
+                                    const free = trialDay.maxParticipants - (trialDay.registeredCount ?? 0)
+                                    return (
+                                        <Row key={trialDay.id} className={`g-2 py-2 align-items-center${index > 0 ? ' border-top' : ''}`}>
+                                            <Col xs={6} md={3}>
+                                                <strong>{formatTrialDayDate(trialDay)}</strong><br />
+                                                {formatTrialDayTime(trialDay)}
+                                            </Col>
+                                            <Col xs={12} md={5} className="order-md-2 order-3">
+                                                {trialDay.description && <div style={{ whiteSpace: 'pre-line' }}>{trialDay.description}</div>}
+                                                <small className="text-muted">Anmeldeschluss: {formatDateTime(trialDay.registrationDeadline)}</small>
+                                            </Col>
+                                            <Col xs={6} md={2} className="order-md-3 order-2 text-end text-md-start">
+                                                {free > 0
+                                                    ? <span className="text-success">{free} {free === 1 ? 'Platz' : 'Plätze'} frei</span>
+                                                    : <span className="text-warning">ausgebucht – Warteliste</span>}
+                                            </Col>
+                                            <Col xs={12} md={2} className="order-4 text-md-end">
+                                                {renderAction(trialDay)}
+                                            </Col>
+                                        </Row>
+                                    )
+                                })}
                             </CardBody>
                         </Card>
                     ))}

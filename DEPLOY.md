@@ -34,36 +34,35 @@ git checkout master
 vim repos/htl-application.git/hooks/post-receive
 ```
 
-post-receive content
-```sh
-#!/bin/sh
+post-receive content (checks out `main` and rebuilds/restarts the containers; the build output is shown in the `git push` terminal)
+```bash
+#!/bin/bash
+set -euo pipefail
 
-while read oldrev newrev ref
-do
-    # only checking out the master (or whatever branch you would like to deploy)
-    if [[ $ref =~ .*/master$ ]];
-    then
-        echo "Master ref received.  Deploying master branch to production"
-        git --work-tree=/home/htl-application --git-dir=/home/repos/htl-application.git/ checkout -f
+WORK_TREE=/home/htl-application
+REPO_DIR=/home/repos/htl-application.git
+BRANCH=main
 
-        # rm /var/www/virtual/duft1/html/* -R
-
-        # cp -a /home/htl-application/frontend/dist/frontend/. /var/www/virtual/duft1/html/
-
-        # cp /home/htl-application/.htaccess /var/www/virtual/duft1/html/.htaccess
-
-        # cd /home/htl-application/backend
-
-        # yarn install
-
-        # /home/duft1/bin/nest build
-
-        # supervisorctl restart infoscreen
-    else
-        echo "Ref $ref successfully received.  Doing nothing: only the master branch may be deployed on this server."
+while read -r oldrev newrev ref; do
+    if [[ $ref != refs/heads/$BRANCH ]]; then
+        echo "Ref $ref received. Doing nothing: only $BRANCH is deployed on this server."
+        continue
     fi
+
+    echo "Deploying $BRANCH ($newrev)"
+    git --work-tree="$WORK_TREE" --git-dir="$REPO_DIR" checkout -f "$BRANCH"
+
+    # git exports GIT_DIR into hooks; don't let it leak into docker/buildx
+    unset GIT_DIR
+    cd "$WORK_TREE"
+    docker compose -f docker-compose-prod.yml build backend frontend
+    # recreates only containers whose image or config changed (mongo keeps running)
+    docker compose -f docker-compose-prod.yml up -d
+    # remove the replaced images, the server is short on storage
+    docker image prune -f
 done
 ```
+Make it executable: `chmod +x /home/repos/htl-application.git/hooks/post-receive`. The pushing ssh user needs docker access (root or member of the `docker` group).
 
 ## Installing docker
 ```sh
@@ -125,6 +124,7 @@ cd backend && npm run db:seed:prod
 The seed only creates missing entries. A new `applicationOpen` setting starts as `false` (application form locked for applicants); unlock it as admin under Admin → Einstellungen.
 
 ## Rebuild Images
+Done automatically by the post-receive hook. Manually:
 ```sh
 docker compose -f docker-compose-prod.yml build backend
 docker compose -f docker-compose-prod.yml build frontend

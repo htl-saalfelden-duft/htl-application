@@ -111,7 +111,7 @@ export const TrialDaysAdmin = () => {
                     <div className="d-flex align-items-center mb-2" style={{ gap: '12px' }}>
                         <Form.Select size="sm" value={schoolClassFilter} onChange={e => setSchoolClassFilter(e.target.value)} style={{ width: 'auto' }}>
                             <option value="">Alle Fachrichtungen</option>
-                            {schoolClasses.map(sc => <option key={sc.id} value={sc.id}>{sc.title}</option>)}
+                            {schoolClasses.map(sc => <option key={sc.id} value={sc.id}>{sc.title}{sc.location ? ` – ${sc.location}` : ''}</option>)}
                         </Form.Select>
                         <Form.Check type="switch" id="showPast" label="vergangene anzeigen" checked={showPast} onChange={e => setShowPast(e.target.checked)} />
                         <Button variant="outline-secondary" onClick={() => openEdit()} title="Neuen Termin anlegen">
@@ -126,6 +126,7 @@ export const TrialDaysAdmin = () => {
                                 <tr>
                                     <th></th>
                                     <th>Fachrichtung</th>
+                                    <th>Standort</th>
                                     <th>Datum</th>
                                     <th>Uhrzeit</th>
                                     <th>Anmeldeschluss</th>
@@ -136,7 +137,7 @@ export const TrialDaysAdmin = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {trialDays.length === 0 && <tr><td colSpan={9} className="text-muted">Keine Termine.</td></tr>}
+                                {trialDays.length === 0 && <tr><td colSpan={10} className="text-muted">Keine Termine.</td></tr>}
                                 {trialDays.map(trialDay => (
                                     <Fragment key={trialDay.id}>
                                         <tr>
@@ -146,6 +147,7 @@ export const TrialDaysAdmin = () => {
                                                 </Button>
                                             </td>
                                             <td>{trialDay.displayName}</td>
+                                            <td>{trialDay.location}</td>
                                             <td>{formatTrialDayDate(trialDay)}</td>
                                             <td>{formatTrialDayTime(trialDay)}</td>
                                             <td>{formatDateTime(trialDay.registrationDeadline)}</td>
@@ -165,7 +167,7 @@ export const TrialDaysAdmin = () => {
                                         {openTrialDayID === trialDay.id &&
                                             <tr>
                                                 {/* maxWidth 0: the wide participant list scrolls on its own instead of widening the whole table */}
-                                                <td colSpan={9} style={{ maxWidth: 0 }}>
+                                                <td colSpan={10} style={{ maxWidth: 0 }}>
                                                     <div className="d-flex justify-content-between">
                                                         <h6>Teilnehmerliste</h6>
                                                         <Form.Check type="switch" id="showCancelled" label="stornierte anzeigen" checked={showCancelled} onChange={e => setShowCancelled(e.target.checked)} />

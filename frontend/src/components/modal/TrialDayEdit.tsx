@@ -62,6 +62,14 @@ const TrialDayEdit = (props: Props) => {
 		}
 	}
 
+	// A trial day takes place at one location; the backend checks this too
+	const validateSchoolClassIDs = (value: string[] | string) => {
+		const ids = toArray(value)
+		if (!ids.length) return "Bitte mindestens eine Fachrichtung wählen"
+		const locations = new Set(schoolClasses.filter(sc => ids.includes(sc.id)).map(sc => sc.location))
+		return locations.size <= 1 || "Ein Termin kann nur Fachrichtungen desselben Standorts umfassen"
+	}
+
 	const onFormSubmit = handleSubmit((data) => {
 		const value: TrialDay = {
 			id: trialDay?.id,
@@ -94,15 +102,15 @@ const TrialDayEdit = (props: Props) => {
 				<Modal.Body>
 					<Form.Group className="mb-3">
 						<Form.Label>Fachrichtung(en)</Form.Label>
-						<Form.Text muted className="d-block mb-1">Bei einem gemeinsamen Schnuppertag (z.B. Mechatronik / Elektrotechnik) alle beteiligten Fachrichtungen auswählen: ein Kontingent, eine Teilnehmerliste.</Form.Text>
+						<Form.Text muted className="d-block mb-1">Bei einem gemeinsamen Schnuppertag (z.B. Mechatronik / Elektrotechnik) alle beteiligten Fachrichtungen auswählen: ein Kontingent, eine Teilnehmerliste. Alle Fachrichtungen müssen zum selben Standort gehören.</Form.Text>
 						{schoolClasses.map(sc => (
 							<Form.Check
 								key={sc.id}
 								type="checkbox"
 								id={`schoolClass-${sc.id}`}
 								value={sc.id}
-								label={`${sc.title} (${sc.year})`}
-								{...register("schoolClassIDs", { validate: value => toArray(value).length > 0 || "Bitte mindestens eine Fachrichtung wählen" })} />
+								label={`${sc.title} (${sc.year})${sc.location ? ` – ${sc.location}` : ''}`}
+								{...register("schoolClassIDs", { validate: validateSchoolClassIDs })} />
 						))}
 						{errors.schoolClassIDs && <Form.Text className="text-danger">{errors.schoolClassIDs.message}</Form.Text>}
 					</Form.Group>

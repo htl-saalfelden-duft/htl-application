@@ -17,6 +17,8 @@ export class TrialDay {
     active!: boolean
     // computed by the backend: title or the department titles joined
     displayName?: string
+    // computed by the backend: location of the departments
+    location?: string | null
     registeredCount?: number
     waitingCount?: number
     bookable?: boolean

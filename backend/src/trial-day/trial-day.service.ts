@@ -55,6 +55,7 @@ export class TrialDayService {
 			schoolClassIDs: trialDay.schoolClassIDs,
 			schoolClasses: trialDay.schoolClasses.map(({ id, title }) => ({ id, title })),
 			displayName: trialDay.displayName,
+			location: trialDay.location,
 			extraQuestion: trialDay.extraQuestion,
 			startAt: trialDay.startAt,
 			endAt: trialDay.endAt,
@@ -140,9 +141,13 @@ export class TrialDayService {
 			if (!ids.length || !ids.every(id => typeof id === 'string' && /^[0-9a-f]{24}$/.test(id))) {
 				throw new ApiError(ApiErrorType.INVALID_INPUT)
 			}
-			const activeCount = await this.prisma.schoolClass.count({ where: { id: { in: ids }, active: true } })
-			if (activeCount !== ids.length) {
+			const schoolClasses = await this.prisma.schoolClass.findMany({ where: { id: { in: ids }, active: true }, select: { location: true } })
+			if (schoolClasses.length !== ids.length) {
 				throw new ApiError(ApiErrorType.INVALID_INPUT)
+			}
+			// A trial day takes place at one location
+			if (new Set(schoolClasses.map(schoolClass => schoolClass.location)).size > 1) {
+				throw new ApiError(ApiErrorType.TRIAL_DAY_MIXED_LOCATIONS)
 			}
 			data.schoolClassIDs = ids
 		}

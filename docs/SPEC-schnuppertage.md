@@ -253,8 +253,9 @@ Mit dem Platzhalter ist kein Login mehr möglich, und die ursprüngliche E-Mail 
 - Sie sind von den Sokrates- und BTS-Exporten ausgeschlossen.
 
 ### 4.11 Gemeinsame Termine und Zusatzfrage (Wünsche des Sekretariats, Okt. 2026)
-- Ein Termin kann **mehreren Fachrichtungen** zugeordnet sein, mit **einem** Kontingent und **einer** Teilnehmerliste. Beispiele: Mechatronik und Elektrotechnik am selben Standort finden immer gemeinsam statt; im Jänner gibt es einen gemeinsamen Mechatronik-Termin für HTL Pongau und HTL Saalfelden.
-- Angezeigt wird `title`, sonst die Titel der Fachrichtungen mit „ / “ verbunden. Gruppiert wird auf der Terminseite nach diesem Namen.
+- Ein Termin kann **mehreren Fachrichtungen** zugeordnet sein, mit **einem** Kontingent und **einer** Teilnehmerliste. Beispiel: Mechatronik und Elektrotechnik am selben Standort finden immer gemeinsam statt.
+- Alle Fachrichtungen eines Termins müssen zum **selben Standort** gehören (`SchoolClass.location`, z.B. „HTL Saalfelden“, „HTL Pongau“); sonst lehnt das Backend den Termin ab. Standortübergreifende Angebote (z.B. der Mechatronik-Termin im Jänner) werden als eigener Termin pro Standort angelegt, mit je eigenem Kontingent.
+- Angezeigt wird `title`, sonst die Titel der Fachrichtungen mit „ / “ verbunden. Die Terminseite gruppiert zuerst nach Standort (Zwischenüberschrift), darin nach diesem Namen. Standorte und Gruppen stehen in der Reihenfolge ihres frühesten Termins; der Standort gehört deshalb nicht mehr in `title`.
 - Der Filter nach Fachrichtung in der Verwaltung zeigt alle Termine, die diese Fachrichtung enthalten.
 - Optionale **Zusatzfrage** (Ja/Nein) pro Termin, z.B. für den Schnupperbus beim Jänner-Termin. Der zugehörige Infotext (Treffpunkt, Abfahrtszeiten) kommt in die Beschreibung. Die Antwort ist Pflicht und erscheint in Teilnehmerliste (mit Summe) und Bestätigungsmail. Kein Platzlimit für den Bus.
 
@@ -334,7 +335,7 @@ Navbar für die Verwaltung: neuer Eintrag „Schnuppertage“, für Admins zusä
 
 ### 7.2 Seite `/trial-days` (Bewerber:innen)
 - **Meine Anmeldungen**: Fachrichtung, Datum, Uhrzeit, Status bzw. Wartelistenposition, Buttons „Stornieren“ und „Umbuchen“ (nur bis zum Anmeldeschluss), danach der Hinweis „Änderungen bitte direkt bei der Schule“.
-- **Termine**, gruppiert nach Fachrichtung: Datum, Uhrzeit, Beschreibung, freie Plätze bzw. „ausgebucht – Anmeldung auf Warteliste“, Anmeldeschluss.
+- **Termine**, gruppiert nach Standort und Fachrichtung (4.11): Datum, Uhrzeit, Beschreibung, freie Plätze bzw. „ausgebucht – Anmeldung auf Warteliste“, Anmeldeschluss.
   - Fachrichtungen mit aktiver Anmeldung zeigen statt „Anmelden“ den Hinweis „bereits angemeldet“.
 - **Anmeldeformular** (Modal, react-hook-form): Vorname*, Nachname*, aktuelle Schule*, Klasse, Telefon Erziehungsberechtigte:r*, Bemerkung. Name und Schule werden aus `details` vorbefüllt. Die DSGVO-Checkbox* erscheint nur, solange keine Einwilligung vorliegt.
 

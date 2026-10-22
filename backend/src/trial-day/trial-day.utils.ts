@@ -39,11 +39,12 @@ export const optionalText = (value: unknown): string | null => {
 
 
 // Trial days reference one or more departments by id (SPEC 3.1). Loads them and
-// adds the display name: the optional title or the department titles joined.
+// adds the display name (the optional title or the department titles joined)
+// and the location shared by all departments.
 export const withSchoolClasses = async <T extends { schoolClassIDs: string[], title?: string | null }>(prisma: PrismaService | Prisma.TransactionClient, trialDays: T[]) => {
 	const ids = [...new Set(trialDays.flatMap(trialDay => trialDay.schoolClassIDs))]
 	const schoolClasses = ids.length
-		? await prisma.schoolClass.findMany({ where: { id: { in: ids } }, select: { id: true, title: true, year: true } })
+		? await prisma.schoolClass.findMany({ where: { id: { in: ids } }, select: { id: true, title: true, location: true, year: true } })
 		: []
 
 	return trialDays.map(trialDay => {
@@ -53,7 +54,8 @@ export const withSchoolClasses = async <T extends { schoolClassIDs: string[], ti
 		return {
 			...trialDay,
 			schoolClasses: own,
-			displayName: trialDay.title || own.map(schoolClass => schoolClass.title).join(' / ')
+			displayName: trialDay.title || own.map(schoolClass => schoolClass.title).join(' / '),
+			location: own[0]?.location ?? null
 		}
 	})
 }

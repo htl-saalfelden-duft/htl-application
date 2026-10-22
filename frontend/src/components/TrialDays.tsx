@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useMemo, useState } from "react"
+import { Fragment, ReactNode, useEffect, useMemo, useState } from "react"
 import { Alert, Badge, Button, Card, CardBody, Row, Table } from "react-bootstrap"
 import { toast } from "react-toastify"
 import { ApiService } from "../services/api.service"
@@ -28,13 +28,16 @@ interface TrialDayListProps {
     renderAction: (trialDay: TrialDay) => ReactNode
 }
 
-// Trial days grouped by department; also used on the public page
+// Trial days grouped by location, then by display name; groups keep the order
+// of their first trial day. Also used on the public page
 export const TrialDayList = ({ trialDays, renderAction }: TrialDayListProps) => {
-    const trialDaysBySchoolClass = trialDays.reduce((groups, trialDay) => {
+    const trialDaysByLocation = trialDays.reduce((groups, trialDay) => {
+        const location = trialDay.location ?? ''
         const title = trialDay.displayName ?? ''
-        groups[title] = [...(groups[title] ?? []), trialDay]
+        const byTitle = groups[location] = groups[location] ?? {}
+        byTitle[title] = [...(byTitle[title] ?? []), trialDay]
         return groups
-    }, {} as Record<string, TrialDay[]>)
+    }, {} as Record<string, Record<string, TrialDay[]>>)
 
     if (trialDays.length === 0) {
         return <Alert variant="info">Derzeit sind keine Schnuppertermine verfügbar.</Alert>
@@ -42,39 +45,44 @@ export const TrialDayList = ({ trialDays, renderAction }: TrialDayListProps) => 
 
     return (
         <>
-            {Object.entries(trialDaysBySchoolClass).map(([title, days]) => (
-                <Card className="mb-4" key={title}>
-                    <CardBody>
-                        <h5>{title}</h5>
-                        <Table responsive className="mb-0">
-                            <tbody>
-                                {days.map(trialDay => {
-                                    const free = trialDay.maxParticipants - (trialDay.registeredCount ?? 0)
-                                    return (
-                                        <tr key={trialDay.id}>
-                                            <td style={{ width: '30%' }}>
-                                                <strong>{formatTrialDayDate(trialDay)}</strong><br />
-                                                {formatTrialDayTime(trialDay)}
-                                            </td>
-                                            <td>
-                                                {trialDay.description && <div style={{ whiteSpace: 'pre-line' }}>{trialDay.description}</div>}
-                                                <small className="text-muted">Anmeldeschluss: {formatDateTime(trialDay.registrationDeadline)}</small>
-                                            </td>
-                                            <td style={{ width: '20%' }}>
-                                                {free > 0
-                                                    ? <span className="text-success">{free} {free === 1 ? 'Platz' : 'Plätze'} frei</span>
-                                                    : <span className="text-warning">ausgebucht – Warteliste</span>}
-                                            </td>
-                                            <td className="text-end" style={{ width: '15%' }}>
-                                                {renderAction(trialDay)}
-                                            </td>
-                                        </tr>
-                                    )
-                                })}
-                            </tbody>
-                        </Table>
-                    </CardBody>
-                </Card>
+            {Object.entries(trialDaysByLocation).map(([location, trialDaysByTitle]) => (
+                <Fragment key={location}>
+                    {location && <h5 className="mt-4 mb-3 pb-1 border-bottom">{location}</h5>}
+                    {Object.entries(trialDaysByTitle).map(([title, days]) => (
+                        <Card className="mb-4" key={title}>
+                            <CardBody>
+                                <h5>{title}</h5>
+                                <Table responsive className="mb-0">
+                                    <tbody>
+                                        {days.map(trialDay => {
+                                            const free = trialDay.maxParticipants - (trialDay.registeredCount ?? 0)
+                                            return (
+                                                <tr key={trialDay.id}>
+                                                    <td style={{ width: '30%' }}>
+                                                        <strong>{formatTrialDayDate(trialDay)}</strong><br />
+                                                        {formatTrialDayTime(trialDay)}
+                                                    </td>
+                                                    <td>
+                                                        {trialDay.description && <div style={{ whiteSpace: 'pre-line' }}>{trialDay.description}</div>}
+                                                        <small className="text-muted">Anmeldeschluss: {formatDateTime(trialDay.registrationDeadline)}</small>
+                                                    </td>
+                                                    <td style={{ width: '20%' }}>
+                                                        {free > 0
+                                                            ? <span className="text-success">{free} {free === 1 ? 'Platz' : 'Plätze'} frei</span>
+                                                            : <span className="text-warning">ausgebucht – Warteliste</span>}
+                                                    </td>
+                                                    <td className="text-end" style={{ width: '15%' }}>
+                                                        {renderAction(trialDay)}
+                                                    </td>
+                                                </tr>
+                                            )
+                                        })}
+                                    </tbody>
+                                </Table>
+                            </CardBody>
+                        </Card>
+                    ))}
+                </Fragment>
             ))}
         </>
     )

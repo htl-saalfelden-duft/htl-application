@@ -27,6 +27,7 @@ export const SchoolClasses = () => {
     }, [])
 
     const activeYears = Array.from(new Set(schoolClasses.filter(sc => sc.active).map(sc => sc.year))).sort()
+    const locations = Array.from(new Set(schoolClasses.map(sc => sc.location).filter((location): location is string => !!location))).sort()
     const visible = onlyActive ? schoolClasses.filter(sc => sc.active) : schoolClasses
 
     const openEdit = (schoolClass?: SchoolClass) => {
@@ -91,6 +92,7 @@ export const SchoolClasses = () => {
                                 <tr>
                                     <th>Schuljahr</th>
                                     <th>Bezeichnung</th>
+                                    <th>Standort</th>
                                     <th>SFKZ</th>
                                     <th>Max. Schüler:innen</th>
                                     <th>Aktiv</th>
@@ -102,6 +104,7 @@ export const SchoolClasses = () => {
                                     <tr key={schoolClass.id} className={schoolClass.active ? '' : 'text-muted'}>
                                         <td>{schoolClass.year}</td>
                                         <td>{schoolClass.title}</td>
+                                        <td>{schoolClass.location ?? <span className="text-danger">fehlt</span>}</td>
                                         <td>{schoolClass.sfkz}</td>
                                         <td>{schoolClass.maxPupils}</td>
                                         <td>
@@ -125,6 +128,7 @@ export const SchoolClasses = () => {
                 show={showEdit}
                 schoolClass={editSchoolClass}
                 defaultYear={schoolClasses[0]?.year}
+                locations={locations}
                 onClose={closeEdit}
                 onSaved={() => { closeEdit(); load() }} />
             <SchoolClassCopy

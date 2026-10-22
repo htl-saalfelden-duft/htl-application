@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { Prisma, SchoolClass } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { ApiError, ApiErrorType } from 'src/common/api-error';
+import { optionalText } from 'src/trial-day/trial-day.utils';
 
-export type SchoolClassDto = Partial<Pick<SchoolClass, 'title' | 'sfkz' | 'year' | 'maxPupils' | 'active'>>;
+export type SchoolClassDto = Partial<Pick<SchoolClass, 'title' | 'sfkz' | 'location' | 'year' | 'maxPupils' | 'active'>>;
 
 export interface SchoolClassCopyDto {
 	ids: string[]
@@ -78,7 +79,7 @@ export class SchoolClassService {
 		// MongoDB rejects an empty createMany, so both writes run only when needed
 		const { created, deactivated } = await this.prisma.$transaction(async tx => ({
 			created: toCreate.length ? (await tx.schoolClass.createMany({
-				data: toCreate.map(({ title, sfkz, maxPupils }) => ({ title, sfkz, maxPupils, year: dto.targetYear, active: true }))
+				data: toCreate.map(({ title, sfkz, location, maxPupils }) => ({ title, sfkz, location, maxPupils, year: dto.targetYear, active: true }))
 			})).count : 0,
 			deactivated: toDeactivate.length ? (await tx.schoolClass.updateMany({
 				where: { id: { in: toDeactivate.map(source => source.id) } },
@@ -92,13 +93,14 @@ export class SchoolClassService {
 	private validate(dto: SchoolClassDto): Prisma.SchoolClassCreateInput {
 		const title = dto.title?.trim()
 		const sfkz = dto.sfkz?.trim()
+		const location = optionalText(dto.location)
 		const year = dto.year?.trim()
 		const maxPupils = Number(dto.maxPupils)
 
 		if (!title || !sfkz || !YEAR_PATTERN.test(year ?? '') || !Number.isInteger(maxPupils) || maxPupils < 1) {
 			throw new ApiError(ApiErrorType.INVALID_INPUT)
 		}
-		return { title, sfkz, year, maxPupils, active: dto.active ?? true }
+		return { title, sfkz, location, year, maxPupils, active: dto.active ?? true }
 	}
 
 	private async assertUnique(title: string, year: string, exceptID?: string) {

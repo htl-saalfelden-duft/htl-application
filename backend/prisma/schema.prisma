@@ -141,6 +141,7 @@ model SchoolClass {
 
     title       	String
 	sfkz			String
+	location		String?		// e.g. "HTL Pongau"; a trial day only spans departments of one location
     year        	String
     maxPupils   	Int
 	active			Boolean		@default(true)

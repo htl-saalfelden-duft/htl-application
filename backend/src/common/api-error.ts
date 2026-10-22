@@ -24,6 +24,7 @@ export const enum ApiErrorType {
     TRIAL_DAY_DEADLINE_PASSED,
     TRIAL_DAY_MAX_BELOW_REGISTERED,
     TRIAL_DAY_HAS_REGISTRATIONS,
+    TRIAL_DAY_MIXED_LOCATIONS,
     INVITATION_PENDING,
     INVITATION_ALREADY_USED,
     PASSWORD_NOT_SET,
@@ -77,6 +78,11 @@ const germanErrors: Partial<Record<ApiErrorType, IApiError>> = {
         httpStatus: HttpStatus.UNPROCESSABLE_ENTITY,
         title: 'Schnuppertag',
         message: 'Termine mit Anmeldungen können nicht gelöscht werden. Bitte deaktivieren Sie den Termin.'
+    },
+    [ApiErrorType.TRIAL_DAY_MIXED_LOCATIONS]: {
+        httpStatus: HttpStatus.UNPROCESSABLE_ENTITY,
+        title: 'Schnuppertag',
+        message: 'Ein Termin kann nur Fachrichtungen desselben Standorts umfassen.'
     },
     [ApiErrorType.INVITATION_PENDING]: {
         httpStatus: HttpStatus.UNPROCESSABLE_ENTITY,

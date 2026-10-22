@@ -9,6 +9,8 @@ interface Props {
 	show: boolean
 	schoolClass?: SchoolClass
 	defaultYear?: string
+	// existing locations, suggested so the spelling stays consistent
+	locations: string[]
 	onClose: () => void
 	onSaved: () => void
 }
@@ -16,13 +18,14 @@ interface Props {
 interface SchoolClassEditFormInput {
 	title: string
 	sfkz: string
+	location: string
 	year: string
 	maxPupils: number
 	active: boolean
 }
 
 const SchoolClassEdit = (props: Props) => {
-	const { show, schoolClass, defaultYear, onClose, onSaved } = props
+	const { show, schoolClass, defaultYear, locations, onClose, onSaved } = props
 
 	const apiService = useMemo(() => new ApiService(), [])
 
@@ -38,12 +41,13 @@ const SchoolClassEdit = (props: Props) => {
 			reset({
 				title: schoolClass.title,
 				sfkz: schoolClass.sfkz,
+				location: schoolClass.location ?? '',
 				year: schoolClass.year,
 				maxPupils: schoolClass.maxPupils,
 				active: schoolClass.active
 			})
 		} else {
-			reset({ title: '', sfkz: '', year: defaultYear ?? '', maxPupils: 36, active: true })
+			reset({ title: '', sfkz: '', location: '', year: defaultYear ?? '', maxPupils: 36, active: true })
 		}
 	}
 
@@ -74,6 +78,15 @@ const SchoolClassEdit = (props: Props) => {
 						<Form.Label htmlFor="title">Bezeichnung</Form.Label>
 						<Form.Control {...register("title", { required: "Bitte Bezeichnung eingeben", validate: value => !!value.trim() || "Bitte Bezeichnung eingeben" })} id="title" isInvalid={!!errors.title} placeholder="z.B. Höhere Abteilung für Bautechnik - Saalfelden" />
 						{errors.title && <Form.Text className="text-danger">{errors.title.message}</Form.Text>}
+					</Form.Group>
+					<Form.Group className="mb-3">
+						<Form.Label htmlFor="location">Standort</Form.Label>
+						<Form.Control {...register("location", { required: "Bitte Standort eingeben", validate: value => !!value.trim() || "Bitte Standort eingeben" })} id="location" list="locations" isInvalid={!!errors.location} placeholder="z.B. HTL Pongau" />
+						<datalist id="locations">
+							{locations.map(location => <option key={location} value={location} />)}
+						</datalist>
+						<Form.Text muted className="d-block">Die Schnuppertage werden nach Standort gruppiert; ein Termin kann nur Fachrichtungen eines Standorts umfassen.</Form.Text>
+						{errors.location && <Form.Text className="text-danger">{errors.location.message}</Form.Text>}
 					</Form.Group>
 					<div className="row">
 						<Form.Group className="mb-3 col-md-4">

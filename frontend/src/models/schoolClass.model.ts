@@ -5,6 +5,7 @@ export class SchoolClass {
     id!: string
     title!: string
     sfkz!: string
+    location?: string
     year!: string
     maxPupils!: number
     active!: boolean

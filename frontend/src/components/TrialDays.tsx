@@ -47,7 +47,7 @@ export const TrialDayList = ({ trialDays, renderAction }: TrialDayListProps) => 
         <>
             {Object.entries(trialDaysByLocation).map(([location, trialDaysByTitle]) => (
                 <Fragment key={location}>
-                    {location && <h5 className="mt-4 mb-3 pb-1 border-bottom">{location}</h5>}
+                    {location && <h4 className="mt-4 mb-3 pb-1 border-bottom">{location}</h4>}
                     {Object.entries(trialDaysByTitle).map(([title, days]) => (
                         <Card className="mb-4" key={title}>
                             <CardBody>
